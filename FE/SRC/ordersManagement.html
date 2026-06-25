@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدیریت منو | پنل مدیریت کافه</title>
+    <link href="Css/output.css" rel="stylesheet">
+    <link href="Css/ordersManagement.css" rel="stylesheet">
+    <link href="Css/fontawesome-free-6.7.2-web/css/all.min.css" rel="stylesheet">
+    <style>
+    </style>
+</head>
+<body class="font-sans antialiased">
+    
+    <header class="glass-effect sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto header-container flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="text-white/70 hover:text-white transition-colors">
+                    <i class="fa-solid fa-arrow-right text-lg"></i>
+                </a>
+                <h1 class="header-title font-bold text-white">
+                    <i class="fa-solid fa-utensils ml-2"></i>مدیریت منو
+                </h1>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+                <button class="btn btn-secondary" onclick="filterProducts(); showToast('لیست به‌روزرسانی شد')">
+                    <i class="fa-solid fa-rotate hidden sm:inline"></i>بروزرسانی
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto main-padding">
+        
+        <div class="stats-grid fade-in-up">
+            <div class="stats-card">
+                <i class="fa-solid fa-mug-saucer stats-icon text-blue-400 block"></i>
+                <div class="stats-number text-blue-400" id="totalProducts">0</div>
+                <div class="text-white/60 stats-label">کل محصولات</div>
+            </div>
+            <div class="stats-card">
+                <i class="fa-solid fa-clock stats-icon text-yellow-400 block pulse-animation"></i>
+                <div class="stats-number text-yellow-400" id="pendingCount">0</div>
+                <div class="text-white/60 stats-label">در انتظار</div>
+            </div>
+            <div class="stats-card">
+                <i class="fa-solid fa-circle-check stats-icon text-green-400 block"></i>
+                <div class="stats-number text-green-400" id="deliveredCount">0</div>
+                <div class="text-white/60 stats-label">تحویل شده</div>
+            </div>
+            <div class="stats-card">
+                <i class="fa-solid fa-chair stats-icon text-purple-400 block"></i>
+                <div class="stats-number text-purple-400" id="tablesCount">0</div>
+                <div class="text-white/60 stats-label">میزهای فعال</div>
+            </div>
+        </div>
+
+        <div class="glass-effect filter-container mb-6 md:mb-8 fade-in-up">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-white/40 text-sm"></i>
+                    <input type="text" class="search-box pr-8" placeholder="جستجو..." id="searchInput" oninput="filterOrders()">
+                </div>
+                <select class="filter-select" id="categoryFilter" onchange="filterOrders()" style="display:none">
+                    <option value="all">همه دسته‌بندی‌ها</option>
+                    <option value="hot-drinks">نوشیدنی گرم</option>
+                    <option value="cold-drinks">نوشیدنی سرد</option>
+                    <option value="food">غذا</option>
+                    <option value="dessert">دسر و شیرینی</option>
+                    <option value="breakfast">صبحانه</option>
+                </select>
+                <select class="filter-select" id="statusFilter" onchange="filterOrders()">
+                    <option value="all">همه وضعیت‌ها</option>
+                    <option value="pending">در انتظار</option>
+                    <option value="preparing">در حال تهیه</option>
+                    <option value="delivered">تحویل شده</option>
+                    <option value="cancelled">لغو شده</option>
+                </select>
+                <select class="filter-select" id="tableFilter" onchange="filterOrders()">
+                    <option value="all">همه میزها</option>
+                    <option value="1">میز شماره ۱</option>
+                    <option value="2">میز شماره ۲</option>
+                    <option value="3">میز شماره ۳</option>
+                    <option value="4">میز شماره ۴</option>
+                    <option value="5">میز شماره ۵</option>
+                    <option value="6">میز شماره ۶</option>
+                    <option value="7">میز شماره ۷</option>
+                    <option value="8">میز شماره ۸</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+                <div>
+                    <label class="text-white/60 filter-label block">از تاریخ:</label>
+                    <input type="date" class="filter-date" id="dateFrom" onchange="filterOrders()">
+                </div>
+                <div>
+                    <label class="text-white/60 filter-label block">تا تاریخ:</label>
+                    <input type="date" class="filter-date" id="dateTo" onchange="filterOrders()">
+                </div>
+                <div>
+                    <label class="text-white/60 filter-label block">مرتب‌سازی:</label>
+                    <select class="filter-select" id="sortBy" onchange="filterOrders()">
+                        <option value="newest">جدیدترین</option>
+                        <option value="oldest">قدیمی‌ترین</option>
+                        <option value="price-asc">قیمت: کم به زیاد</option>
+                        <option value="price-desc">قیمت: زیاد به کم</option>
+                        <option value="name">نام محصول</option>
+                        <option value="table">شماره میز</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex gap-2 justify-end">
+                <button class="btn btn-secondary text-sm" onclick="resetFilters()">
+                    <i class="fa-solid fa-rotate-right"></i><span class="hidden sm:inline">بازنشانی</span>
+                </button>
+                <button class="btn btn-primary text-sm" onclick="filterOrders()">
+                    <i class="fa-solid fa-filter"></i><span class="hidden sm:inline">اعمال فیلتر</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="products-grid fade-in-up" id="productsGrid"></div>
+        <div id="emptyState" class="text-center py-12 md:py-20 hidden">
+            <i class="fa-solid fa-box-open text-4xl md:text-6xl text-white/20 mb-3 md:mb-4"></i>
+            <h3 class="text-white text-lg md:text-xl font-bold mb-2">محصولی یافت نشد</h3>
+            <p class="text-white/50 text-sm mb-4 md:mb-6">هیچ محصولی با این فیلترها پیدا نشد</p>
+            <button class="btn btn-primary" onclick="resetFilters()">
+                <i class="fa-solid fa-rotate-right"></i>بازنشانی فیلترها
+            </button>
+        </div>
+
+        <div class="mt-6 md:mt-8 flex justify-center" id="pagination"></div>
+    </main>
+
+    <div class="modal-overlay" id="statusModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fa-solid fa-arrows-rotate ml-2 text-yellow-400"></i>تغییر وضعیت</h3>
+                <button class="modal-close" onclick="closeModal('statusModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-3 md:space-y-4 mb-4 md:mb-6">
+                <p class="text-white/70 text-base md:text-lg font-bold" id="statusProductName"></p>
+                <p class="text-white/50 text-xs md:text-sm" id="statusProductDetails"></p>
+                <div class="status-grid">
+                    <button class="status-card-btn" id="statusPendingBtn" onclick="changeStatusFromModal('pending')">
+                        <i class="fa-solid fa-clock status-icon text-yellow-400 block"></i>
+                        <span class="text-white text-sm font-bold">در انتظار</span>
+                        <span class="text-white/40 text-xs mt-1 block">سفارش ثبت شده</span>
+                    </button>
+                    <button class="status-card-btn" id="statusDeliveredBtn" onclick="changeStatusFromModal('delivered')">
+                        <i class="fa-solid fa-circle-check status-icon text-green-400 block"></i>
+                        <span class="text-white text-sm font-bold">تحویل شده</span>
+                        <span class="text-white/40 text-xs mt-1 block">تحویل به مشتری</span>
+                    </button>
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button class="btn btn-secondary" onclick="closeModal('statusModal')">انصراف</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-content text-center">
+            <i class="fa-solid fa-triangle-exclamation text-3xl md:text-5xl text-red-400 mb-3 md:mb-4"></i>
+            <h3 class="text-white text-lg md:text-xl font-bold mb-2">حذف محصول</h3>
+            <p class="text-white/70 text-sm mb-2">آیا از حذف این محصول اطمینان دارید؟</p>
+            <p class="text-white/50 text-xs md:text-sm mb-2" id="deleteProductName"></p>
+            <p class="text-red-400/70 text-xs mb-4 md:mb-6">این عملیات قابل بازگشت نیست</p>
+            <div class="flex gap-2 md:gap-3 justify-center">
+                <button class="btn btn-secondary" onclick="closeModal('deleteModal')">انصراف</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">حذف محصول</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fa-solid fa-pen-to-square ml-2 text-blue-400"></i>ویرایش محصول</h3>
+                <button class="modal-close" onclick="closeModal('editModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-3 md:space-y-4">
+                <div>
+                    <label class="block text-white/80 text-sm mb-1 md:mb-2">نام محصول <span class="text-red-400">*</span></label>
+                    <input type="text" class="search-box" id="editName" placeholder="نام محصول">
+                </div>
+                <div class="grid grid-cols-2 gap-3 md:gap-4">
+                    <div>
+                        <label class="block text-white/80 text-sm mb-1 md:mb-2">قیمت (تومان) <span class="text-red-400">*</span></label>
+                        <input type="number" class="search-box" id="editPrice" placeholder="قیمت">
+                    </div>
+                    <div>
+                        <label class="block text-white/80 text-sm mb-1 md:mb-2">قیمت با تخفیف</label>
+                        <input type="number" class="search-box" id="editDiscountPrice" placeholder="اختیاری">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 md:gap-4">
+                    <div>
+                        <label class="block text-white/80 text-sm mb-1 md:mb-2">شماره میز</label>
+                        <select class="filter-select w-full" id="editTable">
+                            <option value="1">میز ۱</option><option value="2">میز ۲</option>
+                            <option value="3">میز ۳</option><option value="4">میز ۴</option>
+                            <option value="5">میز ۵</option><option value="6">میز ۶</option>
+                            <option value="7">میز ۷</option><option value="8">میز ۸</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-white/80 text-sm mb-1 md:mb-2">دسته‌بندی</label>
+                        <select class="filter-select w-full" id="editCategory">
+                            <option value="hot-drinks">نوشیدنی گرم</option>
+                            <option value="cold-drinks">نوشیدنی سرد</option>
+                            <option value="food">غذا</option>
+                            <option value="dessert">دسر و شیرینی</option>
+                            <option value="breakfast">صبحانه</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-white/80 text-sm mb-1 md:mb-2">مواد اولیه</label>
+                    <textarea class="search-box" rows="2" id="editIngredients" placeholder="مواد اولیه را با کاما جدا کنید"></textarea>
+                </div>
+                <div>
+                    <label class="block text-white/80 text-sm mb-1 md:mb-2">وضعیت سفارش</label>
+                    <select class="filter-select w-full" id="editStatus">
+                        <option value="pending">در انتظار</option>
+                        <option value="delivered">تحویل شده</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex gap-2 md:gap-3 justify-end mt-4 md:mt-6">
+                <button class="btn btn-secondary" onclick="closeModal('editModal')">انصراف</button>
+                <button class="btn btn-primary" onclick="saveEdit()">
+                    <i class="fa-solid fa-floppy-disk"></i>ذخیره
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-auto translate-y-20 opacity-0 transition-all duration-300 z-50 max-w-sm mx-auto sm:mx-0">
+        <div class="px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3" id="toastContent">
+            <i id="toastIcon" class="text-lg"></i>
+            <span id="toastMessage" class="text-sm"></span>
+        </div>
+    </div>
+
+    <script src="Js/ordersManagement.js" type="module"></script>
+</body>
+</html>

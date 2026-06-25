@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>مدیریت منو | پنل مدیریت</title>
+    <link href="Css/output.css" rel="stylesheet">
+    <link href="Css/menuManagement.css" rel="stylesheet">
+    <link href="Css/fontawesome-free-6.7.2-web/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="flex items-center gap-2">
+                <h1 class="header-title">
+                    <i class="fa-solid fa-utensils"></i> مدیریت منو
+                </h1>
+            </div>
+            <div class="stats-wrapper">
+                <div class="stats-bar fade-in-up" id="statsBar">
+                    <div class="stat-item">
+                        <span class="stat-dot blue"></span>
+                        <span class="stat-count" id="statTotal">0</span>
+                        <span class="stat-text">کل</span>
+                    </div>
+                    <span class="stat-divider"></span>
+                    <div class="stat-item">
+                        <span class="stat-dot green"></span>
+                        <span class="stat-count" id="statAvailable">0</span>
+                        <span class="stat-text">موجود</span>
+                    </div>
+                    <span class="stat-divider"></span>
+                    <div class="stat-item">
+                        <span class="stat-dot red"></span>
+                        <span class="stat-count" id="statUnavailable">0</span>
+                        <span class="stat-text">ناموجود</span>
+                    </div>
+                    <span class="stat-divider"></span>
+                    <div class="stat-item">
+                        <span class="stat-dot purple"></span>
+                        <span class="stat-count" id="statCategories">0</span>
+                        <span class="stat-text">دسته</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-right">
+                <a href="addToMenu.html" style="text-decoration: none;">
+                    <button class="btn btn-primary">
+                        <i class="fa-solid fa-plus"></i>
+                        <span class="btn-text">آیتم جدید</span>
+                    </button>
+                </a>
+                <a href="dashboard.html" class="back-btn">
+                    بازگشت
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="category-header">
+            <div class="category-tabs fade-in-up" id="categoryTabs"></div>
+            <button class="btn btn-outline" onclick="openManageCategoriesModal()" style="padding: 6px 14px; font-size: 12px;">
+                <i class="fa-solid fa-folder-gear"></i> مدیریت دسته‌بندی
+            </button>
+        </div>
+
+        <div class="toolbar glass fade-in-up">
+            <div class="search-wrapper">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" class="search-box" placeholder="جستجو در منو..." id="searchInput" oninput="debouncedRender()">
+            </div>
+            <select class="filter-select" id="statusFilter" onchange="renderMenu()">
+                <option value="all">همه وضعیت‌ها</option>
+                <option value="available"><i class="fa-solid fa-circle-check"></i> موجود</option>
+                <option value="unavailable"><i class="fa-solid fa-circle-xmark"></i> ناموجود</option>
+            </select>
+            <select class="filter-select" id="sortBy" onchange="renderMenu()">
+                <option value="newest"><i class="fa-regular fa-clock"></i> جدیدترین</option>
+                <option value="oldest"><i class="fa-regular fa-clock"></i> قدیمی‌ترین</option>
+                <option value="price-asc"><i class="fa-solid fa-arrow-down-wide-short"></i> قیمت: کم به زیاد</option>
+                <option value="price-desc"><i class="fa-solid fa-arrow-up-wide-short"></i> قیمت: زیاد به کم</option>
+                <option value="name-asc"><i class="fa-solid fa-arrow-down-a-z"></i> نام: الف تا ی</option>
+            </select>
+            <button id="clearFiltersBtn" class="btn btn-outline" onclick="clearAllFilters()" style="padding: 8px 12px;">
+                <i class="fa-solid fa-eraser"></i>
+                <span class="btn-text">پاک کردن</span>
+            </button>
+        </div>
+
+        <div class="menu-grid fade-in-up" id="menuGrid">
+            <div class="empty-state">
+                <div class="loading-spinner"></div>
+                <p style="margin-top: 12px; color: rgba(255,255,255,0.5);">در حال بارگذاری...</p>
+            </div>
+        </div>
+
+        <div class="empty-state hidden" id="emptyState">
+            <i class="fa-solid fa-utensils empty-state-icon"></i>
+            <h3>منو خالی است</h3>
+            <p>هنوز هیچ آیتمی به منو اضافه نشده</p>
+            <a href="addToMenu.html">
+                <button class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i> افزودن اولین آیتم
+                </button>
+            </a>
+        </div>
+    </main>
+
+    <div class="modal" id="formModal">
+        <div class="modal-dialog" style="max-width: 520px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="formModalTitle">
+                    <i class="fa-solid fa-pen-to-square"></i> ویرایش آیتم
+                </h3>
+                <button class="modal-close" onclick="closeModal('formModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="menuForm" onsubmit="saveItem(event)">
+                <input type="hidden" id="itemId">
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-tag"></i> نام آیتم <span class="required">*</span></label>
+                    <input type="text" class="form-input" id="itemName" placeholder="مثال: لاته کاراملی" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label"><i class="fa-solid fa-coins"></i> قیمت (تومان) <span class="required">*</span></label>
+                        <input type="number" class="form-input" id="itemPrice" placeholder="85000" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><i class="fa-solid fa-layer-group"></i> دسته‌بندی <span class="required">*</span></label>
+                        <select class="form-select" id="itemCategory" required>
+                            <option value="">در حال بارگذاری...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-list-ul"></i> توضیحات</label>
+                    <textarea class="form-textarea" id="itemDescription" rows="3" placeholder="توضیحات محصول..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label"><i class="fa-solid fa-eye"></i> وضعیت</label>
+                        <select class="form-select" id="itemStatus">
+                            <option value="1"><i class="fa-solid fa-circle-check"></i> موجود</option>
+                            <option value="0"><i class="fa-solid fa-circle-xmark"></i> ناموجود</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-image"></i> تصویر محصول</label>
+                    <div class="upload-area" onclick="document.getElementById('itemImageInput').click()" id="uploadTrigger">
+                        <input type="file" id="itemImageInput" class="hidden" accept="image/*" onchange="handleImageUpload(this)">
+                        <div id="uploadPreview">
+                            <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                            <p class="upload-text">کلیک برای آپلود تصویر جدید</p>
+                            <p class="upload-hint">JPG, PNG, WebP | حداکثر 2MB</p>
+                        </div>
+                    </div>
+                    <input type="hidden" id="itemImage" value="">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('formModal')"><i class="fa-solid fa-times"></i> انصراف</button>
+                    <button type="submit" class="btn btn-primary" id="saveBtn"><i class="fa-solid fa-floppy-disk"></i> ذخیره تغییرات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="deleteModal">
+        <div class="modal-dialog delete-modal-dialog">
+            <div class="delete-modal-icon"><i class="fa-solid fa-trash-can"></i></div>
+            <h3 class="delete-modal-title">حذف آیتم</h3>
+            <p class="delete-modal-item" id="deleteItemName"></p>
+            <div class="delete-modal-actions">
+                <button class="btn-delete-cancel" onclick="closeModal('deleteModal')">انصراف</button>
+                <button class="btn-delete-confirm" onclick="confirmDelete()">حذف</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="manageCategoriesModal">
+        <div class="modal-dialog" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fa-solid fa-folder-gear"></i> مدیریت دسته‌بندی‌ها
+                </h3>
+                <button class="modal-close" onclick="closeModal('manageCategoriesModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <button class="btn btn-primary" onclick="openAddCategoryForm()" style="width: 100%;">
+                    <i class="fa-solid fa-plus"></i> افزودن دسته‌بندی جدید
+                </button>
+            </div>
+            
+            <div id="categoriesListContainer" style="max-height: 400px; overflow-y: auto;">
+                <div class="loading-spinner" style="margin: 20px auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="categoryFormModal">
+        <div class="modal-dialog" style="max-width: 420px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="categoryFormTitle">
+                    <i class="fa-solid fa-folder-plus"></i> افزودن دسته‌بندی
+                </h3>
+                <button class="modal-close" onclick="closeModal('categoryFormModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="categoryForm" onsubmit="saveCategory(event)">
+                <input type="hidden" id="editCategoryId">
+                <div class="form-group">
+                    <label class="form-label">نام دسته‌بندی <span class="required">*</span></label>
+                    <input type="text" class="form-input" id="categoryName" placeholder="مثال: نوشیدنی گرم" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ترتیب نمایش</label>
+                    <input type="number" class="form-input" id="categoryOrder" placeholder="اختیاری" value="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="categoryActive" checked> فعال
+                    </label>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('categoryFormModal')">انصراف</button>
+                    <button type="submit" class="btn btn-primary">ذخیره</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i id="toastIcon"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <script src="Js/menuManagement.js" type="module"></script>
+</body>
+</html>

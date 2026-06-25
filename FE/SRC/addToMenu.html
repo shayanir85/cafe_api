@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>افزودن محصول جدید | پنل مدیریت کافه</title>
+    <link href="Css/output.css" rel="stylesheet">
+    <link href="Css/addToMenu.css" rel="stylesheet">
+    <link href="Css/fontawesome-free-6.7.2-web/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="flex items-center gap-3">
+                <a href="dashboard.html" class="text-white/60 hover:text-white transition-colors">
+                    <i class="fa-solid fa-arrow-right text-lg"></i>
+                </a>
+                <h1 class="header-title">
+                    <i class="fa-solid fa-mug-hot"></i>
+                    افزودن محصول جدید
+                </h1>
+            </div>
+            <button class="btn btn-primary" id="submitBtn" onclick="submitForm()">
+                <i class="fa-solid fa-paper-plane"></i>
+                انتشار محصول
+            </button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="form-grid">
+            
+            <div class="space-y-16 fade-in-up">
+
+                <div class="form-glass">
+                    <h2 class="section-title">
+                        <i class="fa-solid fa-circle-info icon-blue"></i>
+                        اطلاعات پایه محصول
+                    </h2>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <label class="form-label" for="productName">
+                                نام محصول <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-input" placeholder="مثال: لاته کاراملی" id="productName">
+                        </div>
+
+                        <div>
+                            <label class="form-label" for="ingredients">مواد اولیه</label>
+                            <textarea class="form-textarea" rows="2" placeholder="مثال: اسپرسو, شیر, کارامل" id="ingredients"></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label" for="mainCategory">
+                                    دسته‌بندی <span class="required">*</span>
+                                </label>
+                                <select class="form-select" id="mainCategory">
+                                    <option value="">در حال بارگذاری...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label" for="productPrice">
+                                    قیمت (تومان) <span class="required">*</span>
+                                </label>
+                                <input type="number" class="form-input" placeholder="150000" id="productPrice">
+                            </div>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" id="itemUnavailable" style="accent-color: #ef4444; width: 18px; height: 18px;">
+                            <label for="itemUnavailable" class="form-label" style="margin-bottom: 0;">
+                                محصول ناموجود است
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-glass">
+                    <h2 class="section-title">
+                        <i class="fa-solid fa-images icon-green"></i>
+                        گالری تصاویر
+                    </h2>
+                    
+                    <div class="form-row">
+                        <div>
+                            <label class="form-label" for="mainImage">تصویر اصلی</label>
+                            <div class="upload-area" onclick="document.getElementById('mainImage').click()">
+                                <input type="file" id="mainImage" class="hidden" accept="image/*" onchange="previewImage(this, 'mainPreview')">
+                                <div id="mainPreview">
+                                    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                                    <p class="upload-text">کلیک برای آپلود</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label" for="galleryImages">تصویر دوم (اختیاری)</label>
+                            <div class="upload-area" onclick="document.getElementById('galleryImages').click()">
+                                <input type="file" id="galleryImages" class="hidden" accept="image/*" onchange="previewGallery(this)">
+                                <div id="galleryPreview">
+                                    <i class="fa-solid fa-images upload-icon"></i>
+                                    <p class="upload-text">کلیک برای آپلود</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-16 fade-in-up">
+
+                <div class="form-glass">
+                    <h2 class="section-title">
+                        <i class="fa-solid fa-eye icon-blue"></i>
+                        پیش‌نمایش
+                    </h2>
+                    <div class="preview-card">
+                        <div class="preview-image" id="previewImageContainer">
+                            <i class="fa-solid fa-image text-2xl" style="color: rgba(255,255,255,0.15);"></i>
+                        </div>
+                        <h4 class="preview-name" id="previewName">نام محصول</h4>
+                        <p class="preview-desc" id="previewDesc">مواد اولیه...</p>
+                        <div class="preview-footer">
+                            <span class="preview-price" id="previewPrice">۱۵۰,۰۰۰ تومان</span>
+                            <span class="preview-category" id="previewCategory">دسته‌بندی</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast" id="toast">
+        <i id="toastIcon"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <script src="Js/addToMenu.js" type="module"></script>
+</body>
+</html>
