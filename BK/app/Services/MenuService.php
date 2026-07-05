@@ -79,6 +79,15 @@ class MenuService
         return $menuItem->fresh()->load('category');
     }
 
+    public function toggleAvailability(MenuItem $menuItem): MenuItem
+    {
+        $menuItem->update([
+            'is_available' => !$menuItem->is_available,
+        ]);
+
+        return $menuItem->fresh()->load('category');
+    }
+
     public function delete(MenuItem $menuItem): void
     {
         if ($menuItem->image_url) {

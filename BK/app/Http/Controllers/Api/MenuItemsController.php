@@ -29,6 +29,7 @@ class MenuItemsController extends Controller
             'data' => $menuItems,
         ]);
     }
+
     public function list(): JsonResponse
     {
         $menuItems = MenuItem::where('is_available', 1)->get();
@@ -69,18 +70,17 @@ class MenuItemsController extends Controller
         ], 201);
     }
 
-    public function toggle_is_available($id): JsonResponse
+    public function toggle_is_available(MenuItem $menuItem): JsonResponse
     {
-        $result = MenuItem::findOrFail($id);
-        $result->is_available = !$result->is_available;
-        $result->save();
+        $updatedMenuItem = $this->menuService->toggleAvailability($menuItem);
 
         return response()->json([
             'success' => true,
-            'data'=> $result,
+            'data' => $updatedMenuItem,
             'message' => 'Menu item updated successfully',
         ]);
     }
+
     public function update(Request $request, MenuItem $menuItem): JsonResponse
     {
         $validated = $request->validate([

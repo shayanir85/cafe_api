@@ -5,13 +5,11 @@ namespace App\Services;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-
-
 class AuthService
 {
     public function register($data)
     {
-        $user =  User::create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'phone_number' => $data['phone_number'],
@@ -20,18 +18,41 @@ class AuthService
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return [
-            'user' => $user ,
-            'token' =>$token
+            'user' => $user,
+            'token' => $token
         ];
     }
 
-    public function delete($id){
+    public function login($data)
+    {
+        $user = User::where('email', $data['email'])->first();
+
+        if ($user && Hash::check($data['password'], $user->password)) {
+            $token = $user->createToken('auth_token')->plainTextToken;
+            $user->update(['last_login' => now()]);
+
+            return [
+                'message' => 'successfully logged in',
+                'token' => $token,
+                'name' => $user->name,
+                'role' => $user->role,
+            ];
+        }
+
+        return [
+            'message' => 'Invalid credentials',
+        ];
+    }
+
+    public function delete($id)
+    {
         $user = User::findOrFail($id);
         $user->delete();
         return 'user deleted successfully';
     }
 
-    public function list(){
+    public function list()
+    {
         return User::all();
     }
 
@@ -48,29 +69,6 @@ class AuthService
         }
         $user->update($data);
         return $user;
-    }
-
-
-    public function login($data)
-    {
-        $user = User::where('email', $data['email'])
-            ->first();
-
-        if ($user && Hash::check($data['password'], $user->password)) {
-            $token = $user->createToken('auth_token')->plainTextToken;
-            $user->update(['last_login' => now()]);
-
-            return response()->json([
-                'message' => 'successfully logged in',
-                'token' => $token,
-                'name'=>$user->name,
-                'role'=>$user->role
-            ], 200);
-        }
-
-        return response()->json([
-            'message' => 'Invalid credentials',
-        ], 401);
     }
 
     public function logout(User $user)

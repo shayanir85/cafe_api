@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Order;
+use App\Models\Payment;
 use App\Services\OrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Routing\Controller;
-
 
 class OrdersController extends Controller
 {
@@ -46,8 +46,6 @@ class OrdersController extends Controller
     {
         $validated = $request->validate([
             'table_number' => ['required', 'integer', 'min:1'],
-            'customer_name' => ['required','string', 'max:255'],
-            'customer_phone'=> ['required','string', 'min:11','max:11'],
             'notes' => ['nullable', 'string'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.menu_item_id' => ['required', 'integer', 'exists:menu_items,id'],
@@ -55,28 +53,62 @@ class OrdersController extends Controller
             'items.*.notes' => ['nullable', 'string'],
         ]);
 
-        $order = $this->orderService->create($validated);
+        $order = $this->orderService->create($validated, $request->user()->id);
 
-        return response()->json([
-            'success' => true,
-            'data' => $order,
-            'message' => 'Order created successfully',
-        ], 201);
+        try {
+            $response = zarinpal()
+                ->merchantId(config('zarinpal.merchant_id'))
+                ->amount((int) $order->total_amount)
+                ->request()
+                ->description('پرداخت سفارش شماره ' . $order->id)
+                ->callbackUrl(route('payment.verify'))
+                ->send();
+
+            if ($response->success()) {
+                Payment::create([
+                    'order_id' => $order->id,
+                    'authority' => $response->authority(),
+                    'status' => 'pending',
+                    'amount' => $order->total_amount,
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'data' => $order,
+                    'payment_url' => $response->redirect()->getTargetUrl(),
+                    'message' => 'سفارش ایجاد شد. لطفاً پرداخت را انجام دهید.',
+                ], 201);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $order,
+                'payment_url' => null,
+                'message' => 'سفارش ایجاد شد اما ارتباط با درگاه پرداخت برقرار نشد: ' . $response->error()->message(),
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => true,
+                'data' => $order,
+                'payment_url' => null,
+                'message' => 'سفارش ایجاد شد اما درگاه پرداخت در دسترس نیست.',
+            ], 201);
+        }
     }
 
-    public function updateStatus(Request $request, Order $id): JsonResponse
+    public function updateStatus(Request $request, Order $order): JsonResponse
     {
-
         $validated = $request->validate([
             'status' => ['required', Rule::in(['pending', 'ready', 'delivered'])],
         ]);
 
-        $updatedOrder = $this->orderService->updateStatus($id, $validated['status']);
+        $updatedOrder = $this->orderService->updateStatus($order, $validated['status']);
 
         return response()->json([
             'success' => true,
             'data' => $updatedOrder,
-            'message' => 'Order status updated successfully',
+            'message' => 'وضعیت سفارش با موفقیت به‌روزرسانی شد.',
         ]);
     }
 
@@ -86,7 +118,7 @@ class OrdersController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Order deleted successfully',
+            'message' => 'سفارش حذف شد.',
         ]);
     }
 }

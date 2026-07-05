@@ -14,9 +14,9 @@ Authorization: Bearer <sanctum_token>
 
 ---
 
-## 1. Auth Routes (`/api/v1/auth`)
+## 1. Auth Routes
 
-### POST `/auth/login`
+### POST `/login`
 **Auth:** None (throttled: 5 requests per minute)
 
 | Field | Type | Required | Description |
@@ -43,16 +43,30 @@ Authorization: Bearer <sanctum_token>
 
 ---
 
-### POST `/auth/logout`
-**Auth:** `auth:sanctum`
+### POST `/register`
+**Auth:** None (throttled: 5 requests per minute)
 
-No body required.
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | Yes | Max 255 |
+| `email` | string | Yes | Must be unique |
+| `phone_number` | string | Yes | Max 11, must be unique |
+| `password` | string | Yes | Min 8, must be confirmed |
+| `password_confirmation` | string | Yes | Must match `password` |
 
 **Response (200):**
 ```json
 {
-  "message": "Successfully logged out",
-  "result": true
+  "user": {
+    "id": 2,
+    "name": "Jane",
+    "email": "jane@example.com",
+    "phone_number": "09123456788",
+    "role": "admin",
+    "created_at": "2026-06-17T10:00:00.000000Z",
+    "updated_at": "2026-06-17T10:00:00.000000Z"
+  },
+  "token": "2|def456..."
 }
 ```
 
@@ -81,30 +95,16 @@ No body required. Returns the authenticated user.
 
 ---
 
-### POST `/auth/register`
-**Auth:** `auth:sanctum`, `super_admin`
+### POST `/auth/logout`
+**Auth:** `auth:sanctum`
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | Yes | Max 255 |
-| `email` | string | Yes | Must be unique |
-| `phone_number` | string | Yes | Max 11, must be unique |
-| `password` | string | Yes | Min 8, must be confirmed |
-| `password_confirmation` | string | Yes | Must match `password` |
+No body required.
 
 **Response (200):**
 ```json
 {
-  "user": {
-    "id": 2,
-    "name": "Jane",
-    "email": "jane@example.com",
-    "phone_number": "09123456788",
-    "role": "admin",
-    "created_at": "2026-06-17T10:00:00.000000Z",
-    "updated_at": "2026-06-17T10:00:00.000000Z"
-  },
-  "token": "2|def456..."
+  "message": "Successfully logged out",
+  "result": true
 }
 ```
 
@@ -151,7 +151,7 @@ Returns all users with their login status.
       "role": "super_admin",
       "last_login": "2026-06-17T10:00:00.000000Z",
       "is_active": 1,
-      "created_at": "2026-06-01T...Z"
+      "created_at": "2026-06-01...Z"
     }
   ]
 }
@@ -181,7 +181,15 @@ List all users.
 ---
 
 ### POST `/Dashboard/users`
-Same as `/auth/register` (creates a new user). See above for payload.
+Creates a new user (same as `/register`).
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | Yes | Max 255 |
+| `email` | string | Yes | Must be unique |
+| `phone_number` | string | Yes | Max 11, must be unique |
+| `password` | string | Yes | Min 8, must be confirmed |
+| `password_confirmation` | string | Yes | Must match `password` |
 
 ---
 
@@ -348,6 +356,11 @@ List all categories (with admin context — includes inactive).
 
 ---
 
+### PATCH `/Dashboard/admin/category/{category}`
+Same as PUT — partial update of a category.
+
+---
+
 ### DELETE `/Dashboard/admin/category/{category}`
 **Response (200):**
 ```json
@@ -388,6 +401,11 @@ List all categories (with admin context — includes inactive).
 
 ---
 
+### GET `/Dashboard/admin/menu-items/{menu_item}`
+Get a single menu item (admin view).
+
+---
+
 ### PUT `/Dashboard/admin/menu-items/{menu_item}`
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -423,7 +441,74 @@ Toggles `is_available` on a menu item.
 
 ---
 
-## 4. Public Routes (`/api/v1`)
+### GET `/Dashboard/admin/orders`
+List today's orders with optional filters.
+
+**Auth:** `auth:sanctum`, `admin`
+
+Query parameters: `status`, `table_number`, `paginate`, `per_page` (default 15).
+
+---
+
+### PATCH `/Dashboard/admin/orders/{id}/status`
+**Auth:** `auth:sanctum`, `admin`
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `status` | string | Yes | One of: `pending`, `ready`, `delivered` |
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": { ... },
+  "message": "Order status updated successfully"
+}
+```
+
+---
+
+## 4. Customer Order Routes
+**Auth:** `auth:sanctum`
+
+### POST `/orders`
+Create a new order.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `table_number` | integer | Yes | Min 1 |
+| `notes` | string | No | — |
+| `items` | array | Yes | Min 1 item |
+| `items.*.menu_item_id` | integer | Yes | Must exist in `menu_items` |
+| `items.*.quantity` | integer | Yes | Min 1 |
+| `items.*.notes` | string | No | — |
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "data": { ... },
+  "payment_url": "https://...",
+  "message": "سفارش ایجاد شد. لطفاً پرداخت را انجام دهید."
+}
+```
+
+---
+
+### GET `/orders/{id}`
+Get a single order with items.
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": { ... }
+}
+```
+
+---
+
+## 5. Public Routes (`/api/v1`)
 **Auth:** None
 
 ### GET `/category`
@@ -517,73 +602,25 @@ Get a single menu item by ID (returns 404 if not found).
 
 ---
 
-## 5. Commented-Out / Inactive Routes (Not Yet Available)
+## 6. Payment Routes
 
-These routes exist in the controller but are **not registered** in `api.php`:
+### POST `/payments/request`
+**Auth:** `auth:sanctum`
 
-### POST `/orders`
-Create a new order (no auth).
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `table_number` | integer | Yes | Min 1 |
-| `customer_name` | string | Yes | Max 255 |
-| `customer_phone` | string | Yes | Exactly 11 digits |
-| `notes` | string | No | — |
-| `items` | array | Yes | Min 1 item |
-| `items.*.menu_item_id` | integer | Yes | Must exist in `menu_items` |
-| `items.*.quantity` | integer | Yes | Min 1 |
-| `items.*.notes` | string | No | — |
-
-**Response (201):**
-```json
-{
-  "success": true,
-  "data": { ... },
-  "message": "Order created successfully"
-}
-```
-
----
-
-### GET `/admin/orders`
-List today's orders with optional filters.
-
-**Auth:** `auth:sanctum`, `admin`
-
-Query parameters: `status`, `table_number`, `paginate`, `per_page` (default 15).
-
----
-
-### GET `/orders/{id}`
-**Auth:** `auth:sanctum`, `admin`
-
-Get a single order with items.
-
----
-
-### PATCH `/admin/orders/{id}/status`
-**Auth:** `auth:sanctum`, `admin`
+Initiates a payment request via Zarinpal.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `status` | string | Yes | One of: `pending`, `ready`, `delivered` |
-
-**Response (200):**
-```json
-{
-  "success": true,
-  "data": { ... },
-  "message": "Order status updated successfully"
-}
-```
+| `order_id` | integer | Yes | Must exist in `orders` |
 
 ---
 
-### DELETE `/orders/{order}`
-**Auth:** `auth:sanctum`, `admin`
+### GET `/payments/verify`
+**Auth:** None (called by Zarinpal gateway)
 
-Deletes an order and its items.
+Payment verification callback. Named route: `payment.verify`.
+
+Query parameters: `Authority`, `Status`
 
 ---
 

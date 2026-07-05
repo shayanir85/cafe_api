@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\category;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class CategoryController
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        return category::with('menuItems')
-        ->where('is_active', true)
-        ->orderBy('display_order')
-        ->get();
+        $categories = Category::with('menuItems')
+            ->where('is_active', true)
+            ->orderBy('display_order')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $categories,
+        ]);
     }
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -28,53 +28,50 @@ class CategoryController
             'display_order' => 'integer'
         ]);
 
-        $category = category::create([
+        $category = Category::create([
             'name' => $validated['name'],
-            'is_active' => $validated['is_active'],
-            'display_order' => $validated['display_order']
+            'is_active' => $validated['is_active'] ?? true,
+            'display_order' => $validated['display_order'] ?? 0,
         ]);
 
         return response()->json([
-            'success' => 1,
+            'success' => true,
             'data' => $category
-            ],201);
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(category $category)
+    public function show(Category $category)
     {
-        return response()->json(compact('category')) ;
+        return response()->json([
+            'success' => true,
+            'data' => $category,
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, category $category)
+    public function update(Request $request, Category $category)
     {
         $validated = $request->validate([
-                'name' => 'sometimes|required|min:3|string',
-                'is_active' => 'sometimes|boolean',
-                'display_order' => 'sometimes|integer|min:1' 
+            'name' => 'sometimes|required|min:3|string',
+            'is_active' => 'sometimes|boolean',
+            'display_order' => 'sometimes|integer|min:1'
         ]);
+
         $category->update($validated);
+
         return response()->json([
+            'success' => true,
+            'data' => $category,
             'message' => 'updated successfully',
-            'data' => $category
         ]);
-       
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(category $category)
+    public function destroy(Category $category)
     {
         $category->delete();
+
         return response()->json([
+            'success' => true,
             'message' => 'deleted the category',
         ]);
     }
-    
 }

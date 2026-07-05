@@ -1,0 +1,258 @@
+================================================================================
+                    CAFE API - DATABASE SCHEMA & RELATIONS
+================================================================================
+
++==============================================================================+
+|  LEGEND                                                                      |
+|  PK  = Primary Key          FK  = Foreign Key         1 = One side          |
+|  UNQ = Unique               IDX = Index              * = Many side          |
+|  DEF = Default Value                                                     |
++==============================================================================
+
+
+================================================================================
+  TABLE: users
+================================================================================
++-----------------------------------------------+
+|  users                                        |
++-----------------------------------------------+
+|  PK  id                    : BIGINT UNSIGNED   |
+|      name                  : STRING(255)       |
+|  UNQ email                 : STRING(255)       |
+|      email_verified_at     : TIMESTAMP (NULL)  |
+|      password              : STRING(255)       |
+|  UNQ phone_number          : STRING(255)       |
+|  IDX role                  : ENUM(super_admin, |
+|                               admin, chef,     |
+|                               waiter, user)    |
+|                               DEF: 'admin'     |
+|      is_active             : BOOLEAN DEF: true |
+|      last_login            : DATETIME (NULL)   |
+|      remember_token        : STRING(100)       |
+|      created_at            : TIMESTAMP         |
+|      updated_at            : TIMESTAMP         |
++-----------------------------------------------+
+  (No foreign key relations - standalone auth table)
+
+
+================================================================================
+  TABLE: categories
+================================================================================
++--------------------------------------------------+
+|  categories                                      |
++--------------------------------------------------+
+|  PK  id                   : BIGINT UNSIGNED       |
+|      name                 : STRING(255)           |
+|      is_active            : BOOLEAN DEF: true     |
+|  IDX display_order        : INTEGER DEF: 0        |
+|      created_at           : TIMESTAMP             |
+|      updated_at           : TIMESTAMP             |
++--------------------------------------------------+
+         |
+         |  hasMany (category_id)
+         v
+   [menu_items]
+
+
+================================================================================
+  TABLE: menu_items
+================================================================================
++--------------------------------------------------+
+|  menu_items                                      |
++--------------------------------------------------+
+|  PK  id                   : BIGINT UNSIGNED       |
+|  FK  category_id          : BIGINT UNSIGNED       |
+|      name                 : STRING(255)           |
+|      description          : TEXT (NULL)           |
+|      price                : DECIMAL(10,2)         |
+|      image_url            : STRING(255)           |
+|                            DEF: 'images/menu-     |
+|                                 items/default.jpg'|
+|      is_available         : BOOLEAN DEF: true     |
+|      display_order        : INTEGER DEF: 0        |
+|      created_at           : TIMESTAMP             |
+|      updated_at           : TIMESTAMP             |
++--------------------------------------------------+
+         |
+         |< belongsTo (category_id) ───┐
+         |                             |
+         |  hasMany                    |
+         v                             |
+   [order_items]                      |
+                                      |
+   categories ◄───────────────────────┘
+
+
+================================================================================
+  TABLE: orders
+================================================================================
++--------------------------------------------------+
+|  orders                                          |
++--------------------------------------------------+
+|  PK  id                   : BIGINT UNSIGNED       |
+|      customer_name        : STRING(255)           |
+|      customer_phone       : STRING(255)           |
+|      table_number         : STRING(255)           |
+|  IDX status               : ENUM(pending, ready,  |
+|                               delivered)          |
+|                               DEF: 'pending'      |
+|      total_amount         : DECIMAL(10,2)         |
+|      notes                : TEXT (NULL)           |
+|      created_at           : TIMESTAMP             |
+|      updated_at           : TIMESTAMP             |
++--------------------------------------------------+
+         |
+         |---- hasMany ──────────> [order_items]
+         |
+         |---- hasOne ───────────> [payments]
+
+
+================================================================================
+  TABLE: order_items  (Pivot: Order <--> MenuItem)
+================================================================================
++--------------------------------------------------+
+|  order_items                                     |
++--------------------------------------------------+
+|  PK  id                   : BIGINT UNSIGNED       |
+|  FK  order_id             : BIGINT UNSIGNED       |
+|                            ON DELETE CASCADE      |
+|  FK  menu_item_id         : BIGINT UNSIGNED       |
+|                            ON DELETE RESTRICT     |
+|      quantity             : INTEGER               |
+|      unit_price           : DECIMAL(10,2)         |
+|      subtotal             : DECIMAL(10,2)         |
+|      created_at           : TIMESTAMP             |
+|      updated_at           : TIMESTAMP             |
++--------------------------------------------------+
+         |
+         |< belongsTo(order_id) ─── orders
+         |< belongsTo(menu_item_id) ─── menu_items
+
+
+================================================================================
+  TABLE: payments
+================================================================================
++--------------------------------------------------+
+|  payments                                        |
++--------------------------------------------------+
+|  PK  id                   : BIGINT UNSIGNED       |
+|  FK  order_id             : BIGINT UNSIGNED       |
+|                            ON DELETE CASCADE      |
+|  UNQ authority            : STRING(255)           |
+|  IDX status               : ENUM(pending, paid,   |
+|                               failed)             |
+|                               DEF: 'pending'      |
+|      reference_id         : STRING(255) (NULL)    |
+|      amount               : DECIMAL(10,2)         |
+|      created_at           : TIMESTAMP             |
+|      updated_at           : TIMESTAMP             |
++--------------------------------------------------+
+         |
+         |< belongsTo(order_id) ─── orders
+
+
+================================================================================
+  TABLE: settings (Standalone - Key/Value Store)
+================================================================================
++--------------------------------------------------+
+|  settings                                        |
++--------------------------------------------------+
+|  PK  id                   : BIGINT UNSIGNED       |
+|  UNQ key                  : STRING(255)           |
+|      value                : TEXT (NULL)           |
+|      created_at           : TIMESTAMP             |
+|      updated_at           : TIMESTAMP             |
++--------------------------------------------------+
+  (No foreign key relations)
+
+
+================================================================================
+  TABLE: monthly_incomes (Standalone - Aggregated Reporting)
+================================================================================
++--------------------------------------------------+
+|  monthly_incomes                                 |
++--------------------------------------------------+
+|  PK  id                   : BIGINT UNSIGNED       |
+|      income               : DECIMAL(15,2)         |
+|      year                 : INTEGER               |
+|      month                : INTEGER               |
+|      recorded_at          : TIMESTAMP             |
+|      created_at           : TIMESTAMP             |
+|      updated_at           : TIMESTAMP             |
+|  UNQ (year, month)                                |
++--------------------------------------------------+
+  (No foreign key relations)
+
+
+================================================================================
+  SYSTEM TABLES (Laravel Framework)
+================================================================================
+
+  - personal_access_tokens  (Sanctum API tokens)
+  - cache, cache_locks      (Cache system)
+  - jobs, job_batches,      (Queue system)
+    failed_jobs
+  - sessions                (Session management)
+  - password_reset_tokens   (Password resets)
+
+
+================================================================================
+  RELATIONSHIP SUMMARY (ER Diagram - Textual)
+================================================================================
+
+  ┌──────────────┐
+  │    users     │  (Auth - no relations)
+  └──────────────┘
+
+  ┌──────────────┐      1          * ┌──────────────┐
+  │  categories  │──────────────────→│  menu_items  │
+  └──────────────┘◄──────────────────┘              │
+                                    │              │
+                                    └──────┬───────┘
+                                           │
+                                           │ *
+                              ┌────────────┴───────────┐
+                              │     order_items         │
+                              │  (Pivot with quantity,  │
+                              │   unit_price, subtotal) │
+                              └────────────┬───────────┘
+                                           │ *
+                              ┌────────────┴───────────┐
+                              │        orders           │
+                              └────────────┬───────────┘
+                                           │ 1
+                              ┌────────────┴───────────┐
+                              │       payments          │
+                              └────────────────────────┘
+
+  ┌──────────────────────────┐
+  │       settings            │  (Standalone)
+  └──────────────────────────┘
+
+  ┌──────────────────────────┐
+  │    monthly_incomes        │  (Standalone)
+  └──────────────────────────┘
+
+
+================================================================================
+  CASCADE / RESTRICT BEHAVIOR
+================================================================================
+
+  categories.id ──cascadeOnDelete──→ menu_items.category_id
+  orders.id      ──cascadeOnDelete──→ order_items.order_id
+  orders.id      ──cascadeOnDelete──→ payments.order_id
+  menu_items.id  ──restrictOnDelete─→ order_items.menu_item_id
+
+
+================================================================================
+  INDEXES
+================================================================================
+
+  users:        (role), (email) UNQ, (phone_number) UNQ
+  categories:   (display_order)
+  orders:       (status)
+  payments:     (authority) UNQ, (status)
+  monthly_incomes: (year, month) UNQ
+  menu_items:   (category_id) FK
+
+================================================================================
