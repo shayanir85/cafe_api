@@ -23,10 +23,8 @@ class OrderSeeder extends Seeder
         }
 
         $order = Order::create([
-            'table_number' => '5',
-            'customer_name' => 'علی احمدی',
-            'customer_phone' => '09113054357',
-            'notes' => 'بدون پیاز',
+            'user_id' => $customer->id,
+            'table_number' => 5,
             'status' => 'pending',
             'total_amount' => ($espresso->price * 2) + $latte->price + $cheesecake->price,
         ]);

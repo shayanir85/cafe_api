@@ -2,19 +2,24 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Category;
 use App\Models\MenuItem;
-use Database\Seeders\CategorySeeder;
+
 class MenuItemSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
+        $hotDrinks = Category::where('name', 'نوشیدنی‌های گرم')->first();
+        $coldDrinks = Category::where('name', 'نوشیدنی‌های سرد')->first();
+        $desserts = Category::where('name', 'دسر و شیرینی')->first();
+
+        if (!$hotDrinks || !$coldDrinks || !$desserts) {
+            return;
+        }
+
         MenuItem::create([
-            'category_id' => 1,
+            'category_id' => $hotDrinks->id,
             'name' => 'اسپرسو',
             'description' => 'قهوه اسپرسو تک شات',
             'price' => 45000,
@@ -22,7 +27,7 @@ class MenuItemSeeder extends Seeder
         ]);
 
         MenuItem::create([
-            'category_id' => 1,
+            'category_id' => $hotDrinks->id,
             'name' => 'کاپوچینو',
             'description' => 'اسپرسو با شیر بخار داده شده',
             'price' => 65000,
@@ -30,7 +35,7 @@ class MenuItemSeeder extends Seeder
         ]);
 
         MenuItem::create([
-            'category_id' => 1,
+            'category_id' => $hotDrinks->id,
             'name' => 'لاته',
             'description' => 'اسپرسو با شیر و فوم ملایم',
             'price' => 70000,
@@ -38,16 +43,15 @@ class MenuItemSeeder extends Seeder
         ]);
 
         MenuItem::create([
-            'category_id' => 1,
+            'category_id' => $hotDrinks->id,
             'name' => 'چای سنتی',
             'description' => 'چای سیاه ایرانی با هل',
             'price' => 35000,
             'is_available' => true,
         ]);
 
-        // Create Menu Items - Cold Drinks
         MenuItem::create([
-            'category_id' => 2,
+            'category_id' => $coldDrinks->id,
             'name' => 'آیس لاته',
             'description' => 'لاته سرد با یخ',
             'price' => 75000,
@@ -55,7 +59,7 @@ class MenuItemSeeder extends Seeder
         ]);
 
         MenuItem::create([
-            'category_id' => 2,
+            'category_id' => $coldDrinks->id,
             'name' => 'موهیتو',
             'description' => 'نوشیدنی نعناع و لیمو',
             'price' => 55000,
@@ -63,21 +67,19 @@ class MenuItemSeeder extends Seeder
         ]);
 
         MenuItem::create([
-            'category_id' => 2,
+            'category_id' => $coldDrinks->id,
             'name' => 'اسموتی توت فرنگی',
             'description' => 'اسموتی طبیعی با توت فرنگی تازه',
             'price' => 85000,
             'is_available' => true,
         ]);
 
-        // Create Menu Items - Desserts
         MenuItem::create([
-            'category_id' => 3,
+            'category_id' => $desserts->id,
             'name' => 'چیزکیک نیویورکی',
             'description' => 'چیزکیک کلاسیک با سس توت',
             'price' => 95000,
             'is_available' => true,
         ]);
-
     }
 }

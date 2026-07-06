@@ -19,7 +19,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('phone_number')->unique();
-            $table->enum('role', ['super_admin','admin', 'chef', 'waiter', 'user'])->default('admin');
+            $table->enum('role', ['super_admin','admin', 'chef', 'waiter', 'user'])->default('user');
             $table->index('role');
             $table->boolean('is_active')->default(true);
             $table->dateTime('last_login')->nullable();

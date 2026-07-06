@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&#x1f4cb; &ast;&ast;To-Do List &#x67e;&#x631;&#x648;&#x698;&#x647; &#x633;&#x6cc;&#x633;&#x62a;&#x645; &#x633;&#x641;&#x627;&#x631;&#x634;&zwnj;&#x6af;&#x6cc;&#x631;&#x6cc; &#x6a9;&#x627;&#x641;&#x647;&ast;&ast;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <span id="markdown-mermaid" aria-hidden="true" data-config="{&quot;darkModeTheme&quot;:&quot;vscode&quot;,&quot;lightModeTheme&quot;:&quot;vscode&quot;,&quot;maxTextSize&quot;:50000,&quot;clickDrag&quot;:&quot;alt&quot;,&quot;showControls&quot;:&quot;onHoverOrFocus&quot;,&quot;resizable&quot;:true,&quot;maxHeight&quot;:&quot;&quot;}"></span>
+				<p>با توجه به نیازمندی‌های پروژه، یک <strong>To-Do List</strong> جامع با تفکیک وظایف <strong>فرانت‌اند</strong> و <strong>بک‌اند</strong> تهیه کرده‌ام. این لیست بر اساس اولویت‌های فنی و وابستگی‌های بین بخش‌ها مرتب شده است.</p>
+<hr>
+<h2 id="-to-do-list-پروژه-سیستم-سفارشگیری-کافه">📋 <strong>To-Do List پروژه سیستم سفارش‌گیری کافه</strong></h2>
+<h3 id="-فاز-۱-زیرساخت-و-احراز-هویت-پیشنیاز-همه-بخشها">🟢 <strong>فاز ۱: زیرساخت و احراز هویت (پیش‌نیاز همه بخش‌ها)</strong></h3>
+<table>
+<thead>
+<tr>
+<th>اولویت</th>
+<th>وظیفه</th>
+<th>فرانت‌اند</th>
+<th>بک‌اند</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>۱</td>
+<td>پیاده‌سازی سیستم احراز هویت (JWT/Session)</td>
+<td>صفحه‌های لاگین/ثبت‌نام، ذخیره توکن</td>
+<td>APIهای ثبت‌نام، ورود، خروج و اعتبارسنجی توکن</td>
+</tr>
+<tr>
+<td>۲</td>
+<td>تعریف و مدیریت نقش‌ها (کاربر، گارسون، آشپز، ادمین)</td>
+<td>نمایش/مخفی‌سازی المان‌ها بر اساس نقش</td>
+<td>میدل‌ور نقش‌ها، مدیریت دسترسی‌های API</td>
+</tr>
+<tr>
+<td>۳</td>
+<td>صفحه پروفایل و مدیریت اطلاعات کاربر</td>
+<td>فرم ویرایش پروفایل</td>
+<td>API بروزرسانی اطلاعات کاربر</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="-فاز-۲-ماژول-سفارش-هسته-اصلی-پروژه">🟡 <strong>فاز ۲: ماژول سفارش (هسته اصلی پروژه)</strong></h3>
+<table>
+<thead>
+<tr>
+<th>اولویت</th>
+<th>وظیفه</th>
+<th>فرانت‌اند</th>
+<th>بک‌اند</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>۴</td>
+<td>طراحی صفحه منو و سبد خرید</td>
+<td>نمایش دسته‌بندی محصولات، افزودن/حذف به سبد خرید (Ajax)</td>
+<td>API دریافت منو، API مدیریت سبد خرید (موقت یا دیتابیس)</td>
+</tr>
+<tr>
+<td>۵</td>
+<td>ثبت سفارش جدید (داخل سالن و بیرون‌بر)</td>
+<td>فرم انتخاب نوع سفارش، ارسال داده‌ها با Ajax</td>
+<td>API ثبت سفارش با فیلد <code>order_type</code> (dine-in/takeaway)</td>
+</tr>
+<tr>
+<td>۶</td>
+<td>گرفتن سفارشات (برای گارسون/آشپز/ادمین)</td>
+<td>صفحه نمایش لیست سفارشات با آپدیت خودکار (Ajax Polling/WebSocket)</td>
+<td>API دریافت لیست سفارشات بر اساس نقش (فیلتر شده)</td>
+</tr>
+<tr>
+<td>۷</td>
+<td>تغییر وضعیت سفارش (آماده‌سازی، تحویل، بسته شدن)</td>
+<td>دکمه‌های تغییر وضعیت برای هر نقش</td>
+<td>API بروزرسانی وضعیت سفارش + لاگ تغییرات</td>
+</tr>
+<tr>
+<td>۸</td>
+<td>ارسال سفارش به آشپزخانه (اتصال گارسون و آشپز)</td>
+<td>نمایش اعلان برای آشپز هنگام ثبت سفارش جدید</td>
+<td>ایجاد رویداد (Event) یا WebSocket برای اعلان آنی</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="-فاز-۳-پرداخت-و-فاکتور">🔵 <strong>فاز ۳: پرداخت و فاکتور</strong></h3>
+<table>
+<thead>
+<tr>
+<th>اولویت</th>
+<th>وظیفه</th>
+<th>فرانت‌اند</th>
+<th>بک‌اند</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>۹</td>
+<td>پیاده‌سازی پرداخت نقدی</td>
+<td>گزینه انتخاب در فرم پرداخت، تکمیل سفارش بدون درگاه</td>
+<td>API ثبت پرداخت نقدی و تغییر وضعیت فاکتور</td>
+</tr>
+<tr>
+<td>۱۰</td>
+<td>اتصال به درگاه پرداخت آنلاین (زرین‌پال/ملی)</td>
+<td>درخواست Ajax برای دریافت لینک پرداخت، هدایت کاربر، تایید پرداخت</td>
+<td>API درخواست پرداخت، تایید و تایید نهایی از درگاه</td>
+</tr>
+<tr>
+<td>۱۱</td>
+<td>تولید فاکتور نهایی و نمایش آن</td>
+<td>صفحه نمایش فاکتور با امکان چاپ</td>
+<td>API دریافت اطلاعات فاکتور نهایی</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="-فاز-۴-اعلانها-و-پیامک">🟣 <strong>فاز ۴: اعلان‌ها و پیامک</strong></h3>
+<table>
+<thead>
+<tr>
+<th>اولویت</th>
+<th>وظیفه</th>
+<th>فرانت‌اند</th>
+<th>بک‌اند</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>۱۲</td>
+<td>سیستم نوتیفیکیشن داخل برنامه (برای نقش‌ها)</td>
+<td>نمایش نوتیفیکیشن‌های لحظه‌ای (Toast/Alert) با Ajax یا WebSocket</td>
+<td>API ثبت و دریافت نوتیفیکیشن‌ها + رویدادهای سیستمی</td>
+</tr>
+<tr>
+<td>۱۳</td>
+<td>ارسال پیامک به کاربر (تایید سفارش، تغییر وضعیت)</td>
+<td>در صورت نیاز، درخواست شماره تلفن</td>
+<td>اتصال به سامانه پیامک (Kavenegar/Farapayamak) و ارسال در رویدادها</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="-فاز-۵-تنظیمات-و-مدیریت">⚪ <strong>فاز ۵: تنظیمات و مدیریت</strong></h3>
+<table>
+<thead>
+<tr>
+<th>اولویت</th>
+<th>وظیفه</th>
+<th>فرانت‌اند</th>
+<th>بک‌اند</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>۱۴</td>
+<td>وضعیت تعطیل بودن کافه (مدیریت توسط ادمین)</td>
+<td>صفحه مدیریت تنظیمات با سوئیچ تعطیل/باز</td>
+<td>API بروزرسانی وضعیت تعطیلی، میدل‌ور برای مسدود کردن ثبت سفارش</td>
+</tr>
+<tr>
+<td>۱۵</td>
+<td>نمایش وضعیت تعطیلی به کاربر</td>
+<td>نمایش پیام/بنر در صفحه اصلی و منو</td>
+<td>ارسال وضعیت تعطیلی در پاسخ API منو یا جداگانه</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="-فاز-۶-بهینهسازی-و-تکمیل">🟠 <strong>فاز ۶: بهینه‌سازی و تکمیل</strong></h3>
+<table>
+<thead>
+<tr>
+<th>اولویت</th>
+<th>وظیفه</th>
+<th>فرانت‌اند</th>
+<th>بک‌اند</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>۱۶</td>
+<td>پیاده‌سازی بارگذاری مجدد خودکار لیست سفارشات (Ajax Polling یا WebSocket)</td>
+<td>استفاده از <code>setInterval</code> برای درخواست‌های دوره‌ای یا WebSocket</td>
+<td>ایجاد وب‌سوکت یا API با قابلیت Long Polling</td>
+</tr>
+<tr>
+<td>۱۷</td>
+<td>مدیریت خطاها و نمایش پیام‌های مناسب</td>
+<td>نمایش خطاهای کاربرپسند (مثلاً در صورت تعطیلی کافه)</td>
+<td>ارسال خطاهای استاندارد HTTP + پیام فارسی</td>
+</tr>
+<tr>
+<td>۱۸</td>
+<td>واکنش‌گرایی (Responsive) برای موبایل و تبلت</td>
+<td>طراحی با CSS Framework (Bootstrap/Tailwind)</td>
+<td>-</td>
+</tr>
+<tr>
+<td>۱۹</td>
+<td>مستندسازی API (Swagger/Postman)</td>
+<td>-</td>
+<td>تهیه مستندات کامل برای فرانت‌اند</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="-نکات-کلیدی-برای-تیم">📌 <strong>نکات کلیدی برای تیم:</strong></h2>
+<h3 id="برای-فرانتاند">برای <strong>فرانت‌اند</strong>:</h3>
+<ul>
+<li>استفاده از <strong>Ajax با jQuery</strong> برای همه ارتباطات (به جز WebSocket).</li>
+<li>مدیریت وضعیت (State) سمت کاربر با ذخیره توکن و اطلاعات نقش در <code>localStorage</code> یا <code>sessionStorage</code>.</li>
+<li>رعایت امنیت (ارسال توکن در Header تمام درخواست‌ها).</li>
+</ul>
+<h3 id="برای-بکاند">برای <strong>بک‌اند</strong>:</h3>
+<ul>
+<li>پیاده‌سازی <strong>میدل‌ور نقش‌ها</strong> برای کنترل دسترسی به APIها.</li>
+<li>استفاده از <strong>WebSocket</strong> (مثل <a href="http://Socket.io">Socket.io</a>) یا <strong>Redis</strong> برای نوتیفیکیشن‌های آنی (اختیاری ولی پیشنهادی).</li>
+<li>لاگ‌گیری تمام تغییرات وضعیت سفارش برای پیگیری مشکلات.</li>
+</ul>
+<hr>
+<h2 id="-پیشنهاد-روش-کار-تیمی">🚀 <strong>پیشنهاد روش کار تیمی:</strong></h2>
+<p>۱. فاز ۱ و ۲ (احراز هویت و سفارش) را موازی شروع کنید.<br>
+۲. فاز ۳ (پرداخت) وابسته به تکمیل سفارش است.<br>
+۳. فاز ۴ و ۵ را می‌توانید همزمان با فاز ۳ پیش ببرید.<br>
+۴. فاز ۶ به عنوان بهینه‌سازی در انتها انجام شود.</p>
+<p>اگر نیاز به جزئیات بیشتر برای هر بخش دارید، خوشحال می‌شوم کمک کنم! 😊</p>
+
+            
+            
+        </body>
+        </html>

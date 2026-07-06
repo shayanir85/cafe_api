@@ -25,10 +25,6 @@ class MenuItem extends Model
         'is_available' => 'boolean',
     ];
 
-    protected $appends = [
-        'image_url',
-    ];
-
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
@@ -41,12 +37,12 @@ class MenuItem extends Model
 
     public function getImageUrlAttribute(): ?string
     {
-        $rawImageUrl = $this->attributes['image_url'] ?? null; 
-        
+        $rawImageUrl = $this->attributes['image_url'] ?? null;
+
         if (!$rawImageUrl) {
             return null;
         }
-    
+
         return url($rawImageUrl);
     }
 
@@ -55,7 +51,6 @@ class MenuItem extends Model
         static::deleting(function (MenuItem $menuItem) {
             if ($menuItem->image_url) {
                 $fullPath = public_path($menuItem->image_url);
-
                 if (file_exists($fullPath)) {
                     unlink($fullPath);
                 }

@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
-use function Symfony\Component\Clock\now;
 
 class OrderService
 {
@@ -35,23 +34,20 @@ class OrderService
             return $query->paginate((int) $filters['per_page']);
         }
 
-
         return $query->get();
-
     }
 
     public function find(int $id): Order
     {
-        return Order::with( ['orderItems.menuItem.category'])->findOrFail($id);
+        return Order::with(['orderItems.menuItem.category'])->findOrFail($id);
     }
 
-    public function create(array $data): Order
+    public function create(array $data, int $userId): Order
     {
-        return DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($data, $userId) {
             $order = Order::create([
+                'user_id' => $userId,
                 'table_number' => $data['table_number'],
-                'customer_name' => $data['customer_name'],
-                'customer_phone' => $data['customer_phone'],
                 'status' => 'pending',
                 'total_amount' => 0,
                 'notes' => $data['notes'] ?? null,
@@ -90,14 +86,13 @@ class OrderService
         });
     }
 
-    public function updateStatus(Order $id, string $status): Order
+    public function updateStatus(Order $order, string $status): Order
     {
-            
-        $id->update([
+        $order->update([
             'status' => $status,
         ]);
 
-        return $id->load(['orderItems.menuItem.category']);
+        return $order->load(['orderItems.menuItem.category']);
     }
 
     public function delete(Order $order): void

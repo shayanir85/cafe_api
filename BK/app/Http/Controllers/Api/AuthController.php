@@ -19,76 +19,81 @@ class AuthController extends Controller
         $this->authService = $authService;
     }
 
-    public function TokenCheck(Request $request){
+    public function TokenCheck(Request $request)
+    {
         return response()->json([
-            'user'=> $request->user()
+            'user' => $request->user()
         ]);
     }
 
     public function login(LoginRequest $request)
     {
         $result = $this->authService->login($request->validated());
-        return response()->json($result,200);
+
+        if (!isset($result['token'])) {
+            return response()->json($result, 401);
+        }
+
+        return response()->json($result, 200);
     }
 
     public function Update_Pass(Request $request)
     {
-        // Validate the request inputs after password verification
-        // This ensures we only validate if the user exists and current password is correct
         $request->validate([
-            'password' => 'required|string',                    // Current password (already verified above)
-            'newPassword' => 'required|string|min:8|confirmed', // New password with confirmation
-            'newPassword_confirmation' => 'required|string'     // Confirmation field matching newPassword
+            'password' => 'required|string',
+            'newPassword' => 'required|string|min:8|confirmed',
+            'newPassword_confirmation' => 'required|string'
         ]);
-        // Get the authenticated user from the request
+
         $user = $request->user();
-        
-        // Check if user exists
+
         if (!$user) {
             return response()->json([
                 'message' => 'user not found'
             ], 404);
         }
-        
-        // Verify that the provided current password matches the user's stored password
-        // Note: Hash::check(plain_text, hashed_password)
+
         if (!Hash::check($request->password, $user->password)) {
             return response()->json([
                 'message' => 'current password is incorrect'
             ], 422);
         }
-        //checks if password is confirmed or not 
-        if($request->newPassword_confirmation === $request->newPassword){
-            // Hash the new password and update the user record
+
+        if ($request->newPassword_confirmation === $request->newPassword) {
             $user->password = Hash::make($request->newPassword);
             $user->save();
+
             return response()->json([
                 'message' => 'password updated successfully'
             ], 200);
         }
-        // Return success response
+
         return response()->json([
             'message' => 'password did not updated password is not confirmed'
         ]);
-      
     }
+
     public function Register(RegisterRequest $request)
     {
         $result = $this->authService->register($request->validated());
-        return response()->json($result,200);
+        return response()->json($result, 200);
     }
 
-    public function delete($id){
+    public function delete($id)
+    {
         $result = $this->authService->delete($id);
         return response()->json([
             'message' => 'user successfully deleted',
             'result' => $result
         ]);
     }
-    public function list(){
+
+    public function list()
+    {
         $result = $this->authService->list();
         return response()->json($result);
     }
+
     public function update(Request $request, $id)
     {
         $validated = $request->validate([

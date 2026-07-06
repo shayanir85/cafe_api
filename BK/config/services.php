@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'zarinpal' => [
+        'sandbox' => env('ZARINPAL_SANDBOX', true),
+    ],
+
 ];

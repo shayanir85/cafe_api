@@ -40,7 +40,7 @@ Api.interceptors.response.use(
 
 export async function login(Data) {
   try {
-    const response = await Api.post('/auth/login', {
+    const response = await Api.post('/login', {
       email: Data.email,
       password: Data.password,
     });
@@ -67,7 +67,7 @@ export async function logout() {
 
 export async function getUser() {
   try {
-    const response = await Api.get('/auth/user');
+    const response = await Api.post('/auth/sanctum/user');
     return response.data;
   } catch (error) {
     console.error(error.response?.data || error.message);
@@ -77,7 +77,7 @@ export async function getUser() {
 
 export async function getCategoryStatus() {
   try {
-    const response = await Api.get('/Dashboard/CategoryStatus');
+    const response = await Api.get('/Dashboard/admin/CategoryStatus');
     return response.data;
   } catch (error) {
     console.error(error.response?.data || error.message);
@@ -87,7 +87,7 @@ export async function getCategoryStatus() {
 
 export async function getMenuStatus() {
   try {
-    const response = await Api.get('/Dashboard/MenuStatus');
+    const response = await Api.get('/Dashboard/admin/MenuStatus');
     return response.data;
   } catch (error) {
     console.error(error.response?.data || error.message);
@@ -95,25 +95,26 @@ export async function getMenuStatus() {
   }
 }
 
-export async function getTodayIncome() {
-  try {
-    const response = await Api.get('/Dashboard/todayIncomeStatus');
-    return response.data;
-  } catch (error) {
-    console.error(error.response?.data || error.message);
-    throw error;
-  }
-}
+// TODO: Routes not yet registered in api.php
+// export async function getTodayIncome() {
+//   try {
+//     const response = await Api.get('/Dashboard/todayIncomeStatus');
+//     return response.data;
+//   } catch (error) {
+//     console.error(error.response?.data || error.message);
+//     throw error;
+//   }
+// }
 
-export async function getMonthIncome() {
-  try {
-    const response = await Api.get('/Dashboard/monthIncomeStatus');
-    return response.data;
-  } catch (error) {
-    console.error(error.response?.data || error.message);
-    throw error;
-  }
-}
+// export async function getMonthIncome() {
+//   try {
+//     const response = await Api.get('/Dashboard/monthIncomeStatus');
+//     return response.data;
+//   } catch (error) {
+//     console.error(error.response?.data || error.message);
+//     throw error;
+//   }
+// }
 
 export async function getUserLoginStatus() {
   try {
@@ -273,16 +274,6 @@ export async function updateMenuItem(id, menuItemData) {
   }
 }
 
-export async function patchMenuItem(id, menuItemData) {
-  try {
-    const response = await Api.patch(`/Dashboard/admin/menu-items/${id}`, menuItemData);
-    return response.data;
-  } catch (error) {
-    console.error(error.response?.data || error.message);
-    throw error;
-  }
-}
-
 export async function deleteMenuItem(id) {
   try {
     const response = await Api.delete(`/Dashboard/menu-items/${id}`);
@@ -333,11 +324,41 @@ export async function createOrder(orderData) {
   }
 }
 
+export async function getOrder(id) {
+  try {
+    const response = await Api.get(`/orders/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error.response?.data || error.message);
+    throw error;
+  }
+}
+
 export async function resetPass(data) {
   try {
     const response = await Api.post(`/auth/resetPassword`, data);
     return response.data;
   } catch(error) {
+    console.error(error.response?.data || error.message);
+    throw error;
+  }
+}
+
+export async function requestPayment(data) {
+  try {
+    const response = await Api.post('/payments/request', data);
+    return response.data;
+  } catch (error) {
+    console.error(error.response?.data || error.message);
+    throw error;
+  }
+}
+
+export async function verifyPayment(params) {
+  try {
+    const response = await Api.get('/payments/verify', { params });
+    return response.data;
+  } catch (error) {
     console.error(error.response?.data || error.message);
     throw error;
   }
