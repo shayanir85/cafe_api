@@ -10,6 +10,11 @@ use App\Http\Controllers\Api\ZarinpalController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\SuperAdminMiddleware;
 use Illuminate\Support\Facades\Route;
+use App\Services\SMS;
+
+Route::post('sms', function (SMS $sms) {
+    $sms->send_code();
+});
 
 Route::fallback(function () {
     abort(404);
