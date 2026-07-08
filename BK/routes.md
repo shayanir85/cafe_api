@@ -2,105 +2,228 @@
 
 **Base URL:** `http://your-domain.com/api/v1`
 
-**Auth:** All protected routes require a Bearer token in the `Authorization` header:
-```
+**Auth header for protected routes**
+```http
 Authorization: Bearer <sanctum_token>
+Accept: application/json
 ```
 
-**Roles:**
-- `super_admin` — full access
-- `admin` — can access admin routes
-- No role (customer) — can only access public routes
+**Roles**
+- `super_admin`: full dashboard access
+- `admin`: admin dashboard access
+- customer user: can use public routes and authenticated cafe routes
 
----
+**Request body types**
+- Most routes accept `application/json`
+- Routes that upload images must use `multipart/form-data`
+- For `multipart/form-data`, frontend should create a `FormData` object and append each field manually
 
-## 1. Auth Routes
+Example frontend setup for `multipart/form-data`:
+```js
+const formData = new FormData();
+formData.append('category_id', '1');
+formData.append('name', 'Latte');
+formData.append('description', 'Double shot');
+formData.append('price', '120000');
+formData.append('is_available', '1');
+formData.append('image', fileInput.files[0]);
 
-### POST `/login`
-**Auth:** None (throttled: 5 requests per minute)
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `email` | string | No* | User email (required if `phone_number` is not provided) |
-| `phone_number` | string | No* | 11 digits max (required if `email` is not provided) |
-| `password` | string | Yes | Min 8 characters |
-
-**Response (200):**
-```json
-{
-  "message": "successfully logged in",
-  "token": "1|abc123...",
-  "name": "user name",
-  "role": "admin"
-}
-```
-**Response (401):**
-```json
-{
-  "message": "Invalid credentials"
-}
+fetch('/api/v1/Dashboard/admin/menu-items', {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${token}`
+  },
+  body: formData
+});
 ```
 
 ---
+
+## Auth Routes
 
 ### POST `/register`
-**Auth:** None (throttled: 5 requests per minute)
+- **Auth:** none
+- **Throttle:** `5 requests / 1 minute`
+- **Content-Type:** `application/json`
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | Yes | Max 255 |
-| `email` | string | Yes | Must be unique |
-| `phone_number` | string | Yes | Max 11, must be unique |
-| `password` | string | Yes | Min 8, must be confirmed |
-| `password_confirmation` | string | Yes | Must match `password` |
+**Input**
 
-**Response (200):**
+| Field | Type | Required | Notes |
+|---|---|---:|---|
+| `name` | string | Yes | max 255 |
+| `email` | string | Yes | valid email, unique |
+| `phone_number` | string | Yes | max 11, unique |
+| `password` | string | Yes | min 8, confirmed |
+| `password_confirmation` | string | Yes | must match `password` |
+
+**Example request**
+```json
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "phone_number": "09123456789",
+  "password": "secret123",
+  "password_confirmation": "secret123"
+}
+```
+
+**Example response `200`**
 ```json
 {
   "user": {
     "id": 2,
-    "name": "Jane",
+    "name": "Jane Doe",
     "email": "jane@example.com",
-    "phone_number": "09123456788",
-    "role": "admin",
-    "created_at": "2026-06-17T10:00:00.000000Z",
-    "updated_at": "2026-06-17T10:00:00.000000Z"
+    "phone_number": "09123456789",
+    "role": null,
+    "last_login": null,
+    "created_at": "2025-01-01T10:00:00.000000Z",
+    "updated_at": "2025-01-01T10:00:00.000000Z"
   },
-  "token": "2|def456..."
+  "token": "2|example_token"
 }
 ```
 
----
-
-### POST `/auth/sanctum/user`
-**Auth:** `auth:sanctum`
-
-No body required. Returns the authenticated user.
-
-**Response (200):**
+**Example validation error `422`**
 ```json
 {
-  "user": {
-    "id": 1,
-    "name": "John",
-    "email": "john@example.com",
-    "phone_number": "09123456789",
-    "role": "admin",
-    "last_login": "2026-06-17T10:00:00.000000Z",
-    "created_at": "2026-06-01T10:00:00.000000Z",
-    "updated_at": "2026-06-17T10:00:00.000000Z"
+  "success": false,
+  "errors": "خطا در اعتبارسنجی",
+  "message": {
+    "email": [
+      "این ایمیل قبلاً ثبت شده است"
+    ]
   }
 }
 ```
 
 ---
 
+### POST `/login`
+- **Auth:** none
+- **Throttle:** `5 requests / 1 minute`
+- **Content-Type:** `application/json`
+
+**Input**
+
+| Field | Type | Required | Notes |
+|---|---|---:|---|
+| `email` | string | Conditional | required if `phone_number` is missing |
+| `phone_number` | string | Conditional | required if `email` is missing, max 11 |
+| `password` | string | Yes | min 8 |
+
+**Example request with email**
+```json
+{
+  "email": "jane@example.com",
+  "password": "secret123"
+}
+```
+
+**Example request with phone number**
+```json
+{
+  "phone_number": "09123456789",
+  "password": "secret123"
+}
+```
+
+**Example response `200`**
+```json
+{
+  "message": "successfully logged in",
+  "token": "2|example_token",
+  "name": "Jane Doe",
+  "role": "admin"
+}
+```
+
+**Example error `401`**
+```json
+{
+  "message": "Invalid credentials"
+}
+```
+
+**Important note**
+- Current backend login service checks user by `email` only. Sending only `phone_number` passes validation but will not log the user in unless backend logic is changed.
+
+---
+
+### POST `/auth/sanctum/user`
+- **Auth:** `auth:sanctum`
+- **Content-Type:** no body required
+
+**Example request**
+```json
+{}
+```
+
+**Example response `200`**
+```json
+{
+  "user": {
+    "id": 2,
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "phone_number": "09123456789",
+    "role": "admin",
+    "last_login": "2025-01-01T12:00:00.000000Z",
+    "created_at": "2025-01-01T10:00:00.000000Z",
+    "updated_at": "2025-01-01T12:00:00.000000Z"
+  }
+}
+```
+
+---
+
+### POST `/auth/resetPassword`
+- **Auth:** `auth:sanctum`
+- **Content-Type:** `application/json`
+
+**Input**
+
+| Field | Type | Required | Notes |
+|---|---|---:|---|
+| `password` | string | Yes | current password |
+| `newPassword` | string | Yes | min 8 |
+| `newPassword_confirmation` | string | Yes | must match `newPassword` |
+
+**Example request**
+```json
+{
+  "password": "secret123",
+  "newPassword": "newsecret123",
+  "newPassword_confirmation": "newsecret123"
+}
+```
+
+**Example response `200`**
+```json
+{
+  "message": "password updated successfully"
+}
+```
+
+**Example error `422`**
+```json
+{
+  "message": "current password is incorrect"
+}
+```
+
+---
+
 ### POST `/auth/logout`
-**Auth:** `auth:sanctum`
+- **Auth:** `auth:sanctum`
+- **Content-Type:** no body required
 
-No body required.
+**Example request**
+```json
+{}
+```
 
-**Response (200):**
+**Example response `200`**
 ```json
 {
   "message": "Successfully logged out",
@@ -110,48 +233,30 @@ No body required.
 
 ---
 
-### POST `/auth/resetPassword`
-**Auth:** `auth:sanctum`
+## Super Admin Dashboard Routes
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `password` | string | Yes | Current password |
-| `newPassword` | string | Yes | Min 8 characters |
-| `newPassword_confirmation` | string | Yes | Must match `newPassword` |
+Base prefix: `/Dashboard`
 
-**Response (200):**
-```json
-{
-  "message": "password updated successfully"
-}
-```
-**Response (422):**
-```json
-{
-  "message": "current password is incorrect"
-}
-```
-
----
-
-## 2. Super Admin Dashboard Routes (`/api/v1/Dashboard`)
-**Auth:** `auth:sanctum`, `super_admin`
+All routes in this section require:
+- `auth:sanctum`
+- `super_admin`
 
 ### GET `/Dashboard/userLoginStatus`
-Returns all users with their login status.
 
-**Response (200):**
+**Input:** none
+
+**Example response `200`**
 ```json
 {
   "users": [
     {
       "id": 1,
-      "name": "John",
-      "email": "john@example.com",
+      "name": "Super Admin",
+      "email": "super@example.com",
       "role": "super_admin",
-      "last_login": "2026-06-17T10:00:00.000000Z",
+      "last_login": "2025-01-01T12:00:00.000000Z",
       "is_active": 1,
-      "created_at": "2026-06-01...Z"
+      "created_at": "2025-01-01T10:00:00.000000Z"
     }
   ]
 }
@@ -160,20 +265,21 @@ Returns all users with their login status.
 ---
 
 ### GET `/Dashboard/users`
-List all users.
 
-**Response (200):**
+**Input:** none
+
+**Example response `200`**
 ```json
 [
   {
     "id": 1,
-    "name": "John",
-    "email": "john@example.com",
-    "phone_number": "09123456789",
-    "role": "admin",
-    "last_login": "...",
-    "created_at": "...",
-    "updated_at": "..."
+    "name": "Super Admin",
+    "email": "super@example.com",
+    "phone_number": "09120000000",
+    "role": "super_admin",
+    "last_login": "2025-01-01T12:00:00.000000Z",
+    "created_at": "2025-01-01T10:00:00.000000Z",
+    "updated_at": "2025-01-01T12:00:00.000000Z"
   }
 ]
 ```
@@ -181,46 +287,90 @@ List all users.
 ---
 
 ### POST `/Dashboard/users`
-Creates a new user (same as `/register`).
+- **Content-Type:** `application/json`
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | Yes | Max 255 |
-| `email` | string | Yes | Must be unique |
-| `phone_number` | string | Yes | Max 11, must be unique |
-| `password` | string | Yes | Min 8, must be confirmed |
-| `password_confirmation` | string | Yes | Must match `password` |
+**Input**
+
+| Field | Type | Required | Notes |
+|---|---|---:|---|
+| `name` | string | Yes | max 255 |
+| `email` | string | Yes | valid email, unique |
+| `phone_number` | string | Yes | max 11, unique |
+| `password` | string | Yes | min 8, confirmed |
+| `password_confirmation` | string | Yes | must match `password` |
+
+**Example request**
+```json
+{
+  "name": "Admin User",
+  "email": "admin@example.com",
+  "phone_number": "09121112222",
+  "password": "secret123",
+  "password_confirmation": "secret123"
+}
+```
+
+**Example response `200`**
+```json
+{
+  "user": {
+    "id": 3,
+    "name": "Admin User",
+    "email": "admin@example.com",
+    "phone_number": "09121112222",
+    "role": null,
+    "last_login": null,
+    "created_at": "2025-01-01T10:00:00.000000Z",
+    "updated_at": "2025-01-01T10:00:00.000000Z"
+  },
+  "token": "3|example_token"
+}
+```
 
 ---
 
 ### PUT `/Dashboard/users/{id}`
-Update a user by ID.
+- **Content-Type:** `application/json`
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | No | Max 255 |
-| `email` | string | No | Must be unique (excludes current user's email) |
-| `phone_number` | string | No | Max 11 |
-| `password` | string | No | Min 8 |
+**Input**
 
-**Response (200):**
+| Field | Type | Required | Notes |
+|---|---|---:|---|
+| `name` | string | No | max 255 |
+| `email` | string | No | valid email, unique except current user |
+| `phone_number` | string | No | max 11 |
+| `password` | string | No | min 8 |
+
+**Example request**
 ```json
 {
-  "id": 1,
-  "name": "Updated Name",
-  "email": "updated@example.com",
-  "phone_number": "09123456789",
-  "role": "admin",
-  "updated_at": "2026-06-17T10:00:00.000000Z"
+  "name": "Updated Admin",
+  "email": "updated-admin@example.com",
+  "phone_number": "09123334444"
+}
+```
+
+**Example response `200`**
+```json
+{
+  "id": 3,
+  "name": "Updated Admin",
+  "email": "updated-admin@example.com",
+  "phone_number": "09123334444",
+  "role": null,
+  "last_login": null,
+  "created_at": "2025-01-01T10:00:00.000000Z",
+  "updated_at": "2025-01-01T11:00:00.000000Z"
 }
 ```
 
 ---
 
 ### DELETE `/Dashboard/users/{id}`
-Delete a user by ID.
 
-**Response (200):**
+**Input:** route param `id`
+
+**Example response `200`**
 ```json
 {
   "message": "user successfully deleted",
@@ -230,10 +380,31 @@ Delete a user by ID.
 
 ---
 
-### DELETE `/Dashboard/menu-items/{menu_item}`
-Delete a menu item by ID.
+### POST `/Dashboard/cafe/toggle`
 
-**Response (200):**
+**Input:** none
+
+**Example response `200` when closing**
+```json
+{
+  "message": "cafe is closed"
+}
+```
+
+**Example response `200` when opening**
+```json
+{
+  "message": "cafe is open"
+}
+```
+
+---
+
+### DELETE `/Dashboard/menu-items/{menu_item}`
+
+**Input:** route param `menu_item`
+
+**Example response `200`**
 ```json
 {
   "success": true,
@@ -243,11 +414,19 @@ Delete a menu item by ID.
 
 ---
 
-## 3. Admin Dashboard Routes (`/api/v1/Dashboard/admin`)
-**Auth:** `auth:sanctum`, `admin` (also accessible by `super_admin`)
+## Admin Dashboard Routes
+
+Base prefix: `/Dashboard/admin`
+
+All routes in this section require:
+- `auth:sanctum`
+- `admin`
 
 ### GET `/Dashboard/admin/CategoryStatus`
-**Response (200):**
+
+**Input:** none
+
+**Example response `200`**
 ```json
 {
   "category_count": 5
@@ -257,60 +436,85 @@ Delete a menu item by ID.
 ---
 
 ### GET `/Dashboard/admin/MenuStatus`
-**Response (200):**
+
+**Input:** none
+
+**Example response `200`**
 ```json
 {
-  "menu_items_count": 20
+  "menu_items_count": 24
 }
 ```
 
 ---
 
 ### GET `/Dashboard/admin/category`
-List all categories (with admin context — includes inactive).
 
-**Response (200):**
+**Input:** none
+
+**Example response `200`**
 ```json
-[
-  {
-    "id": 1,
-    "name": "Beverages",
-    "is_active": true,
-    "display_order": 1,
-    "created_at": "...",
-    "updated_at": "...",
-    "menu_items": [
-      {
-        "id": 1,
-        "category_id": 1,
-        "name": "Tea",
-        ...
-      }
-    ]
-  }
-]
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Coffee",
+      "is_active": true,
+      "display_order": 1,
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T10:00:00.000000Z",
+      "menu_items": [
+        {
+          "id": 10,
+          "category_id": 1,
+          "name": "Latte",
+          "description": "Hot latte",
+          "price": "120000.00",
+          "image_url": null,
+          "is_available": true,
+          "created_at": "2025-01-01T10:00:00.000000Z",
+          "updated_at": "2025-01-01T10:00:00.000000Z"
+        }
+      ]
+    }
+  ]
+}
 ```
 
 ---
 
 ### POST `/Dashboard/admin/category`
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | Yes | Min 3 characters |
-| `is_active` | boolean | No | Default: true |
-| `display_order` | integer | No | Default: 0 |
+- **Content-Type:** `application/json`
 
-**Response (201):**
+**Input**
+
+| Field | Type | Required | Notes |
+|---|---|---:|---|
+| `name` | string | Yes | min 3 |
+| `is_active` | boolean | No | defaults to `true` |
+| `display_order` | integer | No | defaults to `0` |
+
+**Example request**
 ```json
 {
-  "success": 1,
+  "name": "Desserts",
+  "is_active": true,
+  "display_order": 3
+}
+```
+
+**Example response `201`**
+```json
+{
+  "success": true,
   "data": {
-    "id": 3,
-    "name": "Snacks",
+    "id": 6,
+    "name": "Desserts",
     "is_active": true,
-    "display_order": 2,
-    "updated_at": "...",
-    "created_at": "..."
+    "display_order": 3,
+    "created_at": "2025-01-01T10:00:00.000000Z",
+    "updated_at": "2025-01-01T10:00:00.000000Z"
   }
 }
 ```
@@ -318,17 +522,20 @@ List all categories (with admin context — includes inactive).
 ---
 
 ### GET `/Dashboard/admin/category/{category}`
-**Response (200):**
+
+**Input:** route param `category`
+
+**Example response `200`**
 ```json
 {
-  "category": {
+  "success": true,
+  "data": {
     "id": 1,
-    "name": "Beverages",
+    "name": "Coffee",
     "is_active": true,
     "display_order": 1,
-    "created_at": "...",
-    "updated_at": "...",
-    "menu_items": [...]
+    "created_at": "2025-01-01T10:00:00.000000Z",
+    "updated_at": "2025-01-01T10:00:00.000000Z"
   }
 }
 ```
@@ -336,35 +543,51 @@ List all categories (with admin context — includes inactive).
 ---
 
 ### PUT `/Dashboard/admin/category/{category}`
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | No | Min 3 |
-| `is_active` | boolean | No | — |
-| `display_order` | integer | No | Min 1 |
+- **Content-Type:** `application/json`
 
-**Response (200):**
+**Input**
+
+| Field | Type | Required | Notes |
+|---|---|---:|---|
+| `name` | string | No | if sent, min 3 |
+| `is_active` | boolean | No |  |
+| `display_order` | integer | No | min 1 |
+
+**Example request**
 ```json
 {
-  "message": "updated successfully",
+  "name": "Hot Drinks",
+  "is_active": true,
+  "display_order": 1
+}
+```
+
+**Example response `200`**
+```json
+{
+  "success": true,
   "data": {
     "id": 1,
-    "name": "Updated Name",
-    ...
-  }
+    "name": "Hot Drinks",
+    "is_active": true,
+    "display_order": 1,
+    "created_at": "2025-01-01T10:00:00.000000Z",
+    "updated_at": "2025-01-01T11:00:00.000000Z"
+  },
+  "message": "updated successfully"
 }
 ```
 
 ---
 
-### PATCH `/Dashboard/admin/category/{category}`
-Same as PUT — partial update of a category.
-
----
-
 ### DELETE `/Dashboard/admin/category/{category}`
-**Response (200):**
+
+**Input:** route param `category`
+
+**Example response `200`**
 ```json
 {
+  "success": true,
   "message": "deleted the category"
 }
 ```
@@ -372,28 +595,57 @@ Same as PUT — partial update of a category.
 ---
 
 ### POST `/Dashboard/admin/menu-items`
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `category_id` | integer | Yes | Must exist in `categories` table |
-| `name` | string | Yes | Max 255 |
-| `description` | string | No | — |
-| `price` | numeric | Yes | Min 0 |
-| `image` | file | No | jpg, jpeg, png, webp — Max 5MB |
-| `is_available` | boolean | No | Default: true |
+- **Content-Type:** `multipart/form-data`
 
-**Response (201):**
+**Frontend guidance**
+- Use `FormData`
+- Do not send JSON if you are uploading `image`
+- Send booleans as `1` / `0` or `true` / `false`
+- `image` must be a real file object
+
+**Input**
+
+| Field | Type | Required | Notes |
+|---|---|---:|---|
+| `category_id` | integer | Yes | must exist in `categories` |
+| `name` | string | Yes | max 255 |
+| `description` | string | No | nullable |
+| `price` | number | Yes | min 0 |
+| `image` | file | No | `jpg`, `jpeg`, `png`, `webp`, max 5 MB |
+| `is_available` | boolean | No | optional |
+
+**Example form-data**
+```text
+category_id: 1
+name: Iced Americano
+description: Cold coffee
+price: 90000
+is_available: 1
+image: [binary file]
+```
+
+**Example response `201`**
 ```json
 {
   "success": true,
   "data": {
-    "id": 10,
+    "id": 12,
     "category_id": 1,
-    "name": "Espresso",
-    "description": "Strong coffee",
-    "price": "5.00",
-    "image_url": "http://domain.com/images/menu-items/avatar_10.jpg",
+    "name": "Iced Americano",
+    "description": "Cold coffee",
+    "price": "90000.00",
+    "image_url": "http://your-domain.com/images/menu-items/avatar_12.jpg",
     "is_available": true,
-    "category": { "id": 1, "name": "Beverages", ... }
+    "created_at": "2025-01-01T10:00:00.000000Z",
+    "updated_at": "2025-01-01T10:00:00.000000Z",
+    "category": {
+      "id": 1,
+      "name": "Coffee",
+      "is_active": true,
+      "display_order": 1,
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T10:00:00.000000Z"
+    }
   },
   "message": "Menu item created successfully"
 }
@@ -401,26 +653,56 @@ Same as PUT — partial update of a category.
 
 ---
 
-### GET `/Dashboard/admin/menu-items/{menu_item}`
-Get a single menu item (admin view).
-
----
-
 ### PUT `/Dashboard/admin/menu-items/{menu_item}`
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `category_id` | integer | No | Must exist in `categories` |
-| `name` | string | No | Max 255 |
-| `description` | string | No | — |
-| `price` | numeric | No | Min 0 |
-| `image` | file | No | jpg, jpeg, png, webp — Max 5MB |
-| `is_available` | boolean | No | — |
+- **Content-Type:** `multipart/form-data` if sending `image`, otherwise `application/json`
 
-**Response (200):**
+**Frontend guidance**
+- If you update the image, use `FormData`
+- If no file is sent, JSON is fine
+- For `PUT` with `FormData`, some frontends use `POST` plus `_method=PUT` depending on the HTTP client/backend setup
+
+**Input**
+
+| Field | Type | Required | Notes |
+|---|---|---:|---|
+| `category_id` | integer | No | must exist in `categories` |
+| `name` | string | No | max 255 |
+| `description` | string | No | nullable |
+| `price` | number | No | min 0 |
+| `image` | file | No | `jpg`, `jpeg`, `png`, `webp`, max 5 MB |
+| `is_available` | boolean | No | optional |
+
+**Example form-data**
+```text
+name: Iced Latte
+price: 110000
+is_available: 1
+image: [binary file]
+```
+
+**Example response `200`**
 ```json
 {
   "success": true,
-  "data": { ... },
+  "data": {
+    "id": 12,
+    "category_id": 1,
+    "name": "Iced Latte",
+    "description": "Cold coffee",
+    "price": "110000.00",
+    "image_url": "http://your-domain.com/images/menu-items/avatar_12.jpg",
+    "is_available": true,
+    "created_at": "2025-01-01T10:00:00.000000Z",
+    "updated_at": "2025-01-01T11:00:00.000000Z",
+    "category": {
+      "id": 1,
+      "name": "Coffee",
+      "is_active": true,
+      "display_order": 1,
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T10:00:00.000000Z"
+    }
+  },
   "message": "Menu item updated successfully"
 }
 ```
@@ -428,13 +710,28 @@ Get a single menu item (admin view).
 ---
 
 ### PUT `/Dashboard/admin/menu-items/{menu_item}/toggle`
-Toggles `is_available` on a menu item.
 
-**Response (200):**
+**Input:** none
+
+**Example response `200`**
 ```json
 {
   "success": true,
-  "data": { "...", "is_available": false },
+  "data": {
+    "id": 12,
+    "category_id": 1,
+    "name": "Iced Latte",
+    "description": "Cold coffee",
+    "price": "110000.00",
+    "image_url": "http://your-domain.com/images/menu-items/avatar_12.jpg",
+    "is_available": false,
+    "created_at": "2025-01-01T10:00:00.000000Z",
+    "updated_at": "2025-01-01T11:00:00.000000Z",
+    "category": {
+      "id": 1,
+      "name": "Coffee"
+    }
+  },
   "message": "Menu item updated successfully"
 }
 ```
@@ -442,127 +739,170 @@ Toggles `is_available` on a menu item.
 ---
 
 ### GET `/Dashboard/admin/orders`
-List today's orders with optional filters.
+- **Query params:** `status`, `table_number`, `paginate`, `per_page`
 
-**Auth:** `auth:sanctum`, `admin`
+**Input**
 
-Query parameters: `status`, `table_number`, `paginate`, `per_page` (default 15).
+| Query Param | Type | Required | Notes |
+|---|---|---:|---|
+| `status` | string | No | `pending`, `ready`, `delivered` |
+| `table_number` | integer | No | exact match |
+| `paginate` | boolean | No | when `true`, response becomes paginated |
+| `per_page` | integer | No | default `15` |
+
+**Example request**
+```http
+GET /api/v1/Dashboard/admin/orders?status=pending&paginate=true&per_page=10
+```
+
+**Example response `200` without pagination**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 8,
+      "user_id": 2,
+      "table_number": 4,
+      "status": "pending",
+      "total_amount": "210000.00",
+      "notes": "Less sugar",
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T10:00:00.000000Z",
+      "order_items": [
+        {
+          "id": 15,
+          "order_id": 8,
+          "menu_item_id": 12,
+          "quantity": 2,
+          "unit_price": "90000.00",
+          "subtotal": "180000.00",
+          "created_at": "2025-01-01T10:00:00.000000Z",
+          "updated_at": "2025-01-01T10:00:00.000000Z",
+          "menu_item": {
+            "id": 12,
+            "name": "Iced Latte"
+          }
+        }
+      ]
+    }
+  ]
+}
+```
 
 ---
 
 ### PATCH `/Dashboard/admin/orders/{id}/status`
-**Auth:** `auth:sanctum`, `admin`
+- **Content-Type:** `application/json`
+- **Important:** route parameter is named `{id}` in routes file, but controller uses route model binding as `Order $order`
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `status` | string | Yes | One of: `pending`, `ready`, `delivered` |
+**Input**
 
-**Response (200):**
+| Field | Type | Required | Notes |
+|---|---|---:|---|
+| `status` | string | Yes | one of `pending`, `ready`, `delivered` |
+
+**Example request**
 ```json
 {
-  "success": true,
-  "data": { ... },
-  "message": "Order status updated successfully"
+  "status": "ready"
 }
 ```
 
----
-
-## 4. Customer Order Routes
-**Auth:** `auth:sanctum`
-
-### POST `/orders`
-Create a new order.
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `table_number` | integer | Yes | Min 1 |
-| `notes` | string | No | — |
-| `items` | array | Yes | Min 1 item |
-| `items.*.menu_item_id` | integer | Yes | Must exist in `menu_items` |
-| `items.*.quantity` | integer | Yes | Min 1 |
-| `items.*.notes` | string | No | — |
-
-**Response (201):**
+**Example response `200`**
 ```json
 {
   "success": true,
-  "data": { ... },
-  "payment_url": "https://...",
-  "message": "سفارش ایجاد شد. لطفاً پرداخت را انجام دهید."
-}
-```
-
----
-
-### GET `/orders/{id}`
-Get a single order with items.
-
-**Response (200):**
-```json
-{
-  "success": true,
-  "data": { ... }
-}
-```
-
----
-
-## 5. Public Routes (`/api/v1`)
-**Auth:** None
-
-### GET `/category`
-Returns active categories with their menu items, ordered by `display_order`.
-
-**Response (200):**
-```json
-[
-  {
-    "id": 1,
-    "name": "Beverages",
-    "is_active": true,
-    "display_order": 1,
-    "created_at": "...",
-    "updated_at": "...",
-    "menu_items": [
+  "data": {
+    "id": 8,
+    "user_id": 2,
+    "table_number": 4,
+    "status": "ready",
+    "total_amount": "210000.00",
+    "notes": "Less sugar",
+    "created_at": "2025-01-01T10:00:00.000000Z",
+    "updated_at": "2025-01-01T11:00:00.000000Z",
+    "order_items": [
       {
-        "id": 1,
-        "category_id": 1,
-        "name": "Tea",
-        "description": "Hot tea",
-        "price": "2.50",
-        "image_url": null,
-        "is_available": true,
-        "display_order": 0,
-        "created_at": "...",
-        "updated_at": "..."
+        "id": 15,
+        "menu_item_id": 12,
+        "quantity": 2,
+        "unit_price": "90000.00",
+        "subtotal": "180000.00",
+        "menu_item": {
+          "id": 12,
+          "name": "Iced Latte",
+          "category": {
+            "id": 1,
+            "name": "Coffee"
+          }
+        }
       }
     ]
-  }
-]
+  },
+  "message": "وضعیت سفارش با موفقیت به‌روزرسانی شد."
+}
 ```
 
 ---
 
-### GET `/menu-items`
-Returns available menu items only (`is_available = 1`).
+## Public Routes
 
-**Response (200):**
+### GET `/category`
+
+Returns active categories only, with related menu items.
+
+**Example response `200`**
 ```json
 {
   "success": true,
   "data": [
     {
       "id": 1,
+      "name": "Coffee",
+      "is_active": true,
+      "display_order": 1,
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T10:00:00.000000Z",
+      "menu_items": [
+        {
+          "id": 12,
+          "category_id": 1,
+          "name": "Iced Latte",
+          "description": "Cold coffee",
+          "price": "110000.00",
+          "image_url": "http://your-domain.com/images/menu-items/avatar_12.jpg",
+          "is_available": true,
+          "created_at": "2025-01-01T10:00:00.000000Z",
+          "updated_at": "2025-01-01T11:00:00.000000Z"
+        }
+      ]
+    }
+  ]
+}
+```
+
+---
+
+### GET `/menu-items`
+
+Returns only available menu items.
+
+**Example response `200`**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 12,
       "category_id": 1,
-      "name": "Tea",
-      "description": "Hot tea",
-      "price": "2.50",
-      "image_url": null,
+      "name": "Iced Latte",
+      "description": "Cold coffee",
+      "price": "110000.00",
+      "image_url": "http://your-domain.com/images/menu-items/avatar_12.jpg",
       "is_available": true,
-      "display_order": 0,
-      "created_at": "...",
-      "updated_at": "..."
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T11:00:00.000000Z"
     }
   ]
 }
@@ -571,30 +911,30 @@ Returns available menu items only (`is_available = 1`).
 ---
 
 ### GET `/menu-items/{id}`
-Get a single menu item by ID (returns 404 if not found).
 
-**Response (200):**
+Returns one menu item with its category.
+
+**Example response `200`**
 ```json
 {
   "success": true,
   "data": {
-    "id": 1,
+    "id": 12,
     "category_id": 1,
-    "name": "Tea",
-    "description": "Hot tea",
-    "price": "2.50",
-    "image_url": "http://domain.com/images/menu-items/avatar_1.jpg",
+    "name": "Iced Latte",
+    "description": "Cold coffee",
+    "price": "110000.00",
+    "image_url": "http://your-domain.com/images/menu-items/avatar_12.jpg",
     "is_available": true,
-    "display_order": 0,
-    "created_at": "...",
-    "updated_at": "...",
+    "created_at": "2025-01-01T10:00:00.000000Z",
+    "updated_at": "2025-01-01T11:00:00.000000Z",
     "category": {
       "id": 1,
-      "name": "Beverages",
+      "name": "Coffee",
       "is_active": true,
       "display_order": 1,
-      "created_at": "...",
-      "updated_at": "..."
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T10:00:00.000000Z"
     }
   }
 }
@@ -602,52 +942,222 @@ Get a single menu item by ID (returns 404 if not found).
 
 ---
 
-## 6. Payment Routes
+## Cafe Routes
 
-### POST `/payments/request`
-**Auth:** `auth:sanctum`
+Base prefix: `/cafe`
 
-Initiates a payment request via Zarinpal.
+All routes in this section also pass through `cafe_open` middleware.
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `order_id` | integer | Yes | Must exist in `orders` |
+### POST `/cafe/orders`
+- **Auth:** `auth:sanctum`
+- **Content-Type:** `application/json`
 
----
+**Input**
 
-### GET `/payments/verify`
-**Auth:** None (called by Zarinpal gateway)
+| Field | Type | Required | Notes |
+|---|---|---:|---|
+| `table_number` | integer | Yes | min 1 |
+| `notes` | string | No | nullable |
+| `items` | array | Yes | min 1 item |
+| `items[].menu_item_id` | integer | Yes | must exist |
+| `items[].quantity` | integer | Yes | min 1 |
+| `items[].notes` | string | No | accepted by validation but not stored in `order_items` currently |
 
-Payment verification callback. Named route: `payment.verify`.
-
-Query parameters: `Authority`, `Status`
-
----
-
-## Error Response Format (Validation Errors)
-
-On validation failure, the API returns:
+**Example request**
 ```json
 {
-  "success": false,
-  "errors": "خطا در اعتبارسنجی",
-  "message": {
-    "field_name": ["Error message in Persian"]
+  "table_number": 4,
+  "notes": "No cinnamon",
+  "items": [
+    {
+      "menu_item_id": 12,
+      "quantity": 2,
+      "notes": "Extra ice"
+    },
+    {
+      "menu_item_id": 15,
+      "quantity": 1
+    }
+  ]
+}
+```
+
+**Example response `201` with payment URL**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 8,
+    "user_id": 2,
+    "table_number": 4,
+    "status": "pending",
+    "total_amount": "210000.00",
+    "notes": "No cinnamon",
+    "created_at": "2025-01-01T10:00:00.000000Z",
+    "updated_at": "2025-01-01T10:00:00.000000Z",
+    "order_items": [
+      {
+        "id": 15,
+        "order_id": 8,
+        "menu_item_id": 12,
+        "quantity": 2,
+        "unit_price": "90000.00",
+        "subtotal": "180000.00",
+        "created_at": "2025-01-01T10:00:00.000000Z",
+        "updated_at": "2025-01-01T10:00:00.000000Z",
+        "menu_item": {
+          "id": 12,
+          "name": "Iced Latte",
+          "category": {
+            "id": 1,
+            "name": "Coffee"
+          }
+        }
+      }
+    ]
+  },
+  "payment_url": "https://payment-gateway.example/start/authority-code",
+  "message": "سفارش ایجاد شد. لطفاً پرداخت را انجام دهید."
+}
+```
+
+**Example response `201` when gateway is unavailable**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 8,
+    "user_id": 2,
+    "table_number": 4,
+    "status": "pending",
+    "total_amount": "210000.00",
+    "notes": "No cinnamon"
+  },
+  "payment_url": null,
+  "message": "سفارش ایجاد شد اما درگاه پرداخت در دسترس نیست."
+}
+```
+
+---
+
+### GET `/cafe/orders/{id}`
+- **Auth:** `auth:sanctum`
+
+**Input:** route param `id`
+
+**Example response `200`**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 8,
+    "user_id": 2,
+    "table_number": 4,
+    "status": "pending",
+    "total_amount": "210000.00",
+    "notes": "No cinnamon",
+    "created_at": "2025-01-01T10:00:00.000000Z",
+    "updated_at": "2025-01-01T10:00:00.000000Z",
+    "order_items": [
+      {
+        "id": 15,
+        "menu_item_id": 12,
+        "quantity": 2,
+        "unit_price": "90000.00",
+        "subtotal": "180000.00",
+        "menu_item": {
+          "id": 12,
+          "name": "Iced Latte",
+          "category": {
+            "id": 1,
+            "name": "Coffee"
+          }
+        }
+      }
+    ]
   }
 }
 ```
 
-Status: **422**
-
 ---
 
-## Access Denied
+### POST `/cafe/payments/request`
+- **Auth:** `auth:sanctum`
+- **Content-Type:** `application/json`
 
-When a user lacks the required role:
+**Input**
+
+| Field | Type | Required | Notes |
+|---|---|---:|---|
+| `order_id` | integer | Yes | must exist in `orders` |
+
+**Example request**
 ```json
 {
-  "message": "Access denied - Admin only"
+  "order_id": 8
 }
 ```
 
-Status: **403**
+**Example response `200`**
+```json
+{
+  "success": true,
+  "payment_url": "https://payment-gateway.example/start/authority-code"
+}
+```
+
+**Example error `400`**
+```json
+{
+  "success": false,
+  "message": "این سفارش قبلاً پرداخت شده است."
+}
+```
+
+**Example error `500`**
+```json
+{
+  "success": false,
+  "message": "خطا در اتصال به درگاه پرداخت: example error"
+}
+```
+
+---
+
+### GET `/cafe/payments/verify`
+- **Auth:** `auth:sanctum`
+- **Input source:** query string from payment gateway callback
+- **Response type:** redirect, not JSON
+
+**Expected query params**
+
+| Query Param | Type | Required | Notes |
+|---|---|---:|---|
+| `Authority` | string | Yes | gateway authority code |
+| `Status` | string | Yes | must be `OK` for successful verification attempt |
+
+**Example callback URL**
+```http
+GET /api/v1/cafe/payments/verify?Authority=A00000000000000000000000000123456789&Status=OK
+```
+
+**Example success redirect**
+```text
+{FRONTEND_URL}/order/8?payment=success&ref=123456789
+```
+
+**Example failed redirect**
+```text
+{FRONTEND_URL}?payment=failed&message=پرداخت+لغو+شد
+```
+
+---
+
+## Notes For Frontend
+
+- Use `application/json` for all non-file routes
+- Use `multipart/form-data` only for menu item create/update when sending `image`
+- Do not manually set `Content-Type` when using `FormData`; browser/client will set the correct boundary
+- For booleans in `FormData`, prefer `1` and `0`
+- Order creation accepts `items[].notes`, but backend currently does not save that field in `order_items`
+- Login validation accepts `phone_number`, but current auth service actually logs in by `email` only
