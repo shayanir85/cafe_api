@@ -52,7 +52,9 @@ class ZarinpalController
 
             return response()->json([
                 'success' => true,
+                'Authority'=>$response->authority(),
                 'payment_url' => $response->redirect()->getTargetUrl(),
+                'response'=> response()->json($response)
             ]);
         } catch (\Exception $e) {
             return response()->json([

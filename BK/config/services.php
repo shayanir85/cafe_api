@@ -39,4 +39,9 @@ return [
         'sandbox' => env('ZARINPAL_SANDBOX', true),
     ],
 
+    'smsir' => [
+        'api_key' => env('SMSIR_API_KEY'),
+        'line_number' => env('SMSIR_LINE_NUMBER'),
+    ],
+
 ];

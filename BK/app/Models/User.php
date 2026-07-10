@@ -33,7 +33,8 @@ class User extends Authenticatable
         'phone_number',
         'password',
         'role',
-        'last_login'
+        'last_login',
+        'phone_number_verified_at'
     ];
 
     /**

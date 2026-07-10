@@ -18,6 +18,13 @@ Route::fallback(function () {
 Route::prefix('v1')->group(function () {
 
     Route::prefix('auth')->group(function () {
+        Route::post('send-otp', [AuthController::class, 'sendOTP']);
+            // ->middleware('throttle:3,60');
+        Route::post('verify-otp', [AuthController::class, 'verifyOTP']);
+            // ->middleware('throttle:5,5');
+        Route::post('resend-otp', [AuthController::class, 'resendOTP']);
+            // ->middleware('throttle:2,1');
+            
         Route::middleware('auth:sanctum')->post('sanctum/user', [AuthController::class, 'TokenCheck']);
         Route::middleware('auth:sanctum')->post('resetPassword', [AuthController::class, 'Update_Pass']);
 
@@ -60,10 +67,11 @@ Route::prefix('v1')->group(function () {
         Route::middleware('auth:sanctum')->group(function () {
             Route::post('orders', [OrdersController::class, 'store']);
             Route::get('orders/{id}', [OrdersController::class, 'show']);
-            // Payment routes
-            Route::post('payments/request', [ZarinpalController::class, 'requestPayment'])->middleware('auth:sanctum');
-            Route::get('payments/verify', [ZarinpalController::class, 'verifyPayment'])->name('payment.verify');
+            Route::post('payments/request', [ZarinpalController::class, 'requestPayment']);
         });
+
+        // Payment verify callback — public (Zarinpal redirect cannot carry API tokens)
+        Route::get('payments/verify', [ZarinpalController::class, 'verifyPayment'])->name('payment.verify');
 
     })->middleware('cafe_open');
     //auth

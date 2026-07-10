@@ -12,7 +12,7 @@ class OrderSeeder extends Seeder
 {
     public function run(): void
     {
-        $customer = User::where('email', 'customer@cafe.com')->first();
+        $customer = User::where('phone_number', '09113054357')->first();
 
         $espresso = MenuItem::where('name', 'اسپرسو')->first();
         $latte = MenuItem::where('name', 'لاته')->first();

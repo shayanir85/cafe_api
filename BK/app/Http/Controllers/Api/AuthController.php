@@ -6,6 +6,8 @@ use App\Http\Requests\LoginRequest;
 use App\Services\AuthService;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
+use App\Services\SMS;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Routing\Controller;
@@ -13,10 +15,14 @@ use Illuminate\Routing\Controller;
 class AuthController extends Controller
 {
     protected $authService;
-
-    public function __construct(AuthService $authService)
+    protected $smsService;
+    /**
+     * Constructor with dependency injection
+     */
+    public function __construct(AuthService $authService, SMS $smsService)
     {
         $this->authService = $authService;
+        $this->smsService = $smsService;
     }
 
     public function TokenCheck(Request $request)
@@ -25,6 +31,7 @@ class AuthController extends Controller
             'user' => $request->user()
         ]);
     }
+
 
     public function login(LoginRequest $request)
     {
@@ -75,8 +82,18 @@ class AuthController extends Controller
 
     public function Register(RegisterRequest $request)
     {
+    // Check if phone is verified (session set by verifyOTP)
+     if (!session()->has('verified_phone')) {
+         return response()->json([
+             'success' => false,
+             'message' => 'Phone number not verified. Please verify your phone first.'
+        ], 403);
+     }
+
+    // Phone is verified, proceed with registration
         $result = $this->authService->register($request->validated());
-        return response()->json($result, 200);
+
+        return response()->json($result, $result['success'] ? 201 : 400);
     }
 
     public function delete($id)
@@ -113,5 +130,63 @@ class AuthController extends Controller
             'message' => 'Successfully logged out',
             'result' => $result
         ], 200);
+    }
+    /**
+     * Send OTP for registration
+     */
+    public function sendOTP(Request $request)
+    {
+        $request->validate([
+            'phone_number' => 'required|string|regex:/^[0-9]{10,11}$/',
+        ]);
+        // Option 1: Use AuthService which has SMS injected
+        $result = $this->smsService->send_Code($request->phone_number);
+        
+        // Option 2: Use SMS service directly (if you need to bypass AuthService)
+        // $result = $this->smsService->sendCode($request->phone_number);
+        
+        return response()->json($result, $result ? 200 : 400);
+    }
+
+    /**
+     * Verify OTP
+     */
+    public function verifyOTP(Request $request)
+    {
+        $request->validate([
+            'phone_number' => 'required|string|regex:/^[0-9]{10,11}$/',
+            'otp' => 'required|string|size:4|regex:/^[0-9]+$/'
+        ]);
+
+        $result = $this->smsService->verifyOTP(
+            $request->phone_number,
+            $request->otp
+        );
+        if ($result) {
+            $user = User::where('phone_number', $request->phone_number)->first();
+            if ($user) {
+                $user->update(['phone_number_verified_at' => Carbon::now()]);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Phone number verified successfully'
+                ], 200);
+            }
+
+        }
+        
+        return response()->json($result, $result? 200:400);
+    }
+
+    /**
+     * Resend OTP
+     */
+    public function resendOTP(Request $request)
+    {
+        $request->validate([
+            'phone_number' => 'required|string|regex:/^[0-9]{10,11}$/'
+        ]);
+        $result = $this->smsService->resendOTP($request->phone_number);
+        
+        return response()->json($result, $result ? 200 : 400);
     }
 }
