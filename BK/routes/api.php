@@ -18,12 +18,12 @@ Route::fallback(function () {
 Route::prefix('v1')->group(function () {
 
     Route::prefix('auth')->group(function () {
-        Route::post('send-otp', [AuthController::class, 'sendOTP']);
-            // ->middleware('throttle:3,60');
-        Route::post('verify-otp', [AuthController::class, 'verifyOTP']);
-            // ->middleware('throttle:5,5');
-        Route::post('resend-otp', [AuthController::class, 'resendOTP']);
-            // ->middleware('throttle:2,1');
+        Route::post('send-otp', [AuthController::class, 'sendOTP'])
+            ->middleware('throttle:3,60');
+        Route::post('verify-otp', [AuthController::class, 'verifyOTP'])
+            ->middleware('throttle:5,300');
+        Route::post('resend-otp', [AuthController::class, 'resendOTP'])
+            ->middleware('throttle:2,60');
             
         Route::middleware('auth:sanctum')->post('sanctum/user', [AuthController::class, 'TokenCheck']);
         Route::middleware('auth:sanctum')->post('resetPassword', [AuthController::class, 'Update_Pass']);

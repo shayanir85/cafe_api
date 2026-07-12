@@ -26,7 +26,6 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
             'phone_number' => 'required|max:11|unique:users,phone_number',
             'password' => 'required|string|min:8|confirmed',
         ];
@@ -36,9 +35,6 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name.required' => 'نام الزامی است',
-            'email.required' => 'ایمیل الزامی است',
-            'email.email' => 'فرمت ایمیل صحیح نیست',
-            'email.unique' => 'این ایمیل قبلاً ثبت شده است',
             'phone_number.required' => 'شماره موبایل الزامی است',
             'phone_number.unique' => 'این شماره موبایل قبلاً ثبت شده است',
             'phone_number.max' => 'شماره موبایل نباید بیشتر از ۱۱ کاراکتر باشد',

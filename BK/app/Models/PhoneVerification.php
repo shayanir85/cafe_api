@@ -16,7 +16,8 @@ class PhoneVerification extends Model
         'otp',
         'expires_at',
         'is_verified',
-        'attempts'
+        'attempts',
+        'verification_token'
     ];
     
     protected $casts = [

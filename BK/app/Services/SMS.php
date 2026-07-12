@@ -2,30 +2,27 @@
 
 namespace App\Services;
 
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Ipe\Sdk\Facades\SmsIr;
 use App\Models\PhoneVerification;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class SMS
 {
     public function send_code(string $phoneNumber): array
     {
         $otp = (string) random_int(1000, 9999);
-        try{
 
-            $verification = PhoneVerification::updateOrCreate(
+        try {
+            PhoneVerification::updateOrCreate(
                 ['phone_number' => $phoneNumber],
                 [
                     'otp' => $otp,
                     'expires_at' => Carbon::now()->addMinutes(5),
                     'is_verified' => false,
+                    'attempts' => 0,
                 ]
             );
-
-            $verification->increment('attempts');
 
             $this->sendOTP($phoneNumber, $otp);
 
@@ -33,19 +30,18 @@ class SMS
                 'success' => true,
                 'message' => 'Verification code sent successfully',
             ];
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return [
                 'success' => false,
                 'message' => 'Failed to send verification code',
                 'error' => config('app.debug') ? $e->getMessage() : null
             ];
         }
-    } 
+    }
 
     public function sendOTP(string $mobile, string $otp)
     {
-        
-        $templateId = 123456; // شناسه الگو
+        $templateId = config('services.smsir.template_id');
         $parameters = [
             [
                 "name" => "Code",
@@ -53,56 +49,71 @@ class SMS
             ]
         ];
 
-        $response = SmsIr::verifySend($mobile, $templateId, $parameters);
-        return $response;
+        return SmsIr::verifySend($mobile, $templateId, $parameters);
     }
-    public function verifyOTP(string $phoneNumber, string $otp): bool
+
+    public function verifyOTP(string $phoneNumber, string $otp): array
     {
         $verification = PhoneVerification::where('phone_number', $phoneNumber)
             ->where('is_verified', false)
             ->first();
 
         if (!$verification) {
-            return false;
+            return [
+                'success' => false,
+                'message' => 'No verification code found for this phone number.'
+            ];
         }
 
-        // Check if OTP expired
         if (Carbon::now()->gt($verification->expires_at)) {
-            return false;
+            return [
+                'success' => false,
+                'message' => 'Verification code has expired.'
+            ];
         }
 
-        // Block after 5 failed attempts
         if ($verification->attempts >= 5) {
-            return false;
+            return [
+                'success' => false,
+                'message' => 'Too many failed attempts.'
+            ];
         }
 
-        // Verify OTP
-        if ($verification->otp == $otp) {
-            $verification->update(['is_verified' => true]);
+        if ($verification->otp === $otp) {
+            $verificationToken = Str::random(64);
+            $verification->update([
+                'is_verified' => true,
+                'verification_token' => $verificationToken,
+            ]);
 
-            session(['verified_phone' => $phoneNumber]);
-
-            return true;
+            return [
+                'success' => true,
+                'message' => 'Phone number verified successfully',
+                'verification_token' => $verificationToken,
+            ];
         }
 
         $verification->increment('attempts');
 
-        return false;
+        return [
+            'success' => false,
+            'message' => 'Invalid verification code.'
+        ];
     }
-    public function resendOTP(string $phoneNumber)
+
+    public function resendOTP(string $phoneNumber): array
     {
-        // Check if phone is already verified
         $verification = PhoneVerification::where('phone_number', $phoneNumber)
             ->where('is_verified', true)
             ->first();
-            
+
         if ($verification) {
-            return response()->json([
+            return [
                 'success' => false,
                 'message' => 'Phone number already verified'
-            ], 400);
+            ];
         }
-        
-        return $this->send_Code($phoneNumber);
+
+        return $this->send_code($phoneNumber);
     }
 }
