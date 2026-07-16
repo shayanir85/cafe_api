@@ -12,10 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-           $middleware->alias([
-        'admin' => \App\Http\Middleware\AdminMiddleware::class,
-        'super_admin' => \App\Http\Middleware\SuperAdminMiddleware::class,
-        'cafe_open' => \App\Http\Middleware\CheckCafeOpenMiddleware::class,
+        $middleware->alias([
+            'cafe_open' => \App\Http\Middleware\CheckCafeOpenMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

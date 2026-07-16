@@ -34,7 +34,7 @@ class AuthService
                 'message' => 'successfully logged in',
                 'token' => $token,
                 'name' => $user->name,
-                'role' => $user->role,
+                'roles' => $user->getRoleNames(),
             ];
         }
 

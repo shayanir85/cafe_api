@@ -8,10 +8,17 @@ Authorization: Bearer <sanctum_token>
 Accept: application/json
 ```
 
-**Roles**
-- `super_admin`: full dashboard access
-- `admin`: admin dashboard access
-- customer user: can use public routes and authenticated cafe routes
+**Roles & Permissions (Spatie)**
+- `super_admin`: all permissions + bypasses all checks via Gate
+- `admin`: `manage-categories`, `manage-menu-items`, `manage-orders`, `view-dashboard`
+- customer user: no admin permissions; can use public routes and authenticated cafe routes
+
+**Middleware mapping**
+| Old custom middleware | Replaced with |
+|---|---|
+| `SuperAdminMiddleware` | `permission:manage-users` / `permission:manage-roles` / etc. |
+| `AdminMiddleware` | `permission:manage-categories` / `permission:manage-menu-items` / etc. |
+| `CheckCafeOpenMiddleware` | `cafe_open` (kept) |
 
 **Request body types**
 - Most routes accept `application/json`
@@ -49,7 +56,7 @@ fetch('/api/v1/Dashboard/admin/menu-items', {
 **Input**
 
 | Field | Type | Required | Notes |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `name` | string | Yes | max 255 |
 | `email` | string | Yes | valid email, unique |
 | `phone_number` | string | Yes | max 11, unique |
@@ -75,7 +82,6 @@ fetch('/api/v1/Dashboard/admin/menu-items', {
     "name": "Jane Doe",
     "email": "jane@example.com",
     "phone_number": "09123456789",
-    "role": null,
     "last_login": null,
     "created_at": "2025-01-01T10:00:00.000000Z",
     "updated_at": "2025-01-01T10:00:00.000000Z"
@@ -107,20 +113,11 @@ fetch('/api/v1/Dashboard/admin/menu-items', {
 **Input**
 
 | Field | Type | Required | Notes |
-|---|---|---:|---|
-| `email` | string | Conditional | required if `phone_number` is missing |
-| `phone_number` | string | Conditional | required if `email` is missing, max 11 |
+|---|---|---|---:|---|
+| `phone_number` | string | Yes | max 11 |
 | `password` | string | Yes | min 8 |
 
-**Example request with email**
-```json
-{
-  "email": "jane@example.com",
-  "password": "secret123"
-}
-```
-
-**Example request with phone number**
+**Example request**
 ```json
 {
   "phone_number": "09123456789",
@@ -134,7 +131,7 @@ fetch('/api/v1/Dashboard/admin/menu-items', {
   "message": "successfully logged in",
   "token": "2|example_token",
   "name": "Jane Doe",
-  "role": "admin"
+  "roles": ["admin"]
 }
 ```
 
@@ -144,9 +141,6 @@ fetch('/api/v1/Dashboard/admin/menu-items', {
   "message": "Invalid credentials"
 }
 ```
-
-**Important note**
-- Current backend login service checks user by `email` only. Sending only `phone_number` passes validation but will not log the user in unless backend logic is changed.
 
 ---
 
@@ -167,7 +161,6 @@ fetch('/api/v1/Dashboard/admin/menu-items', {
     "name": "Jane Doe",
     "email": "jane@example.com",
     "phone_number": "09123456789",
-    "role": "admin",
     "last_login": "2025-01-01T12:00:00.000000Z",
     "created_at": "2025-01-01T10:00:00.000000Z",
     "updated_at": "2025-01-01T12:00:00.000000Z"
@@ -184,7 +177,7 @@ fetch('/api/v1/Dashboard/admin/menu-items', {
 **Input**
 
 | Field | Type | Required | Notes |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `password` | string | Yes | current password |
 | `newPassword` | string | Yes | min 8 |
 | `newPassword_confirmation` | string | Yes | must match `newPassword` |
@@ -233,15 +226,103 @@ fetch('/api/v1/Dashboard/admin/menu-items', {
 
 ---
 
+## OTP Routes
+
+### POST `/auth/send-otp`
+- **Auth:** none
+- **Throttle:** `3 requests / 60 seconds`
+- **Content-Type:** `application/json`
+
+**Input**
+
+| Field | Type | Required | Notes |
+|---|---|---|---:|---|
+| `phone_number` | string | Yes | 10-11 digits |
+
+**Example request**
+```json
+{
+  "phone_number": "09123456789"
+}
+```
+
+**Example response `200`**
+```json
+{
+  "success": true,
+  "message": "کد تأیید با موفقیت ارسال شد"
+}
+```
+
+---
+
+### POST `/auth/verify-otp`
+- **Auth:** none
+- **Throttle:** `5 requests / 300 seconds`
+- **Content-Type:** `application/json`
+
+**Input**
+
+| Field | Type | Required | Notes |
+|---|---|---|---:|---|
+| `phone_number` | string | Yes | 10-11 digits |
+| `otp` | string | Yes | 4 digits |
+
+**Example request**
+```json
+{
+  "phone_number": "09123456789",
+  "otp": "1234"
+}
+```
+
+**Example response `200`**
+```json
+{
+  "success": true,
+  "message": "Phone number verified successfully"
+}
+```
+
+---
+
+### POST `/auth/resend-otp`
+- **Auth:** none
+- **Throttle:** `2 requests / 60 seconds`
+- **Content-Type:** `application/json`
+
+**Input**
+
+| Field | Type | Required | Notes |
+|---|---|---|---:|---|
+| `phone_number` | string | Yes | 10-11 digits |
+
+**Example request**
+```json
+{
+  "phone_number": "09123456789"
+}
+```
+
+**Example response `200`**
+```json
+{
+  "success": true,
+  "message": "کد تأیید مجدداً ارسال شد"
+}
+```
+
+---
+
 ## Super Admin Dashboard Routes
 
 Base prefix: `/Dashboard`
 
-All routes in this section require:
-- `auth:sanctum`
-- `super_admin`
+All routes in this section require `auth:sanctum`.
+Access is controlled via Spatie permissions (requires `permission:manage-users` for user management, `permission:toggle-cafe` for cafe toggle, `permission:manage-menu-items` for menu item delete).
 
 ### GET `/Dashboard/userLoginStatus`
+- **Required permission:** `manage-users`
 
 **Input:** none
 
@@ -253,10 +334,17 @@ All routes in this section require:
       "id": 1,
       "name": "Super Admin",
       "email": "super@example.com",
-      "role": "super_admin",
       "last_login": "2025-01-01T12:00:00.000000Z",
       "is_active": 1,
-      "created_at": "2025-01-01T10:00:00.000000Z"
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T12:00:00.000000Z",
+      "roles": [
+        {
+          "id": 1,
+          "name": "super_admin",
+          "guard_name": "web"
+        }
+      ]
     }
   ]
 }
@@ -265,6 +353,7 @@ All routes in this section require:
 ---
 
 ### GET `/Dashboard/users`
+- **Required permission:** `manage-users`
 
 **Input:** none
 
@@ -276,7 +365,6 @@ All routes in this section require:
     "name": "Super Admin",
     "email": "super@example.com",
     "phone_number": "09120000000",
-    "role": "super_admin",
     "last_login": "2025-01-01T12:00:00.000000Z",
     "created_at": "2025-01-01T10:00:00.000000Z",
     "updated_at": "2025-01-01T12:00:00.000000Z"
@@ -287,12 +375,13 @@ All routes in this section require:
 ---
 
 ### POST `/Dashboard/users`
+- **Required permission:** `manage-users`
 - **Content-Type:** `application/json`
 
 **Input**
 
 | Field | Type | Required | Notes |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `name` | string | Yes | max 255 |
 | `email` | string | Yes | valid email, unique |
 | `phone_number` | string | Yes | max 11, unique |
@@ -318,7 +407,6 @@ All routes in this section require:
     "name": "Admin User",
     "email": "admin@example.com",
     "phone_number": "09121112222",
-    "role": null,
     "last_login": null,
     "created_at": "2025-01-01T10:00:00.000000Z",
     "updated_at": "2025-01-01T10:00:00.000000Z"
@@ -330,12 +418,13 @@ All routes in this section require:
 ---
 
 ### PUT `/Dashboard/users/{id}`
+- **Required permission:** `manage-users`
 - **Content-Type:** `application/json`
 
 **Input**
 
 | Field | Type | Required | Notes |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `name` | string | No | max 255 |
 | `email` | string | No | valid email, unique except current user |
 | `phone_number` | string | No | max 11 |
@@ -357,7 +446,6 @@ All routes in this section require:
   "name": "Updated Admin",
   "email": "updated-admin@example.com",
   "phone_number": "09123334444",
-  "role": null,
   "last_login": null,
   "created_at": "2025-01-01T10:00:00.000000Z",
   "updated_at": "2025-01-01T11:00:00.000000Z"
@@ -367,6 +455,7 @@ All routes in this section require:
 ---
 
 ### DELETE `/Dashboard/users/{id}`
+- **Required permission:** `manage-users`
 
 **Input:** route param `id`
 
@@ -381,6 +470,7 @@ All routes in this section require:
 ---
 
 ### POST `/Dashboard/cafe/toggle`
+- **Required permission:** `toggle-cafe`
 
 **Input:** none
 
@@ -401,6 +491,7 @@ All routes in this section require:
 ---
 
 ### DELETE `/Dashboard/menu-items/{menu_item}`
+- **Required permission:** `manage-menu-items`
 
 **Input:** route param `menu_item`
 
@@ -418,11 +509,11 @@ All routes in this section require:
 
 Base prefix: `/Dashboard/admin`
 
-All routes in this section require:
-- `auth:sanctum`
-- `admin`
+All routes in this section require `auth:sanctum`.
+Access is controlled via Spatie permissions (see each route).
 
 ### GET `/Dashboard/admin/CategoryStatus`
+- **Required permission:** `view-dashboard`
 
 **Input:** none
 
@@ -436,6 +527,7 @@ All routes in this section require:
 ---
 
 ### GET `/Dashboard/admin/MenuStatus`
+- **Required permission:** `view-dashboard`
 
 **Input:** none
 
@@ -449,6 +541,7 @@ All routes in this section require:
 ---
 
 ### GET `/Dashboard/admin/category`
+- **Required permission:** `manage-categories`
 
 **Input:** none
 
@@ -485,12 +578,13 @@ All routes in this section require:
 ---
 
 ### POST `/Dashboard/admin/category`
+- **Required permission:** `manage-categories`
 - **Content-Type:** `application/json`
 
 **Input**
 
 | Field | Type | Required | Notes |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `name` | string | Yes | min 3 |
 | `is_active` | boolean | No | defaults to `true` |
 | `display_order` | integer | No | defaults to `0` |
@@ -522,6 +616,7 @@ All routes in this section require:
 ---
 
 ### GET `/Dashboard/admin/category/{category}`
+- **Required permission:** `manage-categories`
 
 **Input:** route param `category`
 
@@ -543,12 +638,13 @@ All routes in this section require:
 ---
 
 ### PUT `/Dashboard/admin/category/{category}`
+- **Required permission:** `manage-categories`
 - **Content-Type:** `application/json`
 
 **Input**
 
 | Field | Type | Required | Notes |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `name` | string | No | if sent, min 3 |
 | `is_active` | boolean | No |  |
 | `display_order` | integer | No | min 1 |
@@ -581,6 +677,7 @@ All routes in this section require:
 ---
 
 ### DELETE `/Dashboard/admin/category/{category}`
+- **Required permission:** `manage-categories`
 
 **Input:** route param `category`
 
@@ -595,6 +692,7 @@ All routes in this section require:
 ---
 
 ### POST `/Dashboard/admin/menu-items`
+- **Required permission:** `manage-menu-items`
 - **Content-Type:** `multipart/form-data`
 
 **Frontend guidance**
@@ -606,7 +704,7 @@ All routes in this section require:
 **Input**
 
 | Field | Type | Required | Notes |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `category_id` | integer | Yes | must exist in `categories` |
 | `name` | string | Yes | max 255 |
 | `description` | string | No | nullable |
@@ -654,6 +752,7 @@ image: [binary file]
 ---
 
 ### PUT `/Dashboard/admin/menu-items/{menu_item}`
+- **Required permission:** `manage-menu-items`
 - **Content-Type:** `multipart/form-data` if sending `image`, otherwise `application/json`
 
 **Frontend guidance**
@@ -664,7 +763,7 @@ image: [binary file]
 **Input**
 
 | Field | Type | Required | Notes |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `category_id` | integer | No | must exist in `categories` |
 | `name` | string | No | max 255 |
 | `description` | string | No | nullable |
@@ -710,6 +809,7 @@ image: [binary file]
 ---
 
 ### PUT `/Dashboard/admin/menu-items/{menu_item}/toggle`
+- **Required permission:** `manage-menu-items`
 
 **Input:** none
 
@@ -739,12 +839,13 @@ image: [binary file]
 ---
 
 ### GET `/Dashboard/admin/orders`
+- **Required permission:** `manage-orders`
 - **Query params:** `status`, `table_number`, `paginate`, `per_page`
 
 **Input**
 
 | Query Param | Type | Required | Notes |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `status` | string | No | `pending`, `ready`, `delivered` |
 | `table_number` | integer | No | exact match |
 | `paginate` | boolean | No | when `true`, response becomes paginated |
@@ -793,13 +894,13 @@ GET /api/v1/Dashboard/admin/orders?status=pending&paginate=true&per_page=10
 ---
 
 ### PATCH `/Dashboard/admin/orders/{id}/status`
+- **Required permission:** `manage-orders`
 - **Content-Type:** `application/json`
-- **Important:** route parameter is named `{id}` in routes file, but controller uses route model binding as `Order $order`
 
 **Input**
 
 | Field | Type | Required | Notes |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `status` | string | Yes | one of `pending`, `ready`, `delivered` |
 
 **Example request**
@@ -841,6 +942,439 @@ GET /api/v1/Dashboard/admin/orders?status=pending&paginate=true&per_page=10
     ]
   },
   "message": "وضعیت سفارش با موفقیت به‌روزرسانی شد."
+}
+```
+
+---
+
+## Role Management Routes (Owner / Super Admin)
+
+All routes in this section require:
+- `auth:sanctum`
+- `permission:manage-roles`
+
+### GET `/permissions`
+
+List all available permissions (read-only).
+
+**Input:** none
+
+**Example response `200`**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "manage-users",
+      "guard_name": "web",
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T10:00:00.000000Z"
+    },
+    {
+      "id": 2,
+      "name": "manage-roles",
+      "guard_name": "web",
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T10:00:00.000000Z"
+    },
+    {
+      "id": 3,
+      "name": "manage-categories",
+      "guard_name": "web",
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T10:00:00.000000Z"
+    },
+    {
+      "id": 4,
+      "name": "manage-menu-items",
+      "guard_name": "web",
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T10:00:00.000000Z"
+    },
+    {
+      "id": 5,
+      "name": "manage-orders",
+      "guard_name": "web",
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T10:00:00.000000Z"
+    },
+    {
+      "id": 6,
+      "name": "view-dashboard",
+      "guard_name": "web",
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T10:00:00.000000Z"
+    },
+    {
+      "id": 7,
+      "name": "toggle-cafe",
+      "guard_name": "web",
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T10:00:00.000000Z"
+    }
+  ]
+}
+```
+
+---
+
+### GET `/roles`
+
+List all roles with their assigned permissions.
+
+**Input:** none
+
+**Example response `200`**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "super_admin",
+      "guard_name": "web",
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T10:00:00.000000Z",
+      "permissions": [
+        {
+          "id": 1,
+          "name": "manage-users",
+          "guard_name": "web"
+        },
+        {
+          "id": 2,
+          "name": "manage-roles",
+          "guard_name": "web"
+        },
+        {
+          "id": 3,
+          "name": "manage-categories",
+          "guard_name": "web"
+        },
+        {
+          "id": 4,
+          "name": "manage-menu-items",
+          "guard_name": "web"
+        },
+        {
+          "id": 5,
+          "name": "manage-orders",
+          "guard_name": "web"
+        },
+        {
+          "id": 6,
+          "name": "view-dashboard",
+          "guard_name": "web"
+        },
+        {
+          "id": 7,
+          "name": "toggle-cafe",
+          "guard_name": "web"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "admin",
+      "guard_name": "web",
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T10:00:00.000000Z",
+      "permissions": [
+        {
+          "id": 3,
+          "name": "manage-categories",
+          "guard_name": "web"
+        },
+        {
+          "id": 4,
+          "name": "manage-menu-items",
+          "guard_name": "web"
+        },
+        {
+          "id": 5,
+          "name": "manage-orders",
+          "guard_name": "web"
+        },
+        {
+          "id": 6,
+          "name": "view-dashboard",
+          "guard_name": "web"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "user",
+      "guard_name": "web",
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T10:00:00.000000Z",
+      "permissions": []
+    }
+  ]
+}
+```
+
+---
+
+### POST `/roles`
+
+Create a new role with optional permissions.
+
+- **Content-Type:** `application/json`
+
+**Input**
+
+| Field | Type | Required | Notes |
+|---|---|---|---:|---|
+| `name` | string | Yes | unique |
+| `permissions` | array | No | array of permission name strings |
+
+**Example request**
+```json
+{
+  "name": "manager",
+  "permissions": ["manage-categories", "manage-orders"]
+}
+```
+
+**Example response `201`**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 4,
+    "name": "manager",
+    "guard_name": "web",
+    "created_at": "2025-01-01T11:00:00.000000Z",
+    "updated_at": "2025-01-01T11:00:00.000000Z",
+    "permissions": [
+      {
+        "id": 3,
+        "name": "manage-categories",
+        "guard_name": "web"
+      },
+      {
+        "id": 5,
+        "name": "manage-orders",
+        "guard_name": "web"
+      }
+    ]
+  },
+  "message": "Role created successfully"
+}
+```
+
+**Example validation error `422`**
+```json
+{
+  "message": "The name field is required. (and 1 more error)",
+  "errors": {
+    "name": ["The name has already been taken."]
+  }
+}
+```
+
+---
+
+### GET `/roles/{role}`
+
+Show a specific role with its permissions.
+
+**Input:** route param `role` (role ID)
+
+**Example response `200`**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 2,
+    "name": "admin",
+    "guard_name": "web",
+    "created_at": "2025-01-01T10:00:00.000000Z",
+    "updated_at": "2025-01-01T10:00:00.000000Z",
+    "permissions": [
+      {
+        "id": 3,
+        "name": "manage-categories",
+        "guard_name": "web"
+      },
+      {
+        "id": 4,
+        "name": "manage-menu-items",
+        "guard_name": "web"
+      },
+      {
+        "id": 5,
+        "name": "manage-orders",
+        "guard_name": "web"
+      },
+      {
+        "id": 6,
+        "name": "view-dashboard",
+        "guard_name": "web"
+      }
+    ]
+  }
+}
+```
+
+**Example error `404`**
+```json
+{
+  "message": "No query results for model [Spatie\\Permission\\Models\\Role] 999"
+}
+```
+
+---
+
+### PUT `/roles/{role}`
+
+Update a role name.
+
+- **Content-Type:** `application/json`
+
+**Input**
+
+| Field | Type | Required | Notes |
+|---|---|---|---:|---|
+| `name` | string | No | unique except current role |
+
+**Example request**
+```json
+{
+  "name": "supervisor"
+}
+```
+
+**Example response `200`**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 4,
+    "name": "supervisor",
+    "guard_name": "web",
+    "created_at": "2025-01-01T11:00:00.000000Z",
+    "updated_at": "2025-01-01T11:30:00.000000Z"
+  },
+  "message": "Role updated successfully"
+}
+```
+
+---
+
+### DELETE `/roles/{role}`
+
+Delete a role.
+
+**Input:** route param `role` (role ID)
+
+**Example response `200`**
+```json
+{
+  "success": true,
+  "message": "Role deleted successfully"
+}
+```
+
+---
+
+### GET `/roles/{role}/permissions`
+
+Get all permissions assigned to a specific role.
+
+**Input:** route param `role` (role ID)
+
+**Example response `200`**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 3,
+      "name": "manage-categories",
+      "guard_name": "web"
+    },
+    {
+      "id": 4,
+      "name": "manage-menu-items",
+      "guard_name": "web"
+    },
+    {
+      "id": 5,
+      "name": "manage-orders",
+      "guard_name": "web"
+    },
+    {
+      "id": 6,
+      "name": "view-dashboard",
+      "guard_name": "web"
+    }
+  ]
+}
+```
+
+---
+
+### PUT `/roles/{role}/permissions`
+
+Sync permissions for a role (replaces all existing permissions with the given list).
+
+- **Content-Type:** `application/json`
+
+**Input**
+
+| Field | Type | Required | Notes |
+|---|---|---|---:|---|
+| `permissions` | array | Yes | array of permission name strings |
+
+**Example request**
+```json
+{
+  "permissions": ["manage-categories", "manage-menu-items", "manage-orders", "view-dashboard", "toggle-cafe"]
+}
+```
+
+**Example response `200`**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 4,
+    "name": "supervisor",
+    "guard_name": "web",
+    "created_at": "2025-01-01T11:00:00.000000Z",
+    "updated_at": "2025-01-01T11:30:00.000000Z",
+    "permissions": [
+      {
+        "id": 3,
+        "name": "manage-categories",
+        "guard_name": "web"
+      },
+      {
+        "id": 4,
+        "name": "manage-menu-items",
+        "guard_name": "web"
+      },
+      {
+        "id": 5,
+        "name": "manage-orders",
+        "guard_name": "web"
+      },
+      {
+        "id": 6,
+        "name": "view-dashboard",
+        "guard_name": "web"
+      },
+      {
+        "id": 7,
+        "name": "toggle-cafe",
+        "guard_name": "web"
+      }
+    ]
+  },
+  "message": "Permissions updated successfully"
 }
 ```
 
@@ -955,7 +1489,7 @@ All routes in this section also pass through `cafe_open` middleware.
 **Input**
 
 | Field | Type | Required | Notes |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `table_number` | integer | Yes | min 1 |
 | `notes` | string | No | nullable |
 | `items` | array | Yes | min 1 item |
@@ -1088,7 +1622,7 @@ All routes in this section also pass through `cafe_open` middleware.
 **Input**
 
 | Field | Type | Required | Notes |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `order_id` | integer | Yes | must exist in `orders` |
 
 **Example request**
@@ -1125,14 +1659,14 @@ All routes in this section also pass through `cafe_open` middleware.
 ---
 
 ### GET `/cafe/payments/verify`
-- **Auth:** `auth:sanctum`
+- **Auth:** none (public callback from payment gateway)
 - **Input source:** query string from payment gateway callback
 - **Response type:** redirect, not JSON
 
 **Expected query params**
 
 | Query Param | Type | Required | Notes |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `Authority` | string | Yes | gateway authority code |
 | `Status` | string | Yes | must be `OK` for successful verification attempt |
 
@@ -1160,4 +1694,8 @@ GET /api/v1/cafe/payments/verify?Authority=A00000000000000000000000000123456789&
 - Do not manually set `Content-Type` when using `FormData`; browser/client will set the correct boundary
 - For booleans in `FormData`, prefer `1` and `0`
 - Order creation accepts `items[].notes`, but backend currently does not save that field in `order_items`
-- Login validation accepts `phone_number`, but current auth service actually logs in by `email` only
+- Login returns `roles` as an array (e.g. `["admin"]`) instead of a single `role` string
+- The `role` column has been removed from the `users` table; roles are now managed via Spatie's pivot tables
+- To assign a role to a user, use the Role Management API (owner only) or assign via the dashboard user management flow (requires manual extension)
+- Super admin bypasses all permission checks automatically via `Gate::before`
+- Deleting a role does NOT delete users assigned to that role — users simply become roleless
