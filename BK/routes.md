@@ -58,7 +58,6 @@ fetch('/api/v1/Dashboard/admin/menu-items', {
 | Field | Type | Required | Notes |
 |---|---|---|---:|---|
 | `name` | string | Yes | max 255 |
-| `email` | string | Yes | valid email, unique |
 | `phone_number` | string | Yes | max 11, unique |
 | `password` | string | Yes | min 8, confirmed |
 | `password_confirmation` | string | Yes | must match `password` |
@@ -464,6 +463,74 @@ Access is controlled via Spatie permissions (requires `permission:manage-users` 
 {
   "message": "user successfully deleted",
   "result": "user deleted successfully"
+}
+```
+
+---
+
+### PATCH `/Dashboard/users/{user}/roles`
+- **Required permission:** `manage-users`
+- **Content-Type:** `application/json`
+
+**Input**
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `roles` | array | No | Array of role name strings (e.g., `["admin"]`) |
+
+**Example request**
+```json
+{
+  "roles": ["admin"]
+}
+```
+
+**Example response `200`**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 3,
+    "name": "Admin User",
+    "email": "admin@example.com",
+    "phone_number": "09121112222",
+    "last_login": null,
+    "created_at": "2025-01-01T10:00:00.000000Z",
+    "updated_at": "2025-01-01T11:00:00.000000Z",
+    "roles": [
+      {
+        "id": 2,
+        "name": "admin",
+        "guard_name": "web",
+        "created_at": "2025-01-01T10:00:00.000000Z",
+        "updated_at": "2025-01-01T10:00:00.000000Z",
+        "pivot": {
+          "model_type": "App\\Models\\User",
+          "model_id": 3,
+          "role_id": 2
+        }
+      }
+    ]
+  },
+  "message": "Roles updated successfully"
+}
+```
+
+**Example error `403` (self-modification)**
+```json
+{
+  "success": false,
+  "message": "You cannot modify your own roles"
+}
+```
+
+**Example validation error `422`**
+```json
+{
+  "message": "The roles.0 field must exist in roles table.",
+  "errors": {
+    "roles.0": ["The selected roles.0 is invalid."]
+  }
 }
 ```
 

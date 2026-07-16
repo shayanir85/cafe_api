@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Override;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -41,4 +42,6 @@ class User extends Authenticatable
             'last_login' => 'datetime',
         ];
     }
+
+
 }

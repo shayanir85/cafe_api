@@ -40,6 +40,7 @@ Route::prefix('v1')->group(function () {
             Route::put('users/{id}', [AuthController::class, 'update']);
             Route::get('users', [AuthController::class, 'list']);
             Route::post('users', [AuthController::class, 'Register']);
+            Route::patch('users/{user}/roles', [AuthController::class, 'assignRoles']);
         });
 
         Route::middleware(['auth:sanctum', 'permission:manage-menu-items'])
