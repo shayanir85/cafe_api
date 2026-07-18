@@ -28,12 +28,13 @@ class UserSeeder extends Seeder
         );
         $admin->assignRole('admin');
 
-        User::updateOrCreate(
+        $user = User::updateOrCreate(
             ['phone_number' => '09040724357'],
             [
                 'name' => 'علی احمدی',
                 'password' => Hash::make('password123'),
             ]
         );
+        $user->assignRole('user');
     }
 }

@@ -52,7 +52,7 @@ class AuthService
 
     public function list()
     {
-        return User::all();
+        return User::with('roles')->get();
     }
 
     public function update($request, $id)

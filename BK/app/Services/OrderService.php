@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\MenuItem;
 use App\Models\Order;
+use App\Models\Payment;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -16,11 +17,17 @@ class OrderService
     {
         $query = Order::query()
             ->with(['orderItems.menuItem'])
-            ->whereBetween('created_at', [
+            ->latest('id');
+
+        if (!empty($filters['date'])) {
+            $date = Carbon::parse($filters['date']);
+            $query->whereDate('created_at', $date);
+        } else {
+            $query->whereBetween('created_at', [
                 Carbon::today(),
                 Carbon::tomorrow()
-                ])
-            ->latest('id');
+            ]);
+        }
 
         if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);
@@ -28,6 +35,31 @@ class OrderService
 
         if (!empty($filters['table_number'])) {
             $query->where('table_number', $filters['table_number']);
+        }
+
+        if (array_key_exists('is_out', $filters) && $filters['is_out'] !== null) {
+            $query->where('is_out', filter_var($filters['is_out'], FILTER_VALIDATE_BOOLEAN));
+        }
+
+        if (!empty($filters['user_id'])) {
+            $query->where('user_id', $filters['user_id']);
+        }
+
+        if (!empty($filters['min_amount'])) {
+            $query->where('total_amount', '>=', (float) $filters['min_amount']);
+        }
+
+        if (!empty($filters['max_amount'])) {
+            $query->where('total_amount', '<=', (float) $filters['max_amount']);
+        }
+
+        if (!empty($filters['search'])) {
+            $search = trim($filters['search']);
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                    ->orWhere('table_number', 'like', "%{$search}%")
+                    ->orWhere('notes', 'like', "%{$search}%");
+            });
         }
 
         if (!empty($filters['paginate']) && !empty($filters['per_page'])) {
@@ -47,10 +79,12 @@ class OrderService
         return DB::transaction(function () use ($data, $userId) {
             $order = Order::create([
                 'user_id' => $userId,
-                'table_number' => $data['table_number'],
+                'table_number' => $data['table_number'] ?? null,
                 'status' => 'pending',
                 'total_amount' => 0,
                 'notes' => $data['notes'] ?? null,
+                'is_out' => $data['is_out'] ?? false,
+                'address' => $data['address'] ?? null,
             ]);
 
             $totalAmount = 0;
@@ -101,5 +135,45 @@ class OrderService
             $order->orderItems()->delete();
             $order->delete();
         });
+    }
+
+    public function initiatePayment(Order $order): array
+    {
+        try {
+            $response = zarinpal()
+                ->merchantId(config('zarinpal.merchant_id'))
+                ->amount((int) $order->total_amount)
+                ->request()
+                ->description('پرداخت سفارش شماره ' . $order->id)
+                ->callbackUrl(route('payment.verify'))
+                ->send();
+
+            if ($response->success()) {
+                Payment::updateOrCreate(
+                    ['order_id' => $order->id],
+                    [
+                        'authority' => $response->authority(),
+                        'status' => 'pending',
+                        'amount' => $order->total_amount,
+                    ]
+                );
+
+                return [
+                    'success' => true,
+                    'payment_url' => $response->redirect()->getTargetUrl(),
+                    'authority' => $response->authority(),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => $response->error()->message(),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'خطا در اتصال به درگاه پرداخت: ' . $e->getMessage(),
+            ];
+        }
     }
 }

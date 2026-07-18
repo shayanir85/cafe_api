@@ -35,7 +35,7 @@ Route::prefix('v1')->group(function () {
     // Dashboard routes
     Route::prefix('Dashboard')->group(function () {
         Route::middleware(['auth:sanctum', 'permission:manage-users'])->group(function () {
-            Route::get('userLoginStatus', [DashboardController::class, 'Login_status']);
+            Route::get('users', [DashboardController::class, 'Login_status']);
             Route::delete('users/{id}', [AuthController::class, 'delete']);
             Route::put('users/{id}', [AuthController::class, 'update']);
             Route::get('users', [AuthController::class, 'list']);
@@ -89,17 +89,16 @@ Route::prefix('v1')->group(function () {
     Route::get('menu-items/{id}', [MenuItemsController::class, 'show']);
 
     Route::prefix('cafe')->group(function () {
-        // Customer orders (authenticated)
-        Route::middleware('auth:sanctum')->group(function () {
+        // Customer orders (authenticated) — blocked when cafe is closed
+        Route::middleware(['auth:sanctum', 'cafe_open'])->group(function () {
             Route::post('orders', [OrdersController::class, 'store']);
-            Route::get('orders/{id}', [OrdersController::class, 'show']);
+            Route::get('orders/{order}', [OrdersController::class, 'show']);
             Route::post('payments/request', [ZarinpalController::class, 'requestPayment']);
         });
 
-        // Payment verify callback — public (Zarinpal redirect cannot carry API tokens)
+        // Payment verify callback — public, no cafe_open (Zarinpal redirect cannot carry API tokens)
         Route::get('payments/verify', [ZarinpalController::class, 'verifyPayment'])->name('payment.verify');
-
-    })->middleware('cafe_open');
+    });
 
     // Auth
     Route::post('register', [AuthController::class, 'Register'])

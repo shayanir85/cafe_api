@@ -17,40 +17,56 @@ class OrderSeeder extends Seeder
         $espresso = MenuItem::where('name', 'اسپرسو')->first();
         $latte = MenuItem::where('name', 'لاته')->first();
         $cheesecake = MenuItem::where('name', 'چیزکیک نیویورکی')->first();
+        $breakfast = MenuItem::where('name', 'صبحانه کامل')->first();
 
         if (!$customer || !$espresso || !$latte || !$cheesecake) {
             return;
         }
 
-        $order = Order::create([
-            'user_id' => $customer->id,
-            'table_number' => 5,
-            'status' => 'pending',
-            'total_amount' => ($espresso->price * 2) + $latte->price + $cheesecake->price,
-        ]);
+        $order = Order::updateOrCreate(
+            ['id' => 1],
+            [
+                'user_id' => $customer->id,
+                'table_number' => '5',
+                'status' => 'pending',
+                'total_amount' => ($espresso->price * 2) + $latte->price + $cheesecake->price,
+                'is_out' => false,
+                'notes' => 'کاهش شکر',
+            ]
+        );
 
-        OrderItem::create([
-            'order_id' => $order->id,
-            'menu_item_id' => $espresso->id,
-            'quantity' => 2,
-            'unit_price' => $espresso->price,
-            'subtotal' => $espresso->price * 2,
-        ]);
+        OrderItem::updateOrCreate(
+            ['order_id' => $order->id, 'menu_item_id' => $espresso->id],
+            ['quantity' => 2, 'unit_price' => $espresso->price, 'subtotal' => $espresso->price * 2]
+        );
 
-        OrderItem::create([
-            'order_id' => $order->id,
-            'menu_item_id' => $latte->id,
-            'quantity' => 1,
-            'unit_price' => $latte->price,
-            'subtotal' => $latte->price,
-        ]);
+        OrderItem::updateOrCreate(
+            ['order_id' => $order->id, 'menu_item_id' => $latte->id],
+            ['quantity' => 1, 'unit_price' => $latte->price, 'subtotal' => $latte->price]
+        );
 
-        OrderItem::create([
-            'order_id' => $order->id,
-            'menu_item_id' => $cheesecake->id,
-            'quantity' => 1,
-            'unit_price' => $cheesecake->price,
-            'subtotal' => $cheesecake->price,
-        ]);
+        OrderItem::updateOrCreate(
+            ['order_id' => $order->id, 'menu_item_id' => $cheesecake->id],
+            ['quantity' => 1, 'unit_price' => $cheesecake->price, 'subtotal' => $cheesecake->price]
+        );
+
+        if ($breakfast) {
+            $order2 = Order::updateOrCreate(
+                ['id' => 2],
+                [
+                    'user_id' => $customer->id,
+                    'table_number' => '3',
+                    'status' => 'ready',
+                    'total_amount' => $breakfast->price * 2,
+                    'is_out' => false,
+                    'notes' => 'بدون قند',
+                ]
+            );
+
+            OrderItem::updateOrCreate(
+                ['order_id' => $order2->id, 'menu_item_id' => $breakfast->id],
+                ['quantity' => 2, 'unit_price' => $breakfast->price, 'subtotal' => $breakfast->price * 2]
+            );
+        }
     }
 }

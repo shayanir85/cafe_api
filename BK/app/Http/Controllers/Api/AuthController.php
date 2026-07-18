@@ -161,19 +161,21 @@ class AuthController extends Controller
             $request->phone_number,
             $request->otp
         );
-        if ($result) {
+        if ($result['success']) {
+            session()->put('verified_phone', $request->phone_number);
+
             $user = User::where('phone_number', $request->phone_number)->first();
             if ($user) {
                 $user->update(['phone_number_verified_at' => Carbon::now()]);
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Phone number verified successfully'
-                ], 200);
             }
 
+            return response()->json([
+                'success' => true,
+                'message' => 'Phone number verified successfully'
+            ], 200);
         }
-        
-        return response()->json($result, $result? 200:400);
+
+        return response()->json($result, 400);
     }
 
     /**

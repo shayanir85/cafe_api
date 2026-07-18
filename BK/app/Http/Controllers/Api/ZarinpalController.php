@@ -4,12 +4,17 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Order;
 use App\Models\Payment;
+use App\Services\OrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ZarinpalController
 {
+    public function __construct(
+        protected OrderService $orderService
+    ) {}
+
     public function requestPayment(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -25,48 +30,26 @@ class ZarinpalController
             ], 400);
         }
 
-        try {
-            $response = zarinpal()
-                ->merchantId(config('zarinpal.merchant_id'))
-                ->amount((int) $order->total_amount)
-                ->request()
-                ->description('پرداخت سفارش شماره ' . $order->id)
-                ->callbackUrl(route('payment.verify'))
-                ->send();
+        $payment = $this->orderService->initiatePayment($order);
 
-            if (!$response->success()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $response->error()->message(),
-                ], 400);
-            }
-
-            Payment::updateOrCreate(
-                ['order_id' => $order->id],
-                [
-                    'authority' => $response->authority(),
-                    'status' => 'pending',
-                    'amount' => $order->total_amount,
-                ]
-            );
-
-            return response()->json([
-                'success' => true,
-                'Authority' => $response->authority(),
-                'payment_url' => $response->redirect()->getTargetUrl(),
-            ]);
-        } catch (\Exception $e) {
+        if (!$payment['success']) {
             return response()->json([
                 'success' => false,
-                'message' => 'خطا در اتصال به درگاه پرداخت: ' . $e->getMessage(),
-            ], 500);
+                'message' => $payment['message'] ?? 'خطا در اتصال به درگاه پرداخت.',
+            ], 400);
         }
+
+        return response()->json([
+            'success' => true,
+            'Authority' => $payment['authority'],
+            'payment_url' => $payment['payment_url'],
+        ]);
     }
 
     public function verifyPayment(Request $request): RedirectResponse
     {
         $authority = $request->query('Authority');
-        $status = $request->query('Status');
+        $status = $request->query('');
 
         $frontendUrl = config('app.frontend_url');
 

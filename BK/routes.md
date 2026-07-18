@@ -320,55 +320,31 @@ Base prefix: `/Dashboard`
 All routes in this section require `auth:sanctum`.
 Access is controlled via Spatie permissions (requires `permission:manage-users` for user management, `permission:toggle-cafe` for cafe toggle, `permission:manage-menu-items` for menu item delete).
 
-### GET `/Dashboard/userLoginStatus`
-- **Required permission:** `manage-users`
-
-**Input:** none
-
-**Example response `200`**
-```json
-{
-  "users": [
-    {
-      "id": 1,
-      "name": "Super Admin",
-      "email": "super@example.com",
-      "last_login": "2025-01-01T12:00:00.000000Z",
-      "is_active": 1,
-      "created_at": "2025-01-01T10:00:00.000000Z",
-      "updated_at": "2025-01-01T12:00:00.000000Z",
-      "roles": [
-        {
-          "id": 1,
-          "name": "super_admin",
-          "guard_name": "web"
-        }
-      ]
-    }
-  ]
-}
-```
-
----
-
 ### GET `/Dashboard/users`
 - **Required permission:** `manage-users`
 
 **Input:** none
 
+Returns all users with their assigned roles.
+
 **Example response `200`**
 ```json
-[
-  {
-    "id": 1,
-    "name": "Super Admin",
-    "email": "super@example.com",
-    "phone_number": "09120000000",
-    "last_login": "2025-01-01T12:00:00.000000Z",
-    "created_at": "2025-01-01T10:00:00.000000Z",
-    "updated_at": "2025-01-01T12:00:00.000000Z"
-  }
-]
+{
+  "id": 1,
+  "name": "Super Admin",
+  "email": "super@example.com",
+  "phone_number": "09120000000",
+  "last_login": "2025-01-01T12:00:00.000000Z",
+  "created_at": "2025-01-01T10:00:00.000000Z",
+  "updated_at": "2025-01-01T12:00:00.000000Z",
+  "roles": [
+    {
+      "id": 1,
+      "name": "super_admin",
+      "guard_name": "web"
+    }
+  ]
+}
 ```
 
 ---
@@ -907,16 +883,22 @@ image: [binary file]
 
 ### GET `/Dashboard/admin/orders`
 - **Required permission:** `manage-orders`
-- **Query params:** `status`, `table_number`, `paginate`, `per_page`
+- **Query params:** `status`, `table_number`, `date`, `is_out`, `user_id`, `min_amount`, `max_amount`, `search`, `paginate`, `per_page`
 
 **Input**
 
 | Query Param | Type | Required | Notes |
-|---|---|---|---:|---|
+|---|---|---|---:|---:|
 | `status` | string | No | `pending`, `ready`, `delivered` |
-| `table_number` | integer | No | exact match |
+| `table_number` | string | No | exact match |
+| `date` | string | No | date string (parsed by Carbon); defaults to today if omitted |
+| `is_out` | boolean | No | filter delivery vs dine-in |
+| `user_id` | integer | No | filter by staff who took the order |
+| `min_amount` | number | No | minimum total amount |
+| `max_amount` | number | No | maximum total amount |
+| `search` | string | No | searches id, table_number, and notes |
 | `paginate` | boolean | No | when `true`, response becomes paginated |
-| `per_page` | integer | No | default `15` |
+| `per_page` | integer | No | default `20` |
 
 **Example request**
 ```http
@@ -931,10 +913,12 @@ GET /api/v1/Dashboard/admin/orders?status=pending&paginate=true&per_page=10
     {
       "id": 8,
       "user_id": 2,
-      "table_number": 4,
+      "table_number": "4",
       "status": "pending",
       "total_amount": "210000.00",
       "notes": "Less sugar",
+      "is_out": false,
+      "address": null,
       "created_at": "2025-01-01T10:00:00.000000Z",
       "updated_at": "2025-01-01T10:00:00.000000Z",
       "order_items": [
@@ -984,10 +968,12 @@ GET /api/v1/Dashboard/admin/orders?status=pending&paginate=true&per_page=10
   "data": {
     "id": 8,
     "user_id": 2,
-    "table_number": 4,
+    "table_number": "4",
     "status": "ready",
     "total_amount": "210000.00",
     "notes": "Less sugar",
+    "is_out": false,
+    "address": null,
     "created_at": "2025-01-01T10:00:00.000000Z",
     "updated_at": "2025-01-01T11:00:00.000000Z",
     "order_items": [
@@ -1556,18 +1542,21 @@ All routes in this section also pass through `cafe_open` middleware.
 **Input**
 
 | Field | Type | Required | Notes |
-|---|---|---|---:|---|
-| `table_number` | integer | Yes | min 1 |
+|---|---|---|---:|---:|
+| `table_number` | string | No (see is_out) | required for dine-in (`is_out: false`) |
+| `is_out` | boolean | Yes | `true` = delivery, `false` = dine-in |
+| `address` | string | No (see is_out) | required for delivery (`is_out: true`), max 255 |
 | `notes` | string | No | nullable |
 | `items` | array | Yes | min 1 item |
 | `items[].menu_item_id` | integer | Yes | must exist |
 | `items[].quantity` | integer | Yes | min 1 |
 | `items[].notes` | string | No | accepted by validation but not stored in `order_items` currently |
 
-**Example request**
+**Example request (dine-in)**
 ```json
 {
-  "table_number": 4,
+  "table_number": "A5",
+  "is_out": false,
   "notes": "No cinnamon",
   "items": [
     {
@@ -1583,6 +1572,21 @@ All routes in this section also pass through `cafe_open` middleware.
 }
 ```
 
+**Example request (delivery)**
+```json
+{
+  "is_out": true,
+  "address": "123 Main St, Apt 4B",
+  "notes": "Ring the bell",
+  "items": [
+    {
+      "menu_item_id": 12,
+      "quantity": 2
+    }
+  ]
+}
+```
+
 **Example response `201` with payment URL**
 ```json
 {
@@ -1590,10 +1594,12 @@ All routes in this section also pass through `cafe_open` middleware.
   "data": {
     "id": 8,
     "user_id": 2,
-    "table_number": 4,
+    "table_number": "A5",
     "status": "pending",
     "total_amount": "210000.00",
     "notes": "No cinnamon",
+    "is_out": false,
+    "address": null,
     "created_at": "2025-01-01T10:00:00.000000Z",
     "updated_at": "2025-01-01T10:00:00.000000Z",
     "order_items": [
@@ -1618,6 +1624,7 @@ All routes in this section also pass through `cafe_open` middleware.
     ]
   },
   "payment_url": "https://payment-gateway.example/start/authority-code",
+  "authority": "A00000000000000000000000000123456789",
   "message": "سفارش ایجاد شد. لطفاً پرداخت را انجام دهید."
 }
 ```
@@ -1629,22 +1636,25 @@ All routes in this section also pass through `cafe_open` middleware.
   "data": {
     "id": 8,
     "user_id": 2,
-    "table_number": 4,
+    "table_number": "A5",
     "status": "pending",
     "total_amount": "210000.00",
-    "notes": "No cinnamon"
+    "notes": "No cinnamon",
+    "is_out": false,
+    "address": null
   },
   "payment_url": null,
+  "authority": null,
   "message": "سفارش ایجاد شد اما درگاه پرداخت در دسترس نیست."
 }
 ```
 
 ---
 
-### GET `/cafe/orders/{id}`
+### GET `/cafe/orders/{order}`
 - **Auth:** `auth:sanctum`
 
-**Input:** route param `id`
+**Input:** route param `order` (route model binding)
 
 **Example response `200`**
 ```json
@@ -1653,10 +1663,12 @@ All routes in this section also pass through `cafe_open` middleware.
   "data": {
     "id": 8,
     "user_id": 2,
-    "table_number": 4,
+    "table_number": "A5",
     "status": "pending",
     "total_amount": "210000.00",
     "notes": "No cinnamon",
+    "is_out": false,
+    "address": null,
     "created_at": "2025-01-01T10:00:00.000000Z",
     "updated_at": "2025-01-01T10:00:00.000000Z",
     "order_items": [
@@ -1703,6 +1715,7 @@ All routes in this section also pass through `cafe_open` middleware.
 ```json
 {
   "success": true,
+  "Authority": "A00000000000000000000000000123456789",
   "payment_url": "https://payment-gateway.example/start/authority-code"
 }
 ```
@@ -1715,11 +1728,11 @@ All routes in this section also pass through `cafe_open` middleware.
 }
 ```
 
-**Example error `500`**
+**Example error `400` (gateway error)**
 ```json
 {
   "success": false,
-  "message": "خطا در اتصال به درگاه پرداخت: example error"
+  "message": "خطا در اتصال به درگاه پرداخت"
 }
 ```
 
@@ -1761,6 +1774,9 @@ GET /api/v1/cafe/payments/verify?Authority=A00000000000000000000000000123456789&
 - Do not manually set `Content-Type` when using `FormData`; browser/client will set the correct boundary
 - For booleans in `FormData`, prefer `1` and `0`
 - Order creation accepts `items[].notes`, but backend currently does not save that field in `order_items`
+- `table_number` is a string (e.g. `"A5"`, `"B12"`), not an integer
+- Order creation now requires `is_out` (boolean) and conditionally requires `table_number` or `address`
+- Order responses include `is_out`, `address`, and order creation responses include `authority`
 - Login returns `roles` as an array (e.g. `["admin"]`) instead of a single `role` string
 - The `role` column has been removed from the `users` table; roles are now managed via Spatie's pivot tables
 - To assign a role to a user, use the Role Management API (owner only) or assign via the dashboard user management flow (requires manual extension)

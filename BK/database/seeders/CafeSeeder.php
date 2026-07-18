@@ -8,13 +8,11 @@ use Illuminate\Database\Seeder;
 
 class CafeSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $cafeStat = IsClosed::create([
-            'is_closed' => true
-        ]);
+        IsClosed::updateOrCreate(
+            ['id' => 1],
+            ['is_closed' => true]
+        );
     }
 }

@@ -18,12 +18,38 @@ class Order extends Model
         'status',
         'total_amount',
         'notes',
+        'is_out',
+        'address'
     ];
 
     protected $casts = [
         'total_amount' => 'decimal:2',
-        'table_number' => 'integer',
+        'is_out'=> 'boolean'
     ];
+
+    protected static function booted()
+    {
+        static::saving(function ($order) {
+            if ($order->is_out) {
+                if (empty($order->address)) {
+                    throw new \Exception('Address is required for delivery orders.');
+                }
+                
+                if (!empty($order->table_number)) {
+                    throw new \Exception('Table number must be empty for delivery orders.');
+                }
+            } 
+            else {
+                if (empty($order->table_number)) {
+                    throw new \Exception('Table number is required for dine-in orders.');
+                }
+                
+                if (!empty($order->address)) {
+                    throw new \Exception('Address must be empty for dine-in orders.');
+                }
+            }
+        });
+    }
 
     public function user(): BelongsTo
     {
@@ -60,7 +86,7 @@ class Order extends Model
         return $query->where('status', $status);
     }
 
-    public function scopeByTable($query, int $tableNumber)
+    public function scopeByTable($query, string $tableNumber)
     {
         return $query->where('table_number', $tableNumber);
     }

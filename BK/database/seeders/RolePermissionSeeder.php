@@ -10,17 +10,17 @@ class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        Permission::create(['name' => 'manage-users', 'guard_name' => 'web']);
-        Permission::create(['name' => 'manage-roles', 'guard_name' => 'web']);
-        Permission::create(['name' => 'manage-categories', 'guard_name' => 'web']);
-        Permission::create(['name' => 'manage-menu-items', 'guard_name' => 'web']);
-        Permission::create(['name' => 'manage-orders', 'guard_name' => 'web']);
-        Permission::create(['name' => 'view-dashboard', 'guard_name' => 'web']);
-        Permission::create(['name' => 'toggle-cafe', 'guard_name' => 'web']);
+        Permission::findOrCreate('manage-users', 'web');
+        Permission::findOrCreate('manage-roles', 'web');
+        Permission::findOrCreate('manage-categories', 'web');
+        Permission::findOrCreate('manage-menu-items', 'web');
+        Permission::findOrCreate('manage-orders', 'web');
+        Permission::findOrCreate('view-dashboard', 'web');
+        Permission::findOrCreate('toggle-cafe', 'web');
 
-        $superAdmin = Role::create(['name' => 'super_admin', 'guard_name' => 'web']);
-        $admin = Role::create(['name' => 'admin', 'guard_name' => 'web']);
-        Role::create(['name' => 'user', 'guard_name' => 'web']);
+        $superAdmin = Role::findOrCreate('super_admin', 'web');
+        $admin = Role::findOrCreate('admin', 'web');
+        Role::findOrCreate('user', 'web');
 
         $superAdmin->syncPermissions([
             'manage-users',
