@@ -1,10 +1,9 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import AdminSidebar from '@/components/AdminSidebar.vue'
+import AdminFooter from '@/components/AdminFooter.vue'
 
-const router = useRouter()
 const authStore = useAuthStore()
 
 const showSettingsModal = ref(false)
@@ -54,9 +53,6 @@ function closeSettingsModal() {
 function handleKeydown(e) {
   if (e.key === 'Escape' && showSettingsModal.value) {
     closeSettingsModal()
-  }
-  if (e.ctrlKey && e.key === 'b') {
-    e.preventDefault()
   }
 }
 
@@ -131,6 +127,8 @@ onUnmounted(() => {
       <h3 class="iframe-title">پیش نمایش</h3>
       <iframe src="/" title="پیش نمایش منو"></iframe>
     </div>
+
+    <AdminFooter />
   </main>
 
   <!-- Settings modal -->
@@ -196,6 +194,7 @@ onUnmounted(() => {
   flex-direction: column;
   height: calc(100vh - 48px);
   min-height: 600px;
+  padding-bottom: 60px;
 }
 
 .cards-row {

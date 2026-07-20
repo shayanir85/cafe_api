@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getCategories } from '@/services/categories'
 import { createMenuItem } from '@/services/menuItems'
+import AdminFooter from '@/components/AdminFooter.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -298,6 +299,8 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
+
+      <AdminFooter />
     </main>
 
     <div class="toast" :class="[toastVisible ? 'show' : '', `toast-${toastType}`]">
@@ -363,10 +366,10 @@ onUnmounted(() => {
 .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
 .main-content {
-  max-width: 1200px; margin: 0 auto; padding: 16px;
+  max-width: 1200px; margin: 0 auto; padding: 16px; padding-bottom: 80px;
 }
-@media (min-width: 640px) { .main-content { padding: 24px; } }
-@media (min-width: 1024px) { .main-content { padding: 32px 24px; } }
+@media (min-width: 640px) { .main-content { padding: 24px; padding-bottom: 80px; } }
+@media (min-width: 1024px) { .main-content { padding: 32px 24px; padding-bottom: 80px; } }
 
 .form-grid {
   display: grid;

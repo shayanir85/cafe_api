@@ -1,4 +1,5 @@
 import * as api from "./api.js";
+const { escapeHtml } = api;
 
 let products = [];
 let categories = [];
@@ -16,16 +17,6 @@ const CAT_ICONS = [
   "fa-coffee",
   "fa-candy-cane",
 ];
-
-function escapeHtml(str) {
-  if (!str) return "";
-  return String(str).replace(/[&<>]/g, function (m) {
-    if (m === "&") return "&amp;";
-    if (m === "<") return "&lt;";
-    if (m === ">") return "&gt;";
-    return m;
-  });
-}
 
 function createSkeletons() {
   const container = document.getElementById("skeleton-container");
@@ -192,7 +183,7 @@ function renderProducts(list) {
     card.className = "menu-card product-card";
     card.style.transitionDelay = `${idx * 70}ms`;
     card.innerHTML = `
-            <img src="${product.img || "https://api.shayaniranpor.ir/images/menu-items/default.jpg"}" alt="${escapeHtml(product.name)}" class="menu-card-image" loading="lazy" onerror="this.style.display='none'">
+            <img src="${product.img || api.getImageUrl('images/menu-items/default.jpg')}" alt="${escapeHtml(product.name)}" class="menu-card-image" loading="lazy" onerror="this.style.display='none'">
             <div class="menu-card-overlay">
                 <span class="menu-card-category"><i class="fas ${style.icon}"></i> ${escapeHtml(product.catName)}</span>
             </div>

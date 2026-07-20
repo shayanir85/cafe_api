@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getUsers, updateUser, deleteUser, createUser } from '@/services/users'
 import AdminSidebar from '@/components/AdminSidebar.vue'
+import AdminFooter from '@/components/AdminFooter.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -593,6 +594,8 @@ watch([roleFilter, loginFilter], () => {
           </div>
         </div>
       </div>
+
+      <AdminFooter />
     </main>
 
     <!-- Edit Modal -->
@@ -758,8 +761,8 @@ watch([roleFilter, loginFilter], () => {
   </div>
 </template>
 
-<style scoped>
-/* ===== CSS VARIABLES ===== */
+<style>
+/* Global variables — must be unscoped to apply */
 :root {
   --bg-primary: #0f172a;
   --bg-secondary: #1e3a5f;
@@ -791,6 +794,7 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
 .main-body {
   margin-right: 64px;
   padding: 24px;
+  padding-bottom: 80px;
   transition: all 0.3s ease;
 }
 

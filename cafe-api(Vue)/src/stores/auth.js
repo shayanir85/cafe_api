@@ -3,7 +3,10 @@ import { ref, computed } from 'vue'
 import * as authApi from '@/services/auth'
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref(JSON.parse(sessionStorage.getItem('user') || 'null'))
+  const user = ref((() => {
+    try { return JSON.parse(sessionStorage.getItem('user') || 'null') }
+    catch { return null }
+  })())
   const token = ref(sessionStorage.getItem('access_token') || null)
 
   const isLoggedIn = computed(() => !!token.value)

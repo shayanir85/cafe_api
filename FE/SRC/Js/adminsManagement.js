@@ -1,4 +1,4 @@
-import { getStoredUser, clearAuth, getUsers, updateUser, deleteUser, createUser } from '../Js/api.js';
+import { getStoredUser, clearAuth, getUsers, updateUser, deleteUser, createUser, escapeHtml } from '../Js/api.js';
 import { initSidebar } from '../Js/sidebar.js';
 
 const currentUser = getStoredUser();
@@ -109,7 +109,7 @@ async function loadUsers() {
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
         </svg>
         <p class="text-sm">خطا در بارگذاری کاربران</p>
-        <p class="text-xs mt-1 opacity-60">${err.message}</p>
+        <p class="text-xs mt-1 opacity-60">${escapeHtml(err.message)}</p>
     </div>`;
         }
         showToast('خطا در بارگذاری کاربران', 'error');
@@ -196,7 +196,7 @@ function renderPage() {
         const isSelf = u.id === currentUser?.id;
         const lastLogin = formatDate(u.last_login);
         const joinDate = formatJoinDate(u.created_at);
-        const displayName = u.name || '—';
+        const displayName = escapeHtml(u.name || '—');
 
         html += `
         <div class="md:hidden user-card" data-id="${u.id}">

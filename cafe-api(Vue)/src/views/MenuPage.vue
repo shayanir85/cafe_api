@@ -1,14 +1,13 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { getMenuItems } from '@/services/menuItems'
 import { getCategories } from '@/services/categories'
 import { getImageUrl } from '@/services/api'
 import BackgroundBlobs from '@/components/BackgroundBlobs.vue'
-import LogoCup from '@/components/LogoCup.vue'
+import MenuHeader from '@/components/MenuHeader.vue'
+import MenuFooter from '@/components/MenuFooter.vue'
 
-const router = useRouter()
 const cart = useCartStore()
 
 const products = ref([])
@@ -104,34 +103,7 @@ onMounted(async () => {
 <template>
   <BackgroundBlobs />
 
-  <header class="header">
-    <div class="header-content">
-      <div class="header-row-top">
-        <div class="flex items-center gap-2">
-          <a href="#" class="logo-link" @click.prevent>
-            <LogoCup />
-          </a>
-          <span class="brand-text">کافی شاپ</span>
-        </div>
-        <div class="header-right">
-          <button class="cart-btn-wrap" @click="router.push('/checkout')">
-            <i class="fas fa-clipboard-list"></i>
-            <span class="c-count" :class="{ show: cart.totalCount > 0 }">{{ cart.totalCount }}</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="search-wrapper">
-        <i class="fas fa-search search-icon"></i>
-        <input
-          v-model="searchQuery"
-          type="text"
-          class="search-box"
-          placeholder="جستجو در منو..."
-          aria-label="جستجو در منو" />
-      </div>
-    </div>
-  </header>
+  <MenuHeader v-model:searchValue="searchQuery" :showSearch="true" />
 
   <main class="main-container">
     <!-- Filter pills -->
@@ -189,7 +161,7 @@ onMounted(async () => {
         class="menu-card product-card visible"
         :style="{ transitionDelay: `${idx * 70}ms` }">
         <img
-          :src="product.img || 'https://api.shayaniranpor.ir/images/menu-items/default.jpg'"
+          :src="product.img || getImageUrl('images/menu-items/default.jpg')"
           :alt="product.name"
           class="menu-card-image"
           loading="lazy"
@@ -218,206 +190,13 @@ onMounted(async () => {
     </div>
   </main>
 
-  <footer class="footer-glass">
-    <div class="footer-content">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        <div>
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center text-stone-900 shadow-lg shadow-amber-500/20">
-              <i class="fas fa-mug-hot"></i>
-            </div>
-            <span class="font-bold text-lg bg-gradient-to-r from-amber-300 to-amber-500 bg-clip-text text-transparent">کافی شاپ</span>
-          </div>
-          <p class="text-white/40 text-sm leading-relaxed">
-            طعم لحظه‌های ناب را با ما تجربه کنید. تازه‌ترین نوشیدنی‌های گرم و
-            سرد، دسرهای خانگی و فضایی دلنشین برای لحظات شما.
-          </p>
-          <div class="flex items-center gap-2 mt-5">
-            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-telegram-plane"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">دسترسی سریع</h4>
-          <ul class="space-y-2">
-            <li><a href="#" class="footer-link">صفحه اصلی</a></li>
-            <li><router-link to="/" class="footer-link">منوی محصولات</router-link></li>
-            <li><router-link to="/checkout" class="footer-link">سبد خرید</router-link></li>
-            <!-- <li><a href="#" class="footer-link">تماس با ما</a></li> -->
-          </ul>
-        </div>
-        <div>
-          <h4 class="footer-title">دسته‌بندی‌ها</h4>
-          <ul class="space-y-2">
-            <li v-for="cat in categories" :key="cat.id">
-              <a href="#" class="footer-link" @click.prevent="handleFilter(cat.id); window.scrollTo({ top: 0, behavior: 'smooth' })">
-                <i class="fas" :class="categoryIconMap.get(cat.id) || 'fa-tag'" style="color: rgba(255,255,255,0.2); margin-left: 8px"></i>
-                {{ cat.name }}
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="footer-title">اطلاعات تماس</h4>
-          <ul class="space-y-3">
-            <li class="flex items-start gap-3 text-white/50 text-sm">
-              <i class="fas fa-map-marker-alt text-amber-400 mt-0.5"></i>
-              <span>تهران، خیابان ولیعصر، جنب پارک ملت</span>
-            </li>
-            <li class="flex items-center gap-3 text-white/50 text-sm">
-              <i class="fas fa-phone text-amber-400 mt-2"></i>
-              <span dir="ltr">۰۲۱-۱۲۳۴۵۶۷۸</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-divider"></div>
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center">
-        <p class="text-white/30 text-xs sm:text-sm">
-          تمامی حقوق مادی و معنوی این سایت متعلق به
-          <span class="text-amber-400/60">کافی شاپ</span> می‌باشد.
-        </p>
-      </div>
-    </div>
-  </footer>
+  <MenuFooter
+    :categories="categories"
+    :categoryIconMap="categoryIconMap"
+    @filter="handleFilter" />
 </template>
 
 <style scoped>
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(15, 10, 8, 0.55);
-  backdrop-filter: blur(28px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.header-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.header-row-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.logo-link {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-}
-
-.brand-text {
-  font-weight: 800;
-  font-size: 1.05rem;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b, #d97706);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.02em;
-}
-
-@media (max-width: 639px) {
-  .brand-text { display: none; }
-}
-
-.search-wrapper {
-  position: relative;
-  flex: 1;
-  min-width: 160px;
-}
-
-.search-icon {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 14px;
-  pointer-events: none;
-}
-
-.search-box {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  padding: 8px 35px 8px 12px;
-  color: white;
-  font-size: 12px;
-  outline: none;
-}
-
-@media (min-width: 640px) {
-  .search-box { padding: 10px 40px 10px 16px; font-size: 14px; }
-}
-
-.search-box:focus {
-  border-color: #f59e0b;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.cart-btn-wrap {
-  position: relative;
-  width: 38px;
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 11px;
-  color: rgba(245, 158, 11, 0.75);
-  cursor: pointer;
-  transition: all 0.3s;
-  flex-shrink: 0;
-  font-size: 0.95rem;
-}
-
-@media (min-width: 640px) {
-  .cart-btn-wrap { width: 42px; height: 42px; border-radius: 12px; font-size: 1.05rem; }
-}
-
-.cart-btn-wrap:hover {
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(245, 158, 11, 0.2);
-}
-
-.c-count {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
-  background: linear-gradient(135deg, #ef4444, #e11d48);
-  color: white;
-  font-size: 0.625rem;
-  font-weight: 800;
-  border-radius: 999px;
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-
-@media (min-width: 640px) {
-  .c-count { min-width: 20px; height: 20px; font-size: 0.6875rem; }
-}
-
-.c-count.show { display: flex; }
-
 .main-container {
   max-width: 1400px;
   margin: 0 auto;
@@ -647,76 +426,4 @@ onMounted(async () => {
   100% { background-position: -200% 0; }
 }
 
-.footer-glass {
-  background: rgba(15, 10, 8, 0.6);
-  backdrop-filter: blur(24px);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  margin-top: 32px;
-}
-
-@media (min-width: 640px) { .footer-glass { margin-top: 48px; } }
-
-.footer-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 32px 16px;
-}
-
-@media (min-width: 640px) { .footer-content { padding: 48px 20px; } }
-@media (min-width: 1024px) { .footer-content { padding: 48px 24px; } }
-
-.footer-link {
-  color: rgba(255, 255, 255, 0.5);
-  transition: color 0.3s;
-  font-size: 0.875rem;
-  text-decoration: none;
-}
-
-.footer-link:hover { color: #f59e0b; }
-
-.social-icon {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.5);
-  transition: all 0.3s;
-  text-decoration: none;
-}
-
-.social-icon:hover {
-  background: rgba(245, 158, 11, 0.15);
-  border-color: rgba(245, 158, 11, 0.3);
-  color: #f59e0b;
-  transform: translateY(-2px);
-}
-
-.footer-divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
-  margin: 24px 0;
-}
-
-.footer-title {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9375rem;
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-
-@media (max-width: 767px) {
-  .header-content { flex-direction: column; align-items: stretch; }
-  .header-row-top { width: 100%; }
-  .search-wrapper { width: 100%; }
-}
-
-@media (min-width: 768px) {
-  .header-content { flex-direction: row; align-items: center; }
-  .header-row-top { width: auto; flex-shrink: 0; }
-  .search-wrapper { width: auto; flex: 1; }
-}
 </style>

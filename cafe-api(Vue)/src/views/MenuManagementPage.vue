@@ -9,6 +9,8 @@ import { useAuthStore } from '@/stores/auth'
 import { getMenuItems, updateMenuItem, deleteMenuItem } from '@/services/menuItems'
 import { getCategories, createCategory, updateCategory, deleteCategory } from '@/services/categories'
 import { getImageUrl } from '@/services/api'
+import { useToast } from '@/composables/useToast'
+import AdminFooter from '@/components/AdminFooter.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -60,14 +62,7 @@ const categoryForm = ref({
 const categoryFormTitle = computed(() => categoryForm.value.id ? 'ویرایش دسته‌بندی' : 'افزودن دسته‌بندی')
 
 // ============ نوتیفیکیشن ============
-const toast = ref({ show: false, message: '', type: 'success' })
-let toastTimeout = null
-
-function showToast(message, type = 'success') {
-  clearTimeout(toastTimeout)
-  toast.value = { show: true, message, type }
-  toastTimeout = setTimeout(() => { toast.value.show = false }, 3000)
-}
+const { toast, showToast } = useToast()
 
 // ============ بارگذاری دسته‌بندی‌ها ============
 async function loadCategories() {
@@ -182,12 +177,6 @@ function clearAllFilters() {
   sortBy.value = 'newest'
   currentCategory.value = 'all'
   showToast('تمامی فیلترها پاک شد', 'info')
-}
-
-// ============ جستجوی debounce ============
-function handleSearch() {
-  clearTimeout(searchTimeout)
-  searchTimeout = setTimeout(() => {}, 300)
 }
 
 // ============ تغییر وضعیت موجودی ============
@@ -518,8 +507,7 @@ onUnmounted(() => {
           type="text"
           class="search-box search-input"
           placeholder="جستجو در منو..."
-          v-model="searchQuery"
-          @input="handleSearch">
+          v-model="searchQuery">
       </div>
       <select class="filter-select" v-model="statusFilter">
         <option value="all">همه وضعیت‌ها</option>
@@ -605,6 +593,8 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
+
+    <AdminFooter />
   </main>
 
   <!-- ============ مودال ویرایش ============ -->
@@ -883,9 +873,9 @@ onUnmounted(() => {
 .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
 /* ============ کانتینر اصلی ============ */
-.main-container { max-width: 1400px; margin: 0 auto; padding: 12px; }
-@media (min-width: 640px) { .main-container { padding: 16px 20px; } }
-@media (min-width: 1024px) { .main-container { padding: 20px 24px; } }
+.main-container { max-width: 1400px; margin: 0 auto; padding: 12px; padding-bottom: 80px; }
+@media (min-width: 640px) { .main-container { padding: 16px 20px; padding-bottom: 80px; } }
+@media (min-width: 1024px) { .main-container { padding: 20px 24px; padding-bottom: 80px; } }
 
 /* ============ تب دسته‌بندی ============ */
 .category-header {

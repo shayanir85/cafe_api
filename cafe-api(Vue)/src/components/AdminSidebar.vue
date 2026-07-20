@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
@@ -19,9 +19,9 @@ function handleLogout() {
   }
 }
 
-const user = auth.user
-const userInitials = ref((user?.name || user?.email || '?').slice(0, 2).toUpperCase())
-const roleText = user?.role === 'super_admin' ? 'سوپر ادمین' : user?.role === 'admin' ? 'ادمین' : 'کاربر'
+const user = computed(() => auth.user)
+const userInitials = computed(() => (user.value?.name || user.value?.email || '?').slice(0, 2).toUpperCase())
+const roleText = computed(() => user.value?.role === 'super_admin' ? 'سوپر ادمین' : user.value?.role === 'admin' ? 'ادمین' : 'کاربر')
 </script>
 
 <template>

@@ -31,7 +31,7 @@ Api.interceptors.response.use(
       const isPublicPage = currentPath.includes('/Html/menu.html') || currentPath.includes('/Html/checkout.html') || currentPath.endsWith('index.html');
       if (!isPublicPage) {
         clearAuth();
-        window.location.href = '/FE/Html/login.html';
+        window.location.href = 'login.html';
       }
     }
     return Promise.reject(error);
@@ -365,6 +365,31 @@ export async function verifyPayment(params) {
 }
 
 
+export function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>"']/g, function (m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    if (m === '"') return '&quot;';
+    if (m === "'") return '&#39;';
+    return m;
+  });
+}
+
+export function showToast(msg, type = 'success') {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  const msgEl = document.getElementById('toastMessage');
+  const iconEl = document.getElementById('toastIcon');
+  if (msgEl) msgEl.textContent = msg;
+  if (iconEl) iconEl.className = 'fa-solid fa-' + (type === 'error' ? 'circle-xmark' : type === 'info' ? 'circle-info' : 'circle-check');
+  toast.className = 'toast toast-' + type;
+  toast.classList.add('show');
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
 export function getImageUrl(path) {
     if (!path) return null;
     if (path.startsWith('http://') || path.startsWith('https://')) {
@@ -373,10 +398,7 @@ export function getImageUrl(path) {
     if (path.startsWith('/')) {
         return `${API_BASE}${path}`;
     }
-    if (path.startsWith('storage')) {
-        return `${API_BASE}/${path}`;
-    }
-    return `${API_BASE}/storage/${path}`;
+    return `${API_BASE}/${path}`;
 }
 
 export function saveAuthData(data) {
@@ -460,7 +482,7 @@ export async function fetchAndValidateUser() {
     
     if (error.response?.status === 401) {
       clearAuth();
-      window.location.href = '/FE/Html/login.html';
+      window.location.href = 'login.html';
     }
     
     return null;

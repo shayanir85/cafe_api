@@ -6,6 +6,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getOrders, updateOrderStatus } from '@/services/orders'
+import { useToast } from '@/composables/useToast'
+import AdminFooter from '@/components/AdminFooter.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -38,14 +40,7 @@ const sortBy = ref('newest')
 const showStatusModal = ref(false)
 
 // ============ نوتیفیکیشن ============
-const toast = ref({ show: false, message: '', type: 'success' })
-let toastTimeout = null
-
-function showToast(message, type = 'success') {
-  clearTimeout(toastTimeout)
-  toast.value = { show: true, message, type }
-  toastTimeout = setTimeout(() => { toast.value.show = false }, 3000)
-}
+const { toast, showToast } = useToast()
 
 // ============ بارگذاری سفارشات ============
 async function loadOrders() {
@@ -101,7 +96,7 @@ const filteredOrders = computed(() => {
     oldest: (a, b) => new Date(a.created_at) - new Date(b.created_at),
     'price-asc': (a, b) => (a.total_price || 0) - (b.total_price || 0),
     'price-desc': (a, b) => (b.total_price || 0) - (a.total_price || 0),
-    name: (a, b) => (a.id || 0) - (b.id || 0)
+    id: (a, b) => (a.id || 0) - (b.id || 0)
   }
   result.sort(sortFns[sortBy.value] || sortFns.newest)
 
@@ -181,7 +176,7 @@ onUnmounted(() => {
           <i class="fa-solid fa-arrow-right text-lg"></i>
         </router-link>
         <h1 class="header-title font-bold text-white">
-          <i class="fa-solid fa-utensils ml-2"></i>مدیریت منو
+          <i class="fa-solid fa-utensils ml-2"></i>مدیریت سفارشات
         </h1>
       </div>
       <div class="flex items-center gap-2 flex-wrap">
@@ -224,14 +219,6 @@ onUnmounted(() => {
           <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-white/40 text-sm"></i>
           <input type="text" class="search-box pr-8" placeholder="جستجو..." v-model="searchQuery">
         </div>
-        <select class="filter-select" v-model="statusFilter" style="display:none">
-          <option value="all">همه دسته‌بندی‌ها</option>
-          <option value="hot-drinks">نوشیدنی گرم</option>
-          <option value="cold-drinks">نوشیدنی سرد</option>
-          <option value="food">غذا</option>
-          <option value="dessert">دسر و شیرینی</option>
-          <option value="breakfast">صبحانه</option>
-        </select>
         <select class="filter-select" v-model="statusFilter">
           <option value="all">همه وضعیت‌ها</option>
           <option value="pending">در انتظار</option>
@@ -268,7 +255,7 @@ onUnmounted(() => {
             <option value="oldest">قدیمی‌ترین</option>
             <option value="price-asc">قیمت: کم به زیاد</option>
             <option value="price-desc">قیمت: زیاد به کم</option>
-            <option value="name">نام محصول</option>
+            <option value="id">شماره سفارش</option>
             <option value="table">شماره میز</option>
           </select>
         </div>
@@ -330,6 +317,8 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
+
+    <AdminFooter />
   </main>
 
   <!-- ============ مودال تغییر وضعیت ============ -->
@@ -553,12 +542,13 @@ onUnmounted(() => {
   max-width: 1400px;
   margin: 0 auto;
   padding: 16px 12px;
+  padding-bottom: 80px;
 }
 @media (min-width: 640px) {
-  .main-container { padding: 24px 16px; }
+  .main-container { padding: 24px 16px; padding-bottom: 80px; }
 }
 @media (min-width: 1024px) {
-  .main-container { padding: 32px 24px; }
+  .main-container { padding: 32px 24px; padding-bottom: 80px; }
 }
 
 .products-grid {

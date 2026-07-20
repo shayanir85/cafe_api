@@ -1,5 +1,5 @@
 
-import { getOrders, updateOrderStatus, getStoredUser, clearAuth } from '../Js/api.js';
+import { getOrders, updateOrderStatus, getStoredUser, clearAuth, escapeHtml } from '../Js/api.js';
 
 const user = getStoredUser();
 if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
@@ -75,7 +75,7 @@ function renderProducts(filteredOrders) {
     grid.innerHTML = ordersToShow.map(o => {
         const st = statusConfig[o.status] || statusConfig.pending;
         const itemsHtml = (o.items || []).map(item =>
-            `${item.name || 'نامشخص'} x${item.quantity || 1}`
+            `${escapeHtml(item.name || 'نامشخص')} x${item.quantity || 1}`
         ).join(', ') || 'بدون آیتم';
 
         return `

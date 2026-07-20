@@ -1,9 +1,11 @@
 
-import { 
-    isAdmin, 
-    getCategories, 
+import {
+    isAdmin,
+    getCategories,
     createMenuItem,
-    getStoredUser 
+    getStoredUser,
+    escapeHtml,
+    showToast
 } from '../Js/api.js';
 
 if (!isAdmin()) {
@@ -32,7 +34,7 @@ async function loadCategories() {
         if (categories && categories.length > 0) {
             mainCategory.innerHTML = '<option value="">انتخاب کنید...</option>';
             categories.forEach(cat => {
-                mainCategory.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+                mainCategory.innerHTML += `<option value="${cat.id}">${escapeHtml(cat.name)}</option>`;
             });
         } else {
             mainCategory.innerHTML = '<option value="">هیچ دسته‌بندی یافت نشد</option>';
@@ -182,16 +184,6 @@ window.submitForm = async function() {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalBtnText;
     }
-}
-
-function showToast(message, type = 'success') {
-    const toast = document.getElementById('toast');
-    document.getElementById('toastMessage').textContent = message;
-    document.getElementById('toastIcon').className = 'fa-solid fa-' + (type === 'error' ? 'circle-xmark' : type === 'info' ? 'circle-info' : 'circle-check');
-    toast.className = 'toast ' + (type === 'error' ? 'toast-error' : type === 'info' ? 'toast-info' : 'toast-success');
-    toast.classList.add('show');
-    clearTimeout(toast._timeout);
-    toast._timeout = setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
 function handleKeydown(e) {

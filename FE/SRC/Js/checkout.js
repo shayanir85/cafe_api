@@ -80,7 +80,7 @@ window.submitOrder = async function() {
         showToast('سفارش شما با موفقیت ثبت شد');
         cart = [];
         saveCart();
-        setTimeout(() => { window.location.href = 'menu.html'; }, 1500);
+        setTimeout(() => { window.location.href = 'index.html'; }, 1500);
     } catch (error) {
         console.error('Order submission error:', error);
         showToast('خطا در ثبت سفارش. لطفاً دوباره تلاش کنید', false);
@@ -104,7 +104,7 @@ function renderCart() {
                 </div>
                 <h3>هیچ اقلامی یافت نشد</h3>
                 <p>هنوز محصولی اضافه نکرده‌اید</p>
-                <a href="menu.html">← مشاهده منو</a>
+                <a href="index.html">← مشاهده منو</a>
             </div>
         `;
         if (countSpan) countSpan.innerText = '0';
@@ -153,10 +153,12 @@ function renderCart() {
 
 function escapeHtml(str) {
     if (!str) return '';
-    return str.replace(/[&<>]/g, m => {
+    return String(str).replace(/[&<>"']/g, m => {
         if (m === '&') return '&amp;';
         if (m === '<') return '&lt;';
         if (m === '>') return '&gt;';
+        if (m === '"') return '&quot;';
+        if (m === "'") return '&#39;';
         return m;
     });
 }

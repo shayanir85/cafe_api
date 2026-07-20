@@ -24,7 +24,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       const publicRoutes = ['/', '/login', '/checkout']
-      const isPublic = publicRoutes.some((r) => window.location.pathname.endsWith(r))
+      const isPublic = publicRoutes.some((r) => window.location.pathname === r)
       if (!isPublic) {
         sessionStorage.removeItem('access_token')
         sessionStorage.removeItem('user')
@@ -39,8 +39,7 @@ export function getImageUrl(path) {
   if (!path) return null
   if (path.startsWith('http://') || path.startsWith('https://')) return path
   if (path.startsWith('/')) return `${API_BASE}${path}`
-  if (path.startsWith('storage')) return `${API_BASE}/${path}`
-  return `${API_BASE}/storage/${path}`
+  return `${API_BASE}/${path}`
 }
 
 export default api

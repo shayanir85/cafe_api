@@ -1,7 +1,7 @@
 
-import { 
-    isAdmin, 
-    getCategories, 
+import {
+    isAdmin,
+    getCategories,
     getMenuItems,
     createCategory,
     updateCategory,
@@ -9,7 +9,8 @@ import {
     updateMenuItem,
     getStoredUser,
     deleteMenuItem,
-    getImageUrl
+    getImageUrl,
+    showToast
 } from '../Js/api.js';
 
 const user = getStoredUser();
@@ -33,16 +34,6 @@ const menuGrid = document.getElementById('menuGrid');
 const emptyState = document.getElementById('emptyState');
 const categoryTabs = document.getElementById('categoryTabs');
 
-function showToast(msg, type = 'success') {
-    const toast = document.getElementById('toast');
-    document.getElementById('toastMessage').textContent = msg;
-    document.getElementById('toastIcon').className = 'fa-solid fa-' + (type === 'error' ? 'circle-xmark' : type === 'info' ? 'circle-info' : 'circle-check');
-    toast.className = 'toast toast-' + type;
-    toast.classList.add('show');
-    clearTimeout(toast._timeout);
-    toast._timeout = setTimeout(() => toast.classList.remove('show'), 3000);
-}
-
 window.closeModal = function(id) { 
     const modal = document.getElementById(id);
     if (modal) modal.classList.remove('active'); 
@@ -55,10 +46,12 @@ function openModal(id) {
 
 function escapeHtml(str) {
     if (!str) return '';
-    return String(str).replace(/[&<>]/g, function(m) {
+    return String(str).replace(/[&<>"']/g, function(m) {
         if (m === '&') return '&amp;';
         if (m === '<') return '&lt;';
         if (m === '>') return '&gt;';
+        if (m === '"') return '&quot;';
+        if (m === "'") return '&#39;';
         return m;
     });
 }
@@ -526,16 +519,33 @@ async function loadCategoriesList() {
                     </div>
                 </div>
                 <div class="category-actions">
-                    <button class="edit-cat-btn" onclick="editCategory(${cat.id}, '${escapeHtml(cat.name)}', ${cat.display_order || 0}, ${cat.is_active == 1})" title="ویرایش">
+                    <button class="edit-cat-btn" data-cat-id="${cat.id}" data-cat-name="${escapeHtml(cat.name)}" data-cat-order="${cat.display_order || 0}" data-cat-active="${cat.is_active == 1}" title="ویرایش">
                         <i class="fa-solid fa-pen"></i>
                     </button>
-                    <button class="delete-cat-btn" onclick="deleteCategoryConfirm(${cat.id}, '${escapeHtml(cat.name)}')" title="حذف">
+                    <button class="delete-cat-btn" data-cat-id="${cat.id}" data-cat-name="${escapeHtml(cat.name)}" title="حذف">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
             </div>`;
         }).join('');
-        
+
+        container.querySelectorAll('.edit-cat-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = parseInt(btn.dataset.catId);
+                const name = btn.dataset.catName;
+                const order = parseInt(btn.dataset.catOrder) || 0;
+                const isActive = btn.dataset.catActive === 'true';
+                editCategory(id, name, order, isActive);
+            });
+        });
+        container.querySelectorAll('.delete-cat-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = parseInt(btn.dataset.catId);
+                const name = btn.dataset.catName;
+                deleteCategoryConfirm(id, name);
+            });
+        });
+
     } catch (error) {
         console.error(error);
         container.innerHTML = '<div class="empty-state" style="padding: 40px;"><i class="fa-solid fa-circle-exclamation empty-state-icon"></i><p>خطا در بارگذاری دسته‌بندی‌ها</p></div>';

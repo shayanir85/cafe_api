@@ -2,7 +2,10 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 export const useCartStore = defineStore('cart', () => {
-  const items = ref(JSON.parse(localStorage.getItem('cart') || '[]'))
+  const items = ref((() => {
+    try { return JSON.parse(localStorage.getItem('cart') || '[]') }
+    catch { return [] }
+  })())
 
   const totalCount = computed(() => items.value.reduce((sum, item) => sum + (item.qty || 1), 0))
 

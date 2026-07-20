@@ -1,11 +1,9 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 import { useCartStore } from '@/stores/cart'
 import BackgroundBlobs from '@/components/BackgroundBlobs.vue'
-import LogoCup from '@/components/LogoCup.vue'
+import MenuHeader from '@/components/MenuHeader.vue'
 
-const router = useRouter()
 const cart = useCartStore()
 
 const toastMessage = ref('')
@@ -50,18 +48,7 @@ function clearCart() {
 <template>
   <BackgroundBlobs />
 
-  <header class="header">
-    <div class="header-content">
-      <div class="cursor-pointer flex items-center" @click="router.push('/')">
-        <LogoCup />
-        <span class="brand-text">کافی شاپ</span>
-      </div>
-      <div class="cart-badge">
-        <i class="fas fa-clipboard-list"></i>
-        <span class="count" :class="{ show: cart.totalCount > 0 }">{{ cart.totalCount }}</span>
-      </div>
-    </div>
-  </header>
+  <MenuHeader />
 
   <main class="main-container">
     <div class="page-title">
@@ -192,67 +179,6 @@ function clearCart() {
 </template>
 
 <style scoped>
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(10, 7, 5, 0.75);
-  backdrop-filter: blur(32px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.header-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 12px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.brand-text {
-  font-weight: 800;
-  font-size: 1.1rem;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-right: 10px;
-}
-
-.cart-badge {
-  position: relative;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  color: #fbbf24;
-  cursor: pointer;
-  font-size: 1.1rem;
-}
-
-.cart-badge .count {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: white;
-  font-size: 0.6rem;
-  font-weight: 800;
-  border-radius: 20px;
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-
-.cart-badge .count.show { display: flex; }
-
 .main-container {
   max-width: 1200px;
   margin: 0 auto;

@@ -18,9 +18,9 @@ All API routes are prefixed `/api/v1`. Auth is Laravel Sanctum (token-based).
 
 ```bash
 cd BK
-composer dev          # Start full dev stack (php artisan serve + queue:listen + vite)
-composer test         # Clear config + run Pest tests
-composer setup        # Fresh install: composer install, .env copy, key:generate, migrate, npm build
+composer dev          # php artisan serve + queue:listen + vite (uses npx concurrently)
+composer test         # Clear config + run Pest tests (SQLite in-memory, no MySQL needed)
+composer setup        # Full install: composer install, .env copy, key:generate, migrate, npm build
 ```
 
 Tests use SQLite in-memory (`phpunit.xml` overrides DB config). No MySQL needed to run tests.
@@ -43,7 +43,7 @@ cd cafe-api(Vue)
 npm install
 npm run dev           # Vite dev server
 npm run build         # Production build
-npm run lint          # oxlint + eslint (auto-fix)
+npm run lint          # oxlint (correctness errors) + eslint (vue + recommended), auto-fixes
 npm run format        # Prettier
 ```
 
@@ -57,8 +57,9 @@ Node requirement: `^22.18.0 || >=24.12.0` (engines field).
 - **Services**: `app/Services/` — AuthService, OrderService, MenuService (business logic extracted from controllers)
 - **Models**: `app/Models/` — User, Order, Category, MenuItem, OrderItem, Payment, MonthlyIncome, IsClosed
 - **Middleware**: `app/Http/Middleware/` — AdminMiddleware (admin|super_admin), SuperAdminMiddleware (super_admin only), CheckCafeOpenMiddleware (blocks orders when cafe is closed, cached 5min)
-- **Routes**: `routes/api.php` — all API routes. Dashboard routes split by role: SuperAdminMiddleware for user mgmt, AdminMiddleware for order/menu mgmt
-- **Seeds**: `database/seeders/` — creates sample data (users, categories, menu items, orders). Default password: `password123`
+- **Middleware aliases**: Registered in `bootstrap/app.php` — `admin`, `super_admin`, `cafe_open`
+- **Routes**: `routes/api.php` — all API routes. Dashboard routes split by role: SuperAdminMiddleware for user mgmt, AdminMiddleware for order/menu mgmt. `cafe_open` middleware wraps the entire `/cafe` prefix group (orders + payment)
+- **Seeds**: `database/seeders/` — creates sample data (users, categories, menu items, orders)
 - **Payment**: Zarinpal gateway via `pishran/zarinpal` package
 
 ### Roles
@@ -72,6 +73,7 @@ DB enum: `super_admin`, `admin`, `chef`, `waiter`, `user`. Note: customers use r
 3. All protected requests send `Authorization: Bearer <token>`
 4. Token validated via `POST /api/v1/auth/sanctum/user`
 5. Logout: `POST /api/v1/auth/logout` (clears Sanctum token)
+6. Login and Register have `throttle:5,1` rate limiting
 
 ### Frontend (`FE/`)
 
@@ -83,12 +85,13 @@ DB enum: `super_admin`, `admin`, `chef`, `waiter`, `user`. Note: customers use r
 ### Vue frontend (`cafe-api(Vue)/`)
 
 - `src/router/index.js` — all routes with auth guards (admin/super_admin/guest)
-- `src/stores/auth.js` — Pinia auth store (login, logout, user, token)
-- `src/stores/cart.js` — Pinia cart store (shared between MenuPage and CheckoutPage)
+- `src/stores/auth.js` — Pinia auth store (login, logout, user, token); persists to `sessionStorage`
+- `src/stores/cart.js` — Pinia cart store (shared between MenuPage and CheckoutPage); persists to `localStorage`
 - `src/services/` — API layer split by domain (api, auth, users, categories, menuItems, orders, payments, cafe)
+- `src/composables/` — useToast.js
 - `src/components/` — AdminSidebar, BackgroundBlobs, LogoCup
 - `src/views/` — all page components (MenuPage, CheckoutPage, LoginPage, DashboardPage, OrdersPage, MenuManagementPage, AddMenuPage, AdminsPage, NewPasswordPage, NotFoundPage)
-- Uses `@` alias for `./src`
+- `@` alias resolves to `./src` (configured in `vite.config.js`)
 
 ## Code style
 
@@ -104,4 +107,7 @@ DB enum: `super_admin`, `admin`, `chef`, `waiter`, `user`. Note: customers use r
 - Menu item images use `multipart/form-data` upload; the `getImageUrl()` helper in `src/services/api.js` (Vue) or `FE/SRC/Js/api.js` (FE) handles storage path resolution
 - `CheckCafeOpenMiddleware` caches cafe open/close status for 5 minutes — toggling cafe status won't take effect instantly
 - The Vue frontend (`cafe-api(Vue)/`) is the primary frontend — all pages have been converted from `FE/`
-- Model file names are inconsistent: `Order.php`, `Category.php`, `OrderItem.php` use lowercase filenames but PascalCase class names — PHP PSR-4 handles this, but don't expect filename to match class name
+- Model file names are inconsistent: `order.php`, `category.php`, `orderItem.php` use lowercase filenames but PascalCase class names — PHP PSR-4 handles this, but don't expect filename to match class name
+- `composer dev` uses `npx concurrently` — requires npx to be available
+- The Vue frontend's API base URL defaults to `http://127.0.0.1:8000`, overridable via `VITE_API_BASE` env var
+- `BK/composer.json` uses a custom packagist mirror (`mirror-composer.runflare.com`) — if install fails, check mirror availability
