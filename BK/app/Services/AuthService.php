@@ -11,7 +11,6 @@ class AuthService
     {
         $user = User::create([
             'name' => $data['name'],
-            'email' => $data['email'],
             'phone_number' => $data['phone_number'],
             'password' => Hash::make($data['password']),
         ]);
@@ -25,7 +24,7 @@ class AuthService
 
     public function login($data)
     {
-        $user = User::where('email', $data['email'])->first();
+        $user = User::where('phone_number', $data['phone_number'])->first();
 
         if ($user && Hash::check($data['password'], $user->password)) {
             $token = $user->createToken('auth_token')->plainTextToken;
@@ -35,7 +34,7 @@ class AuthService
                 'message' => 'successfully logged in',
                 'token' => $token,
                 'name' => $user->name,
-                'role' => $user->role,
+                'roles' => $user->getRoleNames(),
             ];
         }
 
@@ -53,7 +52,7 @@ class AuthService
 
     public function list()
     {
-        return User::all();
+        return User::with('roles')->get();
     }
 
     public function update($request, $id)
@@ -61,7 +60,6 @@ class AuthService
         $user = User::findOrFail($id);
         $data = [
             'name' => $request['name'] ?? $user->name,
-            'email' => $request['email'] ?? $user->email,
             'phone_number' => $request['phone_number'] ?? $user->phone_number,
         ];
         if (!empty($request['password'])) {

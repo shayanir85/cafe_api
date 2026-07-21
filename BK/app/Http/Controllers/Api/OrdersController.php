@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Order;
-use App\Models\Payment;
 use App\Services\OrderService;
+use App\Http\Requests\OrderRequest; 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -17,24 +17,47 @@ class OrdersController extends Controller
     ) {
     }
 
-    public function index(Request $request): JsonResponse
-    {
-        $orders = $this->orderService->list([
-            'status' => $request->query('status'),
-            'table_number' => $request->query('table_number'),
-            'paginate' => $request->boolean('paginate'),
-            'per_page' => $request->query('per_page', 15),
-        ]);
+public function index(Request $request): JsonResponse
+{
+    $filters = array_filter([
+        'status'       => $request->query('status'),
+        'table_number' => $request->query('table_number'),
+        'date'         => $request->query('date'),
+        'is_out'       => $request->has('is_out') ? $request->boolean('is_out') : null,
+        'user_id'      => $request->query('user_id'),
+        'min_amount'   => $request->query('min_amount'),
+        'max_amount'   => $request->query('max_amount'),
+        'search'       => $request->query('search'),
+    ], function ($value) {
+        return !is_null($value) && $value !== '';
+    });
 
-        return response()->json([
-            'success' => true,
-            'data' => $orders,
-        ]);
+    // Put pagination controls where the service expects them
+    $filters['paginate'] = $request->boolean('paginate', true);
+    $filters['per_page'] = $request->query('per_page', 20);
+
+    $orders = $this->orderService->list($filters);
+
+    $meta = [
+        'filters'  => $filters,
+        'per_page' => $filters['per_page'],
+    ];
+
+    // Only include 'total' if the result is a paginator
+    if ($orders instanceof \Illuminate\Pagination\LengthAwarePaginator) {
+        $meta['total'] = $orders->total();
     }
 
-    public function show(int $id): JsonResponse
+    return response()->json([
+        'success' => true,
+        'data'    => $orders,
+        'meta'    => $meta,
+    ]);
+}
+
+    public function show(Order $order): JsonResponse
     {
-        $order = $this->orderService->find($id);
+        $order->load(['orderItems.menuItem.category']);
 
         return response()->json([
             'success' => true,
@@ -42,59 +65,23 @@ class OrdersController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(OrderRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'table_number' => ['required', 'integer', 'min:1'],
-            'notes' => ['nullable', 'string'],
-            'items' => ['required', 'array', 'min:1'],
-            'items.*.menu_item_id' => ['required', 'integer', 'exists:menu_items,id'],
-            'items.*.quantity' => ['required', 'integer', 'min:1'],
-            'items.*.notes' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
 
         $order = $this->orderService->create($validated, $request->user()->id);
 
-        try {
-            $response = zarinpal()
-                ->merchantId(config('zarinpal.merchant_id'))
-                ->amount((int) $order->total_amount)
-                ->request()
-                ->description('پرداخت سفارش شماره ' . $order->id)
-                ->callbackUrl(route('payment.verify'))
-                ->send();
+        $payment = $this->orderService->initiatePayment($order);
 
-            if ($response->success()) {
-                Payment::create([
-                    'order_id' => $order->id,
-                    'authority' => $response->authority(),
-                    'status' => 'pending',
-                    'amount' => $order->total_amount,
-                ]);
-
-                return response()->json([
-                    'success' => true,
-                    'data' => $order,
-                    'payment_url' => $response->redirect()->getTargetUrl(),
-                    'message' => 'سفارش ایجاد شد. لطفاً پرداخت را انجام دهید.',
-                ], 201);
-            }
-
-            return response()->json([
-                'success' => true,
-                'data' => $order,
-                'payment_url' => null,
-                'message' => 'سفارش ایجاد شد اما ارتباط با درگاه پرداخت برقرار نشد: ' . $response->error()->message(),
-            ], 201);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => true,
-                'data' => $order,
-                'payment_url' => null,
-                'message' => 'سفارش ایجاد شد اما درگاه پرداخت در دسترس نیست.',
-            ], 201);
-        }
+        return response()->json([
+            'success' => true,
+            'data' => $order,
+            'payment_url' => $payment['success'] ? $payment['payment_url'] : null,
+            'authority' => $payment['success'] ? $payment['authority'] : null,
+            'message' => $payment['success']
+                ? 'سفارش ایجاد شد. لطفاً پرداخت را انجام دهید.'
+                : ($payment['message'] ?? 'سفارش ایجاد شد اما درگاه پرداخت در دسترس نیست.'),
+        ], 201);
     }
 
     public function updateStatus(Request $request, Order $order): JsonResponse

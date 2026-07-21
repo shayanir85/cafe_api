@@ -28,10 +28,10 @@ class DashboardController
 
     public function Login_status()
     {
-        $users = User::select('id', 'name', 'email', 'role', 'last_login', 'is_active', 'created_at')->get();
+        $users = User::with('roles')->get();
 
         return response()->json([
-            'users' => $users
+            'users' => $users,
         ]);
     }
 }

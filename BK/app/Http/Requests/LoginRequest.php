@@ -17,8 +17,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required_without:phone_number|email',
-            'phone_number' => 'required_without:email|max:11',
+            'phone_number' => 'required|max:11',
             'password' => 'required|string|min:8',
         ];
     }
@@ -26,9 +25,7 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.required_without' => 'ایمیل یا شماره موبایل الزامی است',
-            'email.email' => 'فرمت ایمیل صحیح نیست',
-            'phone_number.required_without' => 'ایمیل یا شماره موبایل الزامی است',
+            'phone_number.required' => 'شماره موبایل الزامی است',
             'phone_number.max' => 'شماره موبایل نباید بیشتر از ۱۱ کاراکتر باشد',
             'password.required' => 'رمز عبور الزامی است',
             'password.min' => 'رمز عبور باید حداقل ۸ کاراکتر باشد',

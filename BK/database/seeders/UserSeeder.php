@@ -10,34 +10,31 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        User::updateOrCreate(
-            ['email' => 'superadmin@cafe.com'],
+        $superAdmin = User::updateOrCreate(
+            ['phone_number' => '09361160939'],
             [
                 'name' => 'مدیر ارشد',
                 'password' => Hash::make('password123'),
-                'role' => 'super_admin',
-                'phone_number' => '09112064055',
             ]
         );
+        $superAdmin->assignRole('super_admin');
 
-        User::updateOrCreate(
-            ['email' => 'admin@cafe.com'],
+        $admin = User::updateOrCreate(
+            ['phone_number' => '09113054357'],
             [
                 'name' => 'مدیر کافه',
                 'password' => Hash::make('password123'),
-                'role' => 'admin',
-                'phone_number' => '09121234568',
             ]
         );
+        $admin->assignRole('admin');
 
-        User::updateOrCreate(
-            ['email' => 'customer@cafe.com'],
+        $user = User::updateOrCreate(
+            ['phone_number' => '09040724357'],
             [
                 'name' => 'علی احمدی',
                 'password' => Hash::make('password123'),
-                'role' => 'user',
-                'phone_number' => '09113054357',
             ]
         );
+        $user->assignRole('user');
     }
 }
