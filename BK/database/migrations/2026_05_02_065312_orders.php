@@ -17,14 +17,18 @@ return new class extends Migration
             
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
-            $table->string('table_number');
-
+            $table->string('table_number')->nullable();
+            
             $table->enum('status',['pending','ready','delivered'])
-                  ->default('pending');
-
+            ->default('pending');
+            
             $table->decimal('total_amount',10,2);
-
+            
             $table->text('notes')->nullable();
+            
+            $table->boolean('is_out');
+            
+            $table->text('address')->nullable();
 
             $table->timestamps();
 

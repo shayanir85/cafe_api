@@ -93,7 +93,7 @@ class AuthController extends Controller
     // Phone is verified, proceed with registration
         $result = $this->authService->register($request->validated());
 
-        return response()->json($result, $result['success'] ? 201 : 400);
+        return response()->json($result, $result ? 201 : 400);
     }
 
     public function delete($id)
@@ -115,7 +115,6 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,' . $id,
             'phone_number' => 'sometimes|max:11',
             'password' => 'sometimes|string|min:8',
         ]);
@@ -123,7 +122,7 @@ class AuthController extends Controller
         return response()->json($result);
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request)    
     {
         $result = $this->authService->logout($request->user());
         return response()->json([
@@ -162,19 +161,21 @@ class AuthController extends Controller
             $request->phone_number,
             $request->otp
         );
-        if ($result) {
+        if ($result['success']) {
+            session()->put('verified_phone', $request->phone_number);
+
             $user = User::where('phone_number', $request->phone_number)->first();
             if ($user) {
                 $user->update(['phone_number_verified_at' => Carbon::now()]);
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Phone number verified successfully'
-                ], 200);
             }
 
+            return response()->json([
+                'success' => true,
+                'message' => 'Phone number verified successfully'
+            ], 200);
         }
-        
-        return response()->json($result, $result? 200:400);
+
+        return response()->json($result, 400);
     }
 
     /**
@@ -188,5 +189,35 @@ class AuthController extends Controller
         $result = $this->smsService->resendOTP($request->phone_number);
         
         return response()->json($result, $result ? 200 : 400);
+    }
+
+    /**
+     * Assign roles to a user (partial update via PATCH)
+     */
+    public function assignRoles(Request $request, User $user)
+    {
+        if ($request->user()->id === $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You cannot modify your own roles'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'roles' => 'sometimes|array',
+            'roles.*' => 'string|exists:roles,name',
+        ]);
+
+        if (isset($validated['roles'])) {
+            $user->syncRoles($validated['roles']);
+        }
+
+        $user->load('roles');
+
+        return response()->json([
+            'success' => true,
+            'data' => $user,
+            'message' => 'Roles updated successfully'
+        ]);
     }
 }

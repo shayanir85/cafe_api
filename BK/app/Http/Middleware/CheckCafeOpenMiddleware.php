@@ -13,7 +13,7 @@ class CheckCafeOpenMiddleware
     {
         // Cache the value to avoid a database query on every request
         $cafeIsClosed = Cache::remember('cafe:is_closed', now()->addMinutes(5), function () {
-            return IsClosed::first()?->is_close ?? false;
+            return IsClosed::first()?->is_closed ?? false;
         });
 
         if ($cafeIsClosed) {

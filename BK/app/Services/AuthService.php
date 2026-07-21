@@ -34,7 +34,7 @@ class AuthService
                 'message' => 'successfully logged in',
                 'token' => $token,
                 'name' => $user->name,
-                'role' => $user->role,
+                'roles' => $user->getRoleNames(),
             ];
         }
 
@@ -52,7 +52,7 @@ class AuthService
 
     public function list()
     {
-        return User::all();
+        return User::with('roles')->get();
     }
 
     public function update($request, $id)
