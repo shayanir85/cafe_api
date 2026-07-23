@@ -1,77 +1,102 @@
 <script setup>
+import { nextTick } from 'vue'
+
 defineProps({
-  categories: { type: Array, default: () => [] },
-  categoryIconMap: { type: Map, default: () => new Map() },
+  categories: {
+    type: Array,
+    default: () => []
+  },
+  categoryIconMap: {
+    type: Map,
+    default: () => new Map()
+  },
+  showCategories: {
+    type: Boolean,
+    default: true
+  }
 })
 
 const emit = defineEmits(['filter'])
 
 function handleFilter(catId) {
   emit('filter', catId)
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  nextTick(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  })
 }
 </script>
 
 <template>
-  <footer class="footer-glass">
-    <div class="footer-content">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        <div>
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center text-stone-900 shadow-lg shadow-amber-500/20">
+  <footer class="footer">
+    <div class="container">
+      <!-- ستون‌های فوتر با چیدمان ساده -->
+      <div class="footer-grid">
+        
+        <!-- ستون 1: درباره ما -->
+        <div class="footer-col">
+          <div class="brand">
+            <div class="brand-icon">
               <i class="fas fa-mug-hot"></i>
             </div>
-            <span class="font-bold text-lg bg-gradient-to-r from-amber-300 to-amber-500 bg-clip-text text-transparent">کافی شاپ</span>
+            <span class="brand-name">کافی شاپ</span>
           </div>
-          <p class="text-white/40 text-sm leading-relaxed">
-            طعم لحظه‌های ناب را با ما تجربه کنید. تازه‌ترین نوشیدنی‌های گرم و
-            سرد، دسرهای خانگی و فضایی دلنشین برای لحظات شما.
+          <p class="description">
+            طعم لحظه‌های ناب را با ما تجربه کنید. تازه‌ترین نوشیدنی‌های گرم و سرد، دسرهای خانگی و فضایی دلنشین برای لحظات شما.
           </p>
-          <div class="flex items-center gap-2 mt-5">
-            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-telegram-plane"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+          <div class="social-links">
+            <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-telegram-plane"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-whatsapp"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
           </div>
         </div>
-        <div>
+
+        <!-- ستون 2: دسترسی سریع -->
+        <div class="footer-col">
           <h4 class="footer-title">دسترسی سریع</h4>
-          <ul class="space-y-2">
-            <li><a href="#" class="footer-link">صفحه اصلی</a></li>
+          <ul class="footer-links">
             <li><router-link to="/" class="footer-link">منوی محصولات</router-link></li>
             <li><router-link to="/checkout" class="footer-link">سبد خرید</router-link></li>
           </ul>
         </div>
-        <div>
+
+        <!-- ستون 3: دسته‌بندی‌ها -->
+        <div v-if="showCategories && categories.length > 0" class="footer-col">
           <h4 class="footer-title">دسته‌بندی‌ها</h4>
-          <ul class="space-y-2">
+          <ul class="footer-links">
             <li v-for="cat in categories" :key="cat.id">
               <a href="#" class="footer-link" @click.prevent="handleFilter(cat.id)">
-                <i class="fas" :class="categoryIconMap.get(cat.id) || 'fa-tag'" style="color: rgba(255,255,255,0.2); margin-left: 8px"></i>
+                <i class="fas" :class="categoryIconMap.get(cat.id) || 'fa-tag'"></i>
                 {{ cat.name }}
               </a>
             </li>
           </ul>
         </div>
-        <div>
+
+        <!-- ستون 4: اطلاعات تماس -->
+        <div class="footer-col">
           <h4 class="footer-title">اطلاعات تماس</h4>
-          <ul class="space-y-3">
-            <li class="flex items-start gap-3 text-white/50 text-sm">
-              <i class="fas fa-map-marker-alt text-amber-400 mt-0.5"></i>
+          <ul class="contact-info">
+            <li>
+              <i class="fas fa-map-marker-alt"></i>
               <span>تهران، خیابان ولیعصر، جنب پارک ملت</span>
             </li>
-            <li class="flex items-center gap-3 text-white/50 text-sm">
-              <i class="fas fa-phone text-amber-400 mt-2"></i>
+            <li>
+              <i class="fas fa-phone-alt"></i>
               <span dir="ltr">۰۲۱-۱۲۳۴۵۶۷۸</span>
             </li>
           </ul>
         </div>
       </div>
-      <div class="footer-divider"></div>
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center">
-        <p class="text-white/30 text-xs sm:text-sm">
+
+      <!-- خط جداکننده -->
+      <div class="divider"></div>
+
+      <!-- کپی‌رایت -->
+      <div class="copyright">
+        <p>
           تمامی حقوق مادی و معنوی این سایت متعلق به
-          <span class="text-amber-400/60">کافی شاپ</span> می‌باشد.
+          <span class="highlight">کافی شاپ</span> می‌باشد.
         </p>
       </div>
     </div>
@@ -79,40 +104,103 @@ function handleFilter(catId) {
 </template>
 
 <style scoped>
-.footer-glass {
+/* استایل اصلی فوتر */
+.footer {
   background: rgba(15, 10, 8, 0.6);
   backdrop-filter: blur(24px);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   margin-top: 32px;
+  padding: 32px 0;
+  width: 100%;
 }
 
-@media (min-width: 640px) { .footer-glass { margin-top: 48px; } }
+@media (min-width: 640px) {
+  .footer {
+    margin-top: 48px;
+    padding: 48px 0;
+  }
+}
 
-.footer-content {
-  max-width: 1400px;
+.container {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 32px 16px;
+  padding: 0 16px;
 }
 
-@media (min-width: 640px) { .footer-content { padding: 48px 20px; } }
-@media (min-width: 1024px) { .footer-content { padding: 48px 24px; } }
+/* گرید فوتر - ساده و بدون مشکل */
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
 
-.footer-link {
-  color: rgba(255, 255, 255, 0.5);
-  transition: color 0.3s;
+@media (min-width: 640px) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+}
+
+.footer-col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* برند */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(to bottom right, #f59e0b, #d97706);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1c1917;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+.brand-name {
+  font-weight: bold;
+  font-size: 1.125rem;
+  background: linear-gradient(to right, #fcd34d, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* توضیحات */
+.description {
+  color: rgba(255, 255, 255, 0.4);
   font-size: 0.875rem;
-  text-decoration: none;
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
 }
 
-.footer-link:hover { color: #f59e0b; }
+/* شبکه اجتماعی */
+.social-links {
+  display: flex;
+  gap: 0.5rem;
+}
 
-.social-icon {
+.social-link {
   width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
+  border-radius: 50%;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.5);
@@ -120,23 +208,103 @@ function handleFilter(catId) {
   text-decoration: none;
 }
 
-.social-icon:hover {
+.social-link:hover {
   background: rgba(245, 158, 11, 0.15);
   border-color: rgba(245, 158, 11, 0.3);
   color: #f59e0b;
   transform: translateY(-2px);
 }
 
-.footer-divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
-  margin: 24px 0;
-}
-
+/* عناوین */
 .footer-title {
   color: rgba(255, 255, 255, 0.8);
   font-size: 0.9375rem;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 0.75rem;
+}
+
+/* لیست لینک‌ها */
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.footer-links li {
+  margin: 0;
+}
+
+.footer-link {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.footer-link:hover {
+  color: #f59e0b;
+}
+
+.footer-link i {
+  color: rgba(255, 255, 255, 0.2);
+  width: 16px;
+}
+
+/* اطلاعات تماس */
+.contact-info {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.contact-info li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.875rem;
+}
+
+.contact-info li i {
+  color: #f59e0b;
+  margin-top: 0.125rem;
+  width: 16px;
+}
+
+/* خط جداکننده */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  margin: 1.5rem 0;
+}
+
+/* کپی‌رایت */
+.copyright {
+  text-align: center;
+}
+
+.copyright p {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .copyright p {
+    font-size: 0.875rem;
+  }
+}
+
+.highlight {
+  color: rgba(245, 158, 11, 0.6);
 }
 </style>

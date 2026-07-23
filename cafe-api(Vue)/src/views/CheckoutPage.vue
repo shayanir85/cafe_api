@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useCartStore } from '@/stores/cart'
 import BackgroundBlobs from '@/components/BackgroundBlobs.vue'
 import MenuHeader from '@/components/MenuHeader.vue'
+import MenuFooter from '@/components/MenuFooter.vue'
 
 const cart = useCartStore()
 
@@ -130,46 +131,7 @@ function clearCart() {
     </div>
   </main>
 
-  <footer class="footer">
-    <div class="footer-content">
-      <div class="footer-grid">
-        <div>
-          <div class="flex items-center gap-3 mb-3">
-            <div class="flex items-center justify-center bg-amber-500 w-11 h-11 rounded-2xl">
-              <i class="fas fa-mug-hot text-xl text-dark"></i>
-            </div>
-            <span class="text-xl text-gray-100">کافی شاپ</span>
-          </div>
-          <p class="text-xm text-white/35">طعم لحظه‌های ناب را با ما تجربه کنید.</p>
-          <div class="social-icons">
-            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-telegram"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">دسترسی سریع</h4>
-          <router-link to="/" class="footer-link">منوی محصولات</router-link>
-          <router-link to="/checkout" class="footer-link">سبد خرید</router-link>
-          <a href="#" class="footer-link">تماس با ما</a>
-        </div>
-        <div>
-          <h4 class="footer-title">دسته‌بندی‌ها</h4>
-          <router-link to="/" class="footer-link">نوشیدنی گرم</router-link>
-          <router-link to="/" class="footer-link">نوشیدنی سرد</router-link>
-          <router-link to="/" class="footer-link">دسر و کیک</router-link>
-        </div>
-        <div>
-          <h4 class="footer-title">اطلاعات تماس</h4>
-          <p class="text-white/40 text-sm"><i class="fas fa-map-marker-alt ml-2 text-amber-500"></i> تهران، خیابان ولیعصر</p>
-          <p class="text-white/40 text-sm mt-3"><i class="fas fa-phone ml-2 text-amber-500"></i> ۰۲۱-۱۲۳۴۵۶۷۸</p>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        تمامی حقوق مادی و معنوی این سایت متعلق به کافی شاپ می‌باشد.
-      </div>
-    </div>
-  </footer>
+  <MenuFooter :showCategories="false" />
 
   <!-- Toast -->
   <div class="toast" :class="{ show: toastVisible }">
@@ -432,62 +394,6 @@ function clearCart() {
 }
 
 .toast.show { transform: translateX(-50%) translateY(0); }
-
-.footer {
-  background: rgba(10, 7, 5, 0.6);
-  backdrop-filter: blur(24px);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  margin-top: 48px;
-  padding: 40px 20px 28px;
-}
-
-.footer-content { max-width: 1200px; margin: 0 auto; }
-
-.footer-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 32px;
-  margin-bottom: 32px;
-}
-
-.footer-title { color: rgba(255, 255, 255, 0.8); font-weight: 700; margin-bottom: 16px; font-size: 0.9rem; }
-
-.footer-link {
-  color: rgba(255, 255, 255, 0.4);
-  text-decoration: none;
-  font-size: 0.8rem;
-  display: block;
-  margin-bottom: 10px;
-  transition: color 0.2s;
-}
-
-.footer-link:hover { color: #f59e0b; }
-
-.social-icons { display: flex; gap: 10px; margin-top: 16px; }
-
-.social-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255, 255, 255, 0.5);
-  text-decoration: none;
-  transition: all 0.2s;
-}
-
-.social-icon:hover { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
-
-.footer-bottom {
-  text-align: center;
-  padding-top: 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.25);
-  font-size: 0.7rem;
-}
 
 @keyframes itemSlideIn {
   from { opacity: 0; transform: translateX(20px); }

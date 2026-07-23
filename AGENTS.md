@@ -53,27 +53,29 @@ Node requirement: `^22.18.0 || >=24.12.0` (engines field).
 
 ### Backend (`BK/`)
 
-- **Controllers**: `app/Http/Controllers/Api/` — AuthController, CategoryController, MenuItemsController, OrdersController, DashboardController, CafeController, ZarinpalController
+- **Controllers**: `app/Http/Controllers/Api/` — AuthController, CategoryController, MenuItemsController, OrdersController, DashboardController, CafeController, ZarinpalController, RoleController
 - **Services**: `app/Services/` — AuthService, OrderService, MenuService (business logic extracted from controllers)
 - **Models**: `app/Models/` — User, Order, Category, MenuItem, OrderItem, Payment, MonthlyIncome, IsClosed
-- **Middleware**: `app/Http/Middleware/` — AdminMiddleware (admin|super_admin), SuperAdminMiddleware (super_admin only), CheckCafeOpenMiddleware (blocks orders when cafe is closed, cached 5min)
-- **Middleware aliases**: Registered in `bootstrap/app.php` — `admin`, `super_admin`, `cafe_open`
-- **Routes**: `routes/api.php` — all API routes. Dashboard routes split by role: SuperAdminMiddleware for user mgmt, AdminMiddleware for order/menu mgmt. `cafe_open` middleware wraps the entire `/cafe` prefix group (orders + payment)
+- **Middleware**: Only `CheckCafeOpenMiddleware` exists in `app/Http/Middleware/`. Registered as `cafe_open` alias in `bootstrap/app.php`.
+- **Middleware aliases** in `bootstrap/app.php`: `cafe_open` (CheckCafeOpenMiddleware), `permission`, `role`, `role_or_permission` (Spatie Permission)
+- **Roles & Permissions**: Uses `spatie/laravel-permission`. Dashboard routes use `permission:manage-users`, `permission:manage-orders`, `permission:manage-menu-items`, `permission:manage-categories`, `permission:manage-roles`, `permission:toggle-cafe`, `permission:view-dashboard`. No custom `AdminMiddleware` or `SuperAdminMiddleware`.
+- **Routes**: `routes/api.php` — all API routes. Dashboard routes split by Spatie permission. `cafe_open` middleware wraps the entire `/cafe` prefix group (orders + payment).
 - **Seeds**: `database/seeders/` — creates sample data (users, categories, menu items, orders)
 - **Payment**: Zarinpal gateway via `pishran/zarinpal` package
 
 ### Roles
 
-DB enum: `super_admin`, `admin`, `chef`, `waiter`, `user`. Note: customers use role `user`, not `customer`.
+DB roles via Spatie: `super_admin`, `admin`, `chef`, `waiter`, `user`. Note: customers use role `user`, not `customer`.
 
 ### Auth flow
 
-1. `POST /api/v1/login` returns `{ token, id, name, email, role }`
-2. Frontend stores token in `sessionStorage` as `access_token`
-3. All protected requests send `Authorization: Bearer <token>`
-4. Token validated via `POST /api/v1/auth/sanctum/user`
-5. Logout: `POST /api/v1/auth/logout` (clears Sanctum token)
-6. Login and Register have `throttle:5,1` rate limiting
+1. OTP flow: `POST /api/v1/auth/send-otp` → `POST /api/v1/auth/verify-otp` → `POST /api/v1/auth/register`
+2. Email/password flow: `POST /api/v1/login` returns `{ token, id, name, email, role }`
+3. Frontend stores token in `sessionStorage` as `access_token`
+4. All protected requests send `Authorization: Bearer <token>`
+5. Token validated via `POST /api/v1/auth/sanctum/user`
+6. Logout: `POST /api/v1/auth/logout` (clears Sanctum token)
+7. Rate limits: login/register `throttle:5,1`, send-otp `throttle:3,60`, verify-otp `throttle:5,300`, resend-otp `throttle:2,60`
 
 ### Frontend (`FE/`)
 
