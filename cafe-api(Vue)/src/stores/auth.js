@@ -61,8 +61,8 @@ export const useAuthStore = defineStore('auth', () => {
       const data = await authApi.getUser()
       const userData = data?.user || data
       if (userData) {
-        user.value = userData
-        sessionStorage.setItem('user', JSON.stringify(userData))
+        user.value = { ...user.value, ...userData }
+        sessionStorage.setItem('user', JSON.stringify(user.value))
       }
       return userData
     } catch {
