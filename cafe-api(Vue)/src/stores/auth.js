@@ -20,11 +20,14 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = t
     sessionStorage.setItem('access_token', t)
 
+    const roles = data.roles || []
+    const role = data.role || roles[0] || 'user'
+
     user.value = {
       id: data.id || null,
       name: data.name || 'کاربر',
       email: data.email || null,
-      role: data.role || 'user',
+      role,
       phone_number: data.phone_number || null,
     }
     sessionStorage.setItem('user', JSON.stringify(user.value))
@@ -38,8 +41,8 @@ export const useAuthStore = defineStore('auth', () => {
     sessionStorage.removeItem('user')
   }
 
-  async function login({ email, password }) {
-    const data = await authApi.login({ email, password })
+  async function login({ phone_number, password }) {
+    const data = await authApi.login({ phone_number, password })
     const saved = saveAuth(data)
     if (!saved) throw new Error('خطا در ذخیره اطلاعات کاربر')
     return data

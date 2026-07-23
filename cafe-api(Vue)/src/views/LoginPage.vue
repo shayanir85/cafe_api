@@ -9,7 +9,7 @@ const router = useRouter()
 const auth = useAuthStore()
 
 const form = ref(null)
-const emailInput = ref('')
+const phoneInput = ref('')
 const passwordInput = ref('')
 const rememberChecked = ref(false)
 const showPassword = ref(false)
@@ -32,12 +32,12 @@ function hideError() {
 async function handleSubmit() {
   hideError()
 
-  const email = emailInput.value.trim()
+  const phone_number = phoneInput.value.trim()
   const password = passwordInput.value
   const remember = rememberChecked.value
 
-  if (!email) {
-    showError('لطفاً آدرس ایمیل را وارد کنید')
+  if (!phone_number) {
+    showError('لطفاً شماره موبایل را وارد کنید')
     return
   }
 
@@ -54,13 +54,13 @@ async function handleSubmit() {
   loading.value = true
 
   try {
-    const response = await auth.login({ email, password })
+    const response = await auth.login({ phone_number, password })
 
     if (response && response.token) {
       if (remember) {
-        localStorage.setItem('rememberedEmail', email)
+        localStorage.setItem('rememberedPhone', phone_number)
       } else {
-        localStorage.removeItem('rememberedEmail')
+        localStorage.removeItem('rememberedPhone')
       }
 
       if (auth.isAdmin) {
@@ -75,12 +75,12 @@ async function handleSubmit() {
       loading.value = false
     }
   } catch (error) {
-    const errorMessage =
+    const errorMsg =
       error.response?.data?.message ||
       error.response?.data?.error ||
       error.message ||
-      'ایمیل یا رمز عبور اشتباه است'
-    showError(errorMessage)
+      'شماره موبایل یا رمز عبور اشتباه است'
+    showError(errorMsg)
     loading.value = false
     passwordInput.value = ''
   }
@@ -93,10 +93,10 @@ onMounted(() => {
     return
   }
 
-  // Load remembered email
-  const rememberedEmail = localStorage.getItem('rememberedEmail')
-  if (rememberedEmail) {
-    emailInput.value = rememberedEmail
+  // Load remembered phone
+  const rememberedPhone = localStorage.getItem('rememberedPhone')
+  if (rememberedPhone) {
+    phoneInput.value = rememberedPhone
     rememberChecked.value = true
   }
 })
@@ -147,21 +147,22 @@ onMounted(() => {
             <span>در حال ورود...</span>
           </div>
 
-          <!-- Email -->
+          <!-- Phone Number -->
           <div class="form-group">
-            <label for="email">
-              <i class="fas fa-envelope"></i>
-              آدرس ایمیل
+            <label for="phone">
+              <i class="fas fa-phone"></i>
+              شماره موبایل
             </label>
             <div class="input-wrap">
               <input
-                id="email"
-                v-model="emailInput"
-                type="email"
-                placeholder="example@email.com"
-                autocomplete="email"
+                id="phone"
+                v-model="phoneInput"
+                type="tel"
+                placeholder="09121234567"
+                autocomplete="tel"
+                maxlength="11"
                 required />
-              <i class="fas fa-user input-icon"></i>
+              <i class="fas fa-mobile-screen input-icon"></i>
             </div>
           </div>
 

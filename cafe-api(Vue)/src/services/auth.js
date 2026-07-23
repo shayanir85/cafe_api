@@ -1,7 +1,7 @@
 import api from './api'
 
-export async function login({ email, password }) {
-  const response = await api.post('/login', { email, password })
+export async function login({ phone_number, password }) {
+  const response = await api.post('/login', { phone_number, password })
   return response.data?.original || response.data
 }
 
