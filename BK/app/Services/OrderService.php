@@ -116,8 +116,6 @@ class OrderService
                 'total_amount' => $totalAmount,
             ]);
 
-            Order::dispatch($order);
-
             return $order->load(['orderItems.menuItem.category']);
         });
     }
