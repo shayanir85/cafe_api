@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Hekmatinasser\Verta\Verta;
 
 class MonthlyIncome extends Model
 {
@@ -11,4 +12,9 @@ class MonthlyIncome extends Model
     protected $casts = [
         'recorded_at' => 'datetime',
     ];
+
+    public function getJalaliCreatedAtAttribute()
+    {
+        return Verta::instance($this->recorded_at)->format('Y/m/d H:i:s');
+    }
 }
