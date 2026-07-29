@@ -3,7 +3,7 @@ namespace App\Console\Commands;
 
 use App\Models\MonthlyIncome;
 use App\Models\OrderItem;
-use Carbon\Carbon;
+use Hekmatinasser\Verta\Verta;
 use Illuminate\Console\Command;
 
 
@@ -14,11 +14,20 @@ class SaveMonthlyIncome extends Command
 
     public function handle()
     {
-        $lastMonth = Carbon::now()->subMonth();
-        
+
+        if (Verta::today()->day != 1) {
+            $this->info('Not the first day of the Jalali month. Skipping.');
+            return;
+        }
+
+        $lastMonth = Verta::now()->subMonth();
+
+        $startOfMonth = $lastMonth->startMonth()->toCarbon();
+        $endOfMonth = $lastMonth->endMonth()->toCarbon();
+
         $income = OrderItem::whereBetween('created_at', [
-            $lastMonth->copy()->startOfMonth(),
-            $lastMonth->copy()->endOfMonth()
+            $startOfMonth,
+            $endOfMonth
         ])->sum('subtotal');
 
 
@@ -29,7 +38,7 @@ class SaveMonthlyIncome extends Command
             ],
             [
                 'income' => $income,
-                'recorded_at' => now(),
+                'recorded_at' => Verta::now(),
             ]
         );
 

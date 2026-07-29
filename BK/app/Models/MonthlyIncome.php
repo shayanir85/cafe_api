@@ -13,8 +13,4 @@ class MonthlyIncome extends Model
         'recorded_at' => 'datetime',
     ];
 
-    public function getJalaliCreatedAtAttribute()
-    {
-        return Verta::instance($this->recorded_at)->format('Y/m/d H:i:s');
-    }
 }
