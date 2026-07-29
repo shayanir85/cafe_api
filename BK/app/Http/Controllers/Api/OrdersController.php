@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\OrderStatusUpdated;
+use App\Jobs\ProcessOrderJob;
 use App\Models\Order;
 use App\Services\OrderService;
 use App\Http\Requests\OrderRequest; 
@@ -69,19 +71,12 @@ public function index(Request $request): JsonResponse
     {
         $validated = $request->validated();
 
-        $order = $this->orderService->create($validated, $request->user()->id);
-
-        $payment = $this->orderService->initiatePayment($order);
+        ProcessOrderJob::dispatch($validated, $request->user()->id);
 
         return response()->json([
             'success' => true,
-            'data' => $order,
-            'payment_url' => $payment['success'] ? $payment['payment_url'] : null,
-            'authority' => $payment['success'] ? $payment['authority'] : null,
-            'message' => $payment['success']
-                ? 'سفارش ایجاد شد. لطفاً پرداخت را انجام دهید.'
-                : ($payment['message'] ?? 'سفارش ایجاد شد اما درگاه پرداخت در دسترس نیست.'),
-        ], 201);
+            'message' => 'سفارش در حال پردازش است.',
+        ], 202);
     }
 
     public function updateStatus(Request $request, Order $order): JsonResponse
@@ -91,6 +86,8 @@ public function index(Request $request): JsonResponse
         ]);
 
         $updatedOrder = $this->orderService->updateStatus($order, $validated['status']);
+
+        broadcast(new OrderStatusUpdated($updatedOrder));
 
         return response()->json([
             'success' => true,

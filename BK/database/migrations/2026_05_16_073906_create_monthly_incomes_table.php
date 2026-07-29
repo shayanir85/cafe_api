@@ -16,7 +16,7 @@ return new class extends Migration
             $table->decimal('income', 15, 2);
             $table->integer('year');
             $table->integer('month');
-            $table->timestamp('recorded_at');
+            $table->date('recorded_at');
             $table->timestamps();
             $table->unique(['year', 'month']);
         });

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Hekmatinasser\Verta\Verta;
 
 class MonthlyIncome extends Model
 {
@@ -11,4 +12,5 @@ class MonthlyIncome extends Model
     protected $casts = [
         'recorded_at' => 'datetime',
     ];
+
 }

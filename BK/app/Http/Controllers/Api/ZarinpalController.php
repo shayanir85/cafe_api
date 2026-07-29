@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Jobs\ProcessPaymentRequestJob;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Services\OrderService;
@@ -30,20 +31,12 @@ class ZarinpalController
             ], 400);
         }
 
-        $payment = $this->orderService->initiatePayment($order);
-
-        if (!$payment['success']) {
-            return response()->json([
-                'success' => false,
-                'message' => $payment['message'] ?? 'خطا در اتصال به درگاه پرداخت.',
-            ], 400);
-        }
+        ProcessPaymentRequestJob::dispatch($order->id);
 
         return response()->json([
             'success' => true,
-            'Authority' => $payment['authority'],
-            'payment_url' => $payment['payment_url'],
-        ]);
+            'message' => 'درخواست پرداخت در حال پردازش است.',
+        ], 202);
     }
 
     public function verifyPayment(Request $request): RedirectResponse
