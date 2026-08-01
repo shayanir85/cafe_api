@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
+use Hekmatinasser\Verta\Verta;
 
 class OrderService
 {
@@ -20,8 +21,8 @@ class OrderService
             ->latest('id');
 
         if (!empty($filters['date'])) {
-            $date = Carbon::parse($filters['date']);
-            $query->whereDate('created_at', $date);
+            $gregorianDate = Verta::parse($filters['date'])->toCarbon();
+            $query->whereDate('created_at', $gregorianDate);
         } else {
             $query->whereBetween('created_at', [
                 Carbon::today(),
@@ -63,11 +64,14 @@ class OrderService
         }
 
         if (!empty($filters['paginate']) && !empty($filters['per_page'])) {
-            return $query->paginate((int) $filters['per_page']);
+            $result = $query->paginate((int) $filters['per_page']);
+            $result->getCollection()->each->append('jalali_created_at');
+            return $result;
         }
 
-        return $query->get();
+        return $query->get()->each->append('jalali_created_at');
     }
+
 
     public function find(int $id): Order
     {
@@ -115,8 +119,6 @@ class OrderService
             $order->update([
                 'total_amount' => $totalAmount,
             ]);
-
-            Order::dispatch($order);
 
             return $order->load(['orderItems.menuItem.category']);
         });

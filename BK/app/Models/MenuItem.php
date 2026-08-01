@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Hekmatinasser\Verta\Verta;
 
 class MenuItem extends Model
 {
@@ -21,6 +22,8 @@ class MenuItem extends Model
         'display_order',
     ];
 
+    protected $appends = ['jalali_created_at'];
+
     protected $casts = [
         'price' => 'decimal:2',
         'is_available' => 'boolean',
@@ -34,6 +37,11 @@ class MenuItem extends Model
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function getJalaliCreatedAtAttribute()
+    {
+        return Verta::instance($this->created_at)->format('Y/m/d H:i:s');
     }
 
     public function getImageUrlAttribute(): ?string

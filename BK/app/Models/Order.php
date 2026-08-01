@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Hekmatinasser\Verta\Verta;
 
 class Order extends Model
 {
@@ -22,6 +23,8 @@ class Order extends Model
         'address'
     ];
 
+    protected $appends = ['jalali_created_at'];
+    
     protected $casts = [
         'total_amount' => 'decimal:2',
         'is_out'=> 'boolean'
@@ -84,6 +87,11 @@ class Order extends Model
     public function scopeByStatus($query, string $status)
     {
         return $query->where('status', $status);
+    }
+
+    public function getJalaliCreatedAtAttribute()
+    {
+        return Verta::instance($this->created_at)->format('Y/m/d H:i:s');
     }
 
     public function scopeByTable($query, string $tableNumber)

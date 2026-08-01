@@ -7,7 +7,7 @@ use App\Services\MenuService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-
+use Hekmatinasser\Verta\Verta;
 class MenuItemsController extends Controller
 {
     public function __construct(
@@ -33,6 +33,8 @@ class MenuItemsController extends Controller
     public function list(): JsonResponse
     {
         $menuItems = MenuItem::where('is_available', 1)->get();
+        
+        $menuItems->created_at = verta($menuItems->created_at);
 
         return response()->json([
             'success' => true,

@@ -52,7 +52,7 @@ class AuthService
 
     public function list()
     {
-        return User::with('roles')->get();
+        return User::select('name','phone_number','last_login')->with('roles:name')->paginate(40);
     }
 
     public function update($request, $id)
