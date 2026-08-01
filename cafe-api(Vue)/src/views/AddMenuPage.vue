@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getCategories } from '@/services/categories'
 import { createMenuItem } from '@/services/menuItems'
-import AdminFooter from '@/components/AdminFooter.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -300,7 +299,6 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <AdminFooter />
     </main>
 
     <div class="toast" :class="[toastVisible ? 'show' : '', `toast-${toastType}`]">
@@ -314,7 +312,7 @@ onUnmounted(() => {
 * { font-family: 'Vazirmatn', system-ui, sans-serif; }
 
 .add-menu-page {
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0c4a6e 100%);
+  background: linear-gradient(135deg, #0F0F0F 0%, #1A1A1A 50%, #262626 100%);
   min-height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
@@ -331,9 +329,9 @@ onUnmounted(() => {
 .fade-in-up { animation: fadeInUp 0.5s ease-out; }
 
 .form-glass {
-  background: rgba(255,255,255,0.05);
+  background: rgba(30,30,30,0.6);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid #333333;
   border-radius: 16px;
   padding: 20px;
 }
@@ -341,8 +339,8 @@ onUnmounted(() => {
 
 .header {
   position: sticky; top: 0; z-index: 40;
-  background: rgba(15,23,42,0.95); backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: rgba(26,26,26,0.95); backdrop-filter: blur(20px);
+  border-bottom: 1px solid #333333;
 }
 .header-content {
   max-width: 1200px; margin: 0 auto; padding: 12px 16px;
@@ -361,8 +359,8 @@ onUnmounted(() => {
   cursor: pointer; transition: all 0.3s ease; border: none; white-space: nowrap;
 }
 @media (min-width: 640px) { .btn { padding: 11px 22px; font-size: 14px; border-radius: 12px; } }
-.btn-primary { background: #3b82f6; color: white; }
-.btn-primary:hover { background: #2563eb; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(59,130,246,0.3); }
+.btn-primary { background: #C69C6D; color: white; }
+.btn-primary:hover { background: #B28C56; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(198,156,109,0.3); }
 .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
 .main-content {
@@ -392,8 +390,8 @@ onUnmounted(() => {
 }
 .form-label .required { color: #f87171; }
 .form-input, .form-select, .form-textarea {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(30,30,30,0.6);
+  border: 1px solid #333333;
   border-radius: 10px;
   padding: 10px 14px;
   width: 100%;
@@ -406,13 +404,13 @@ onUnmounted(() => {
   .form-input, .form-select, .form-textarea { padding: 11px 16px; font-size: 14px; border-radius: 12px; }
 }
 .form-input:focus, .form-select:focus, .form-textarea:focus {
-  border-color: #3b82f6;
-  background: rgba(255,255,255,0.1);
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+  border-color: #C69C6D;
+  background: rgba(30,30,30,0.8);
+  box-shadow: 0 0 0 3px rgba(198,156,109,0.1);
 }
 .form-input::placeholder { color: rgba(255,255,255,0.35); }
 .form-select { appearance: none; cursor: pointer; }
-.form-select option { background: #1e293b; color: white; }
+.form-select option { background: #1A1A1A; color: white; }
 .form-textarea { resize: vertical; min-height: 80px; }
 
 .form-row {
@@ -429,8 +427,8 @@ onUnmounted(() => {
   margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
 }
 @media (min-width: 640px) { .section-title { font-size: 18px; margin-bottom: 20px; } }
-.icon-blue { color: #93c5fd; }
-.icon-green { color: #86efac; }
+.icon-blue { color: #D4A373; }
+.icon-green { color: #D4A373; }
 
 .upload-area {
   border: 2px dashed rgba(255,255,255,0.15);
@@ -442,8 +440,8 @@ onUnmounted(() => {
   background: rgba(255,255,255,0.02);
 }
 .upload-area:hover {
-  border-color: #3b82f6;
-  background: rgba(59,130,246,0.05);
+  border-color: #C69C6D;
+  background: rgba(198,156,109,0.05);
 }
 .upload-icon {
   font-size: 26px;
@@ -503,14 +501,14 @@ onUnmounted(() => {
 .preview-price {
   font-size: 15px;
   font-weight: 700;
-  color: #60a5fa;
+  color: #C69C6D;
 }
 .preview-category {
   font-size: 11px;
   padding: 3px 10px;
   border-radius: 14px;
-  background: rgba(59,130,246,0.15);
-  color: #93c5fd;
+  background: rgba(198,156,109,0.15);
+  color: #D4A373;
 }
 
 .toast {
@@ -538,7 +536,7 @@ onUnmounted(() => {
 .toast.show { transform: translateY(0); opacity: 1; }
 .toast-success { background: #059669; }
 .toast-error { background: #dc2626; }
-.toast-info { background: #3b82f6; }
+.toast-info { background: #C69C6D; }
 
 .space-y-16 > * + * { margin-top: 16px; }
 .space-y-3 > * + * { margin-top: 12px; }

@@ -54,8 +54,8 @@ Node requirement: `^22.18.0 || >=24.12.0` (engines field).
 ### Backend (`BK/`)
 
 - **Controllers**: `app/Http/Controllers/Api/` — AuthController, CategoryController, MenuItemsController, OrdersController, DashboardController, CafeController, ZarinpalController, RoleController
-- **Services**: `app/Services/` — AuthService, OrderService, MenuService (business logic extracted from controllers)
-- **Models**: `app/Models/` — User, Order, Category, MenuItem, OrderItem, Payment, MonthlyIncome, IsClosed
+- **Services**: `app/Services/` — AuthService, OrderService, MenuService, SMS (business logic extracted from controllers)
+- **Models**: `app/Models/` — User, Order, Category, MenuItem, OrderItem, Payment, MonthlyIncome, IsClosed, PhoneVerification
 - **Middleware**: Only `CheckCafeOpenMiddleware` exists in `app/Http/Middleware/`. Registered as `cafe_open` alias in `bootstrap/app.php`.
 - **Middleware aliases** in `bootstrap/app.php`: `cafe_open` (CheckCafeOpenMiddleware), `permission`, `role`, `role_or_permission` (Spatie Permission)
 - **Roles & Permissions**: Uses `spatie/laravel-permission`. Dashboard routes use `permission:manage-users`, `permission:manage-orders`, `permission:manage-menu-items`, `permission:manage-categories`, `permission:manage-roles`, `permission:toggle-cafe`, `permission:view-dashboard`. No custom `AdminMiddleware` or `SuperAdminMiddleware`.
@@ -91,7 +91,7 @@ DB roles via Spatie: `super_admin`, `admin`, `chef`, `waiter`, `user`. Note: cus
 - `src/stores/cart.js` — Pinia cart store (shared between MenuPage and CheckoutPage); persists to `localStorage`
 - `src/services/` — API layer split by domain (api, auth, users, categories, menuItems, orders, payments, cafe)
 - `src/composables/` — useToast.js
-- `src/components/` — AdminSidebar, BackgroundBlobs, LogoCup
+- `src/components/` — AdminSidebar, BackgroundBlobs, LogoCup, MenuHeader, MenuFooter
 - `src/views/` — all page components (MenuPage, CheckoutPage, LoginPage, DashboardPage, OrdersPage, MenuManagementPage, AddMenuPage, AdminsPage, NewPasswordPage, NotFoundPage)
 - `@` alias resolves to `./src` (configured in `vite.config.js`)
 

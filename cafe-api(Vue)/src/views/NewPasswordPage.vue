@@ -259,10 +259,10 @@ onMounted(() => {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(15, 10, 8, 0.55);
+  background: var(--bg-secondary);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-primary);
   flex-shrink: 0;
 }
 
@@ -330,6 +330,7 @@ onMounted(() => {
   padding: 20px 16px;
   min-height: calc(100vh - 70px);
   min-height: calc(100dvh - 70px);
+  background: var(--bg-primary);
 }
 
 .reset-wrapper {
@@ -340,10 +341,10 @@ onMounted(() => {
 }
 
 .reset-card {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--bg-card);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-primary);
   border-radius: 20px;
   padding: clamp(24px, 5vw, 40px);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -351,9 +352,8 @@ onMounted(() => {
 }
 
 .reset-card:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(245, 158, 11, 0.15);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 40px rgba(245, 158, 11, 0.05);
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow-lg);
 }
 
 .card-header {
@@ -376,7 +376,7 @@ onMounted(() => {
 }
 
 .card-title {
-  color: #ffffff;
+  color: var(--text-primary);
   font-size: clamp(20px, 4vw, 26px);
   font-weight: 800;
   margin-bottom: 4px;
@@ -384,7 +384,7 @@ onMounted(() => {
 }
 
 .card-subtitle {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
   font-size: clamp(13px, 1.5vw, 15px);
 }
 
@@ -427,7 +427,7 @@ onMounted(() => {
 }
 
 .form-group label {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
   font-size: clamp(13px, 1.2vw, 14px);
   font-weight: 500;
   display: flex;
@@ -436,7 +436,7 @@ onMounted(() => {
 }
 
 .form-group label i {
-  color: #f59e0b;
+  color: var(--accent);
   font-size: 14px;
 }
 
@@ -448,10 +448,10 @@ onMounted(() => {
 .input-wrap input {
   width: 100%;
   padding: clamp(12px, 2vw, 14px) clamp(36px, 6vw, 44px) clamp(12px, 2vw, 14px) clamp(12px, 2vw, 14px);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-input);
+  border: 1px solid var(--border-primary);
   border-radius: 12px;
-  color: #ffffff;
+  color: var(--text-primary);
   font-size: clamp(14px, 1.5vw, 16px);
   transition: all 0.3s;
   outline: none;
@@ -460,13 +460,13 @@ onMounted(() => {
 }
 
 .input-wrap input::placeholder {
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--text-faint);
 }
 
 .input-wrap input:focus {
-  border-color: rgba(245, 158, 11, 0.4);
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.05);
+  border-color: var(--accent);
+  background: var(--bg-elevated);
+  box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
 .input-wrap .input-icon {
@@ -474,14 +474,14 @@ onMounted(() => {
   right: clamp(12px, 2vw, 14px);
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--text-faint);
   font-size: clamp(14px, 1.2vw, 16px);
   pointer-events: none;
   transition: color 0.3s;
 }
 
 .input-wrap input:focus ~ .input-icon {
-  color: #f59e0b;
+  color: var(--accent);
 }
 
 .toggle-password {
@@ -491,7 +491,7 @@ onMounted(() => {
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--text-faint);
   cursor: pointer;
   font-size: clamp(14px, 1.2vw, 16px);
   padding: 4px;
@@ -499,26 +499,26 @@ onMounted(() => {
 }
 
 .toggle-password:hover {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary);
 }
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px rgba(26, 14, 10, 0.95) inset !important;
-  -webkit-text-fill-color: #ffffff !important;
-  caret-color: #ffffff;
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-input) inset !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  caret-color: var(--text-primary);
 }
 
 .submit-btn {
   position: relative;
   width: 100%;
   padding: clamp(14px, 2vw, 16px);
-  background: linear-gradient(135deg, #f59e0b, #d97706);
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
   border: none;
   border-radius: 12px;
-  color: #1a0e0a;
+  color: white;
   font-weight: 800;
   font-size: clamp(15px, 1.5vw, 17px);
   cursor: pointer;
@@ -527,7 +527,7 @@ input:-webkit-autofill:active {
   justify-content: center;
   gap: 10px;
   transition: all 0.3s;
-  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25);
+  box-shadow: 0 4px 20px var(--accent-bg);
   min-height: 54px;
   overflow: hidden;
   margin-top: 4px;
@@ -537,7 +537,7 @@ input:-webkit-autofill:active {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  background: linear-gradient(135deg, var(--accent-light), var(--accent));
   opacity: 0;
   transition: opacity 0.3s;
   border-radius: 12px;
@@ -545,7 +545,7 @@ input:-webkit-autofill:active {
 
 .submit-btn:hover {
   transform: scale(1.02);
-  box-shadow: 0 8px 30px rgba(245, 158, 11, 0.35);
+  box-shadow: 0 8px 30px var(--accent-bg);
 }
 
 .submit-btn:hover::before {
@@ -609,37 +609,5 @@ input:-webkit-autofill:active {
   .form-group { gap: 4px; }
   .input-wrap input { min-height: 40px; padding: 8px 32px 8px 10px; font-size: 13px; }
   .submit-btn { min-height: 42px; font-size: 14px; padding: 10px; }
-}
-
-@media (prefers-color-scheme: light) {
-  .reset-card {
-    background: rgba(255, 255, 255, 0.7);
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-  .reset-card:hover {
-    background: rgba(255, 255, 255, 0.8);
-  }
-  .card-title { color: #1a0e0a; }
-  .card-subtitle { color: rgba(0, 0, 0, 0.5); }
-  .input-wrap input {
-    background: rgba(0, 0, 0, 0.03);
-    border-color: rgba(0, 0, 0, 0.08);
-    color: #1a0e0a;
-  }
-  .input-wrap input::placeholder { color: rgba(0, 0, 0, 0.2); }
-  .input-wrap input:focus { border-color: #f59e0b; background: rgba(0, 0, 0, 0.05); }
-  .form-group label { color: rgba(0, 0, 0, 0.7); }
-  .input-wrap .input-icon { color: rgba(0, 0, 0, 0.2); }
-  .toggle-password { color: rgba(0, 0, 0, 0.2); }
-  .header { background: rgba(255, 255, 255, 0.7); border-color: rgba(0, 0, 0, 0.05); }
-  .back-link { color: rgba(0, 0, 0, 0.4); border-color: rgba(0, 0, 0, 0.05); }
-  .back-link:hover { color: #d97706; background: rgba(217, 119, 6, 0.08); }
-  input:-webkit-autofill,
-  input:-webkit-autofill:hover,
-  input:-webkit-autofill:focus,
-  input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.9) inset !important;
-    -webkit-text-fill-color: #1a0e0a !important;
-  }
 }
 </style>

@@ -10,7 +10,6 @@ import { getMenuItems, updateMenuItem, deleteMenuItem } from '@/services/menuIte
 import { getCategories, createCategory, updateCategory, deleteCategory } from '@/services/categories'
 import { getImageUrl } from '@/services/api'
 import { useToast } from '@/composables/useToast'
-import AdminFooter from '@/components/AdminFooter.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -594,7 +593,6 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <AdminFooter />
   </main>
 
   <!-- ============ مودال ویرایش ============ -->
@@ -792,7 +790,7 @@ onUnmounted(() => {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .fade-in-up { animation: fadeInUp 0.5s ease-out; }
-.glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+.glass { background: rgba(30,30,30,0.6); backdrop-filter: blur(20px); border: 1px solid #333333; }
 
 .skeleton {
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
@@ -804,8 +802,8 @@ onUnmounted(() => {
 /* ============ هدر ============ */
 .header {
   position: sticky; top: 0; z-index: 50;
-  background: rgba(15,23,42,0.95); backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: rgba(26,26,26,0.95); backdrop-filter: blur(20px);
+  border-bottom: 1px solid #333333;
 }
 .header-content {
   max-width: 1400px; margin: 0 auto; padding: 12px 16px;
@@ -849,23 +847,23 @@ onUnmounted(() => {
   cursor: pointer; transition: all 0.3s ease; border: none; white-space: nowrap;
 }
 @media (min-width: 640px) { .btn { padding: 10px 20px; font-size: 14px; border-radius: 12px; gap: 8px; } }
-.btn-primary { background: #3b82f6; color: white; }
-.btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
-.btn-outline { background: transparent; color: white; border: 1px solid rgba(255,255,255,0.25); }
-.btn-outline:hover { background: rgba(255,255,255,0.1); }
+.btn-primary { background: #C69C6D; color: white; }
+.btn-primary:hover { background: #B28C56; transform: translateY(-1px); }
+.btn-outline { background: transparent; color: #D4D4D4; border: 1px solid #333333; }
+.btn-outline:hover { background: rgba(30,30,30,0.8); }
 .back-btn {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 5px 10px; border-radius: 8px;
   font-size: 11px; font-weight: 600;
-  color: rgba(255,255,255,0.7);
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.12);
+  color: #A3A3A3;
+  background: rgba(30,30,30,0.6);
+  border: 1px solid #333333;
   cursor: pointer; transition: all 0.25s ease;
   white-space: nowrap; text-decoration: none;
 }
 .back-btn:hover {
-  color: white; background: rgba(255,255,255,0.15);
-  border-color: rgba(255,255,255,0.25);
+  color: white; background: rgba(30,30,30,0.8);
+  border-color: #C69C6D;
   transform: translateY(-1px);
 }
 .back-btn i { font-size: 10px; transition: transform 0.25s ease; }
@@ -888,12 +886,12 @@ onUnmounted(() => {
 .category-tab {
   padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;
   cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
-  background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(30,30,30,0.6); color: #A3A3A3;
+  border: 1px solid #333333;
   display: inline-flex; align-items: center; gap: 6px;
 }
-.category-tab:hover { background: rgba(255,255,255,0.1); color: white; }
-.category-tab.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+.category-tab:hover { background: rgba(30,30,30,0.8); color: white; }
+.category-tab.active { background: #C69C6D; color: white; border-color: #C69C6D; }
 @media (min-width: 640px) { .category-tab { padding: 8px 18px; font-size: 13px; } }
 .count-badge {
   background: rgba(255,255,255,0.15);
@@ -913,19 +911,19 @@ onUnmounted(() => {
   color: rgba(255,255,255,0.4); font-size: 14px;
 }
 .search-box {
-  width: 100%; background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+  width: 100%; background: rgba(30,30,30,0.6);
+  border: 1px solid #333333; border-radius: 10px;
   padding: 8px 35px 8px 12px; color: white; font-size: 12px; outline: none;
 }
 @media (min-width: 640px) { .search-box { padding: 10px 40px 10px 16px; font-size: 14px; } }
-.search-box:focus { border-color: #3b82f6; background: rgba(255,255,255,0.1); }
+.search-box:focus { border-color: #C69C6D; background: rgba(30,30,30,0.8); }
 .filter-select {
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(30,30,30,0.6); border: 1px solid #333333;
   border-radius: 10px; padding: 8px 12px; color: white; font-size: 12px;
   outline: none; cursor: pointer; min-width: 110px;
 }
 @media (min-width: 640px) { .filter-select { padding: 10px 16px; font-size: 14px; min-width: 140px; } }
-.filter-select option { background: #1e293b; color: white; }
+.filter-select option { background: #1A1A1A; color: white; }
 
 /* ============ گرید منو ============ */
 .menu-grid {
@@ -935,12 +933,12 @@ onUnmounted(() => {
 @media (min-width: 768px) { .menu-grid { gap: 17px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); } }
 @media (min-width: 1024px) { .menu-grid { gap: 16px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); } }
 .menu-card {
-  position: relative; background: rgba(255,255,255,0.03);
-  backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.06);
+  position: relative; background: rgba(30,30,30,0.6);
+  backdrop-filter: blur(10px); border: 1px solid #333333;
   border-radius: 16px; overflow: hidden; transition: all 0.3s ease;
   display: flex; flex-direction: column;
 }
-.menu-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.12); }
+.menu-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); border-color: #C69C6D; }
 .menu-card-image { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; }
 .menu-card-overlay {
   position: absolute; top: 0; left: 0; right: 0;
@@ -952,12 +950,12 @@ onUnmounted(() => {
 .menu-card-body { padding: 12px; display: flex; flex-direction: column; flex: 1; gap: 6px; }
 .menu-card-category {
   font-size: 10px; padding: 3px 10px; border-radius: 14px;
-  background: rgba(139,92,246,0.2); color: #c4b5fd; align-self: flex-start;
+  background: rgba(198,156,109,0.2); color: #D4A373; align-self: flex-start;
 }
 .menu-card-title { font-size: 14px; font-weight: 700; color: white; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
 .menu-card-desc { font-size: 11px; color: rgba(255,255,255,0.45); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
-.menu-card-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px 12px; border-top: 1px solid rgba(255,255,255,0.04); gap: 8px; flex-wrap: wrap; }
-.menu-card-price { font-size: 14px; font-weight: 700; color: #10b981; white-space: nowrap; }
+.menu-card-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px 12px; border-top: 1px solid #333333; gap: 8px; flex-wrap: wrap; }
+.menu-card-price { font-size: 14px; font-weight: 700; color: #C69C6D; white-space: nowrap; }
 .badge { font-size: 8px; padding: 2px 6px; border-radius: 10px; font-weight: 600; white-space: nowrap; }
 .badge-available { background: rgba(16,185,129,0.3); color: #6ee7b7; }
 .badge-unavailable { background: rgba(239,68,68,0.3); color: #fca5a5; }
@@ -971,7 +969,7 @@ onUnmounted(() => {
   background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); flex-shrink: 0;
 }
 .btn-icon-overlay:hover { background: rgba(0,0,0,0.8); transform: scale(1.05); }
-.btn-icon-overlay.edit:hover { color: #93c5fd; }
+.btn-icon-overlay.edit:hover { color: #D4A373; }
 .btn-icon-overlay.delete:hover { color: #fca5a5; }
 .btn-icon-overlay.toggle-status:hover { color: #6ee7b7; }
 
@@ -982,7 +980,7 @@ onUnmounted(() => {
   cursor: pointer; transition: all 0.3s ease;
   background: rgba(255,255,255,0.02);
 }
-.upload-area:hover { border-color: #3b82f6; background: rgba(59,130,246,0.05); }
+.upload-area:hover { border-color: #C69C6D; background: rgba(198,156,109,0.05); }
 .upload-area.has-image { border-style: solid; border-color: rgba(16,185,129,0.3); padding: 8px; }
 .upload-icon { font-size: 24px; color: rgba(255,255,255,0.2); margin-bottom: 6px; display: block; }
 .upload-text { color: rgba(255,255,255,0.45); font-size: 11px; }
@@ -998,13 +996,13 @@ onUnmounted(() => {
   padding: 16px;
 }
 .modal-dialog {
-  background: #1a2332; border: 1px solid rgba(255,255,255,0.1);
+  background: #1A1A1A; border: 1px solid #333333;
   border-radius: 16px; width: 100%; max-width: 600px; max-height: 85vh;
   overflow-y: auto; padding: 20px; animation: slideDown 0.3s ease-out;
 }
 .modal-header {
   display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
-  position: sticky; top: 0; background: #1a2332; z-index: 1; padding-bottom: 12px;
+  position: sticky; top: 0; background: #1A1A1A; z-index: 1; padding-bottom: 12px;
 }
 .modal-title { font-size: 18px; font-weight: 700; color: white; }
 .modal-close { background: none; border: none; color: rgba(255,255,255,0.5); cursor: pointer; font-size: 20px; transition: color 0.2s; padding: 4px; }
@@ -1014,33 +1012,33 @@ onUnmounted(() => {
 /* ============ فرم ============ */
 .form-group { margin-bottom: 16px; }
 .form-label { display: block; color: rgba(255,255,255,0.8); font-size: 12px; font-weight: 500; margin-bottom: 6px; }
-.form-label i { margin-left: 6px; color: #3b82f6; }
+.form-label i { margin-left: 6px; color: #C69C6D; }
 .required { color: #f87171; margin-right: 2px; }
 .form-input, .form-textarea, .form-select {
   width: 100%; padding: 8px 12px; border-radius: 8px;
-  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(30,30,30,0.6); border: 1px solid #333333;
   color: white; font-size: 13px; outline: none; transition: all 0.3s;
 }
 .form-input:focus, .form-textarea:focus, .form-select:focus {
-  border-color: #3b82f6; background: rgba(255,255,255,0.08);
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+  border-color: #C69C6D; background: rgba(30,30,30,0.8);
+  box-shadow: 0 0 0 3px rgba(198,156,109,0.1);
 }
-.form-select option { background: #1e293b; color: white; }
+.form-select option { background: #1A1A1A; color: white; }
 .form-textarea { resize: vertical; min-height: 60px; }
 .form-row { display: grid; grid-template-columns: 1fr; gap: 12px; }
 @media (min-width: 480px) { .form-row { grid-template-columns: 1fr 1fr; gap: 12px; } }
 
 /* ============ مدیریت دسته‌بندی ============ */
 .category-manage-item {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(30,30,30,0.6);
+  border: 1px solid #333333;
   border-radius: 12px; padding: 12px 16px; margin-bottom: 10px;
   display: flex; align-items: center; justify-content: space-between;
   transition: all 0.2s ease;
 }
 .category-manage-item:hover {
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(59,130,246,0.3);
+  background: rgba(30,30,30,0.8);
+  border-color: rgba(198,156,109,0.3);
 }
 .category-info { flex: 1; }
 .category-name { font-weight: 600; color: white; font-size: 15px; margin-bottom: 4px; }
@@ -1055,10 +1053,10 @@ onUnmounted(() => {
   background: rgba(255,255,255,0.08); border: none; border-radius: 8px;
   padding: 6px 10px; cursor: pointer; transition: all 0.2s ease; color: white;
 }
-.category-actions button:hover { background: rgba(59,130,246,0.3); }
+.category-actions button:hover { background: rgba(198,156,109,0.3); }
 .category-actions .delete-cat-btn:hover { background: rgba(239,68,68,0.3); color: #fca5a5; }
 .item-count-badge {
-  background: rgba(59,130,246,0.2); color: #60a5fa;
+  background: rgba(198,156,109,0.2); color: #D4A373;
   padding: 2px 8px; border-radius: 20px; font-size: 11px;
   margin-right: 10px; font-weight: normal;
 }
@@ -1094,7 +1092,7 @@ onUnmounted(() => {
 }
 .toast-success { background: #059669; }
 .toast-error { background: #dc2626; }
-.toast-info { background: #3b82f6; }
+.toast-info { background: #C69C6D; }
 
 /* ============ ترنزیشن‌ها ============ */
 .modal-enter-active { transition: opacity 0.25s ease; }

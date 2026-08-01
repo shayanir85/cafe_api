@@ -4,10 +4,10 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getUsers, updateUser, deleteUser, createUser } from '@/services/users'
 import AdminSidebar from '@/components/AdminSidebar.vue'
-import AdminFooter from '@/components/AdminFooter.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
+const sidebarOpen = ref(false)
 
 if (!auth.isSuperAdmin) {
   router.push(auth.user ? '/dashboard' : '/login')
@@ -351,36 +351,36 @@ watch([roleFilter, loginFilter], () => {
 
 <template>
   <div class="admins-page">
-    <AdminSidebar />
+    <AdminSidebar v-model="sidebarOpen" />
 
-    <main class="main-body">
+    <main class="main-body" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
       <div class="glass-effect rounded-3xl shadow-2xl p-6 lg:p-8 fade-in-up border border-white/10">
 
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <div class="flex items-center gap-3 mb-1">
-              <div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                <svg class="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <div class="w-10 h-10 rounded-xl bg-[#C69C6D]/20 flex items-center justify-center">
+                <svg class="w-5 h-5 text-[#D4A373]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               </div>
               <h1 class="text-2xl font-bold text-white">مدیریت ادمین‌ها</h1>
             </div>
-            <p class="text-blue-200 text-sm mr-13">مشاهده، ویرایش و حذف کاربران سیستم</p>
+            <p class="text-[#A3A3A3] text-sm mr-13">مشاهده، ویرایش و حذف کاربران سیستم</p>
           </div>
           <div class="flex gap-3">
             <div class="glass-effect rounded-xl px-4 py-3 text-center min-w-[80px]">
               <div class="text-xl font-bold text-white">{{ stats.total }}</div>
-              <div class="text-xs text-blue-300 mt-0.5">کل کاربران</div>
+              <div class="text-xs text-[#A3A3A3] mt-0.5">کل کاربران</div>
             </div>
             <div class="glass-effect rounded-xl px-4 py-3 text-center min-w-[80px]">
-              <div class="text-xl font-bold text-purple-300">{{ stats.admins }}</div>
-              <div class="text-xs text-blue-300 mt-0.5">ادمین‌ها</div>
+              <div class="text-xl font-bold text-[#D4A373]">{{ stats.admins }}</div>
+              <div class="text-xs text-[#A3A3A3] mt-0.5">ادمین‌ها</div>
             </div>
             <div class="glass-effect rounded-xl px-4 py-3 text-center min-w-[80px]">
-              <div class="text-xl font-bold text-green-300">{{ stats.active }}</div>
-              <div class="text-xs text-blue-300 mt-0.5">فعال امروز</div>
+              <div class="text-xl font-bold text-emerald-400">{{ stats.active }}</div>
+              <div class="text-xs text-[#A3A3A3] mt-0.5">فعال امروز</div>
             </div>
           </div>
         </div>
@@ -412,7 +412,7 @@ watch([roleFilter, loginFilter], () => {
             </svg>
             بارگذاری مجدد
           </button>
-          <button class="btn-action px-4 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white shadow-lg" @click="openAddModal">
+          <button class="btn-action px-4 bg-gradient-to-r from-[#C69C6D] to-[#B28C56] hover:from-[#D4A373] hover:to-[#C69C6D] text-white shadow-lg" @click="openAddModal">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
             </svg>
@@ -421,9 +421,9 @@ watch([roleFilter, loginFilter], () => {
         </div>
 
         <!-- Table wrapper -->
-        <div class="rounded-2xl overflow-hidden border border-white/10">
+        <div class="rounded-2xl overflow-hidden border border-[#333333]">
           <!-- Desktop header -->
-          <div class="hidden md:grid grid-cols-12 gap-2 px-5 py-3 text-xs font-semibold text-blue-300 uppercase tracking-wider bg-white/5 border-b border-white/10">
+          <div class="hidden md:grid grid-cols-12 gap-2 px-5 py-3 text-xs font-semibold text-[#A3A3A3] uppercase tracking-wider bg-white/5 border-b border-[#333333]">
             <div class="col-span-4">کاربر</div>
             <div class="col-span-2">نقش</div>
             <div class="col-span-3">آخرین ورود</div>
@@ -444,9 +444,9 @@ watch([roleFilter, loginFilter], () => {
                   </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
-                  <div><span class="text-blue-300 text-xs">نقش:</span> <div class="skeleton h-5 w-16 rounded-full inline-block"></div></div>
-                  <div><span class="text-blue-300 text-xs">آخرین ورود:</span> <div class="skeleton h-4 w-20 inline-block rounded"></div></div>
-                  <div class="col-span-2"><span class="text-blue-300 text-xs">تاریخ عضویت:</span> <div class="skeleton h-4 w-24 inline-block rounded"></div></div>
+                  <div><span class="text-[#A3A3A3] text-xs">نقش:</span> <div class="skeleton h-5 w-16 rounded-full inline-block"></div></div>
+                  <div><span class="text-[#A3A3A3] text-xs">آخرین ورود:</span> <div class="skeleton h-4 w-20 inline-block rounded"></div></div>
+                  <div class="col-span-2"><span class="text-[#A3A3A3] text-xs">تاریخ عضویت:</span> <div class="skeleton h-4 w-24 inline-block rounded"></div></div>
                 </div>
                 <div class="flex gap-2 mt-3 justify-end">
                   <div class="skeleton h-9 w-16 rounded-lg"></div>
@@ -497,7 +497,7 @@ watch([roleFilter, loginFilter], () => {
                   <div class="user-card-info">
                     <div class="user-card-name flex items-center gap-1.5">
                       {{ u.name || '—' }}
-                      <span v-if="u.id === auth.user?.id" class="text-xs text-blue-400 bg-blue-400/10 px-1.5 py-0.5 rounded-md">شما</span>
+                      <span v-if="u.id === auth.user?.id" class="text-xs text-[#C69C6D] bg-[#C69C6D]/10 px-1.5 py-0.5 rounded-md">شما</span>
                     </div>
                     <div class="user-card-email">{{ u.email || '—' }}</div>
                     <div v-if="u.phone" class="user-card-phone">{{ u.phone }}</div>
@@ -532,7 +532,7 @@ watch([roleFilter, loginFilter], () => {
               </div>
 
               <!-- Desktop row -->
-              <div class="hidden md:grid grid-cols-12 gap-2 px-5 py-4 items-center hover:bg-white/5 transition-colors border-b border-white/5 last:border-b-0">
+              <div class="hidden md:grid grid-cols-12 gap-2 px-5 py-4 items-center hover:bg-white/5 transition-colors border-b border-[#333333] last:border-b-0">
                 <div class="col-span-4 flex items-center gap-3 min-w-0">
                   <div class="user-avatar flex-shrink-0" :style="{ background: `linear-gradient(135deg, ${avatarColor(u.id)[0]}, ${avatarColor(u.id)[1]})` }">
                     {{ (u.name || u.email || '?').slice(0, 2).toUpperCase() }}
@@ -540,7 +540,7 @@ watch([roleFilter, loginFilter], () => {
                   <div class="min-w-0">
                     <div class="text-white font-medium text-sm truncate flex items-center gap-1.5">
                       {{ u.name || '—' }}
-                      <span v-if="u.id === auth.user?.id" class="text-xs text-blue-400 bg-blue-400/10 px-1.5 py-0.5 rounded-md">شما</span>
+                      <span v-if="u.id === auth.user?.id" class="text-xs text-[#C69C6D] bg-[#C69C6D]/10 px-1.5 py-0.5 rounded-md">شما</span>
                     </div>
                     <div class="text-white/40 text-xs truncate mt-0.5">{{ u.email || '—' }}</div>
                     <div v-if="u.phone" class="text-white/30 text-xs truncate">{{ u.phone }}</div>
@@ -595,7 +595,6 @@ watch([roleFilter, loginFilter], () => {
         </div>
       </div>
 
-      <AdminFooter />
     </main>
 
     <!-- Edit Modal -->
@@ -604,7 +603,7 @@ watch([roleFilter, loginFilter], () => {
         <div class="modal-box">
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-xl font-bold text-white flex items-center gap-2">
-              <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <svg class="w-5 h-5 text-[#C69C6D]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
               ویرایش کاربر
@@ -649,7 +648,7 @@ watch([roleFilter, loginFilter], () => {
               <button type="button" class="flex-1 px-4 py-3 text-white/60 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all text-sm font-medium" @click="closeEditModal">
                 انصراف
               </button>
-              <button type="submit" class="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-xl transition-all text-sm font-semibold shadow-lg flex items-center justify-center gap-2" :disabled="editSaving">
+              <button type="submit" class="flex-1 px-4 py-3 bg-gradient-to-r from-[#C69C6D] to-[#B28C56] hover:from-[#D4A373] hover:to-[#C69C6D] text-white rounded-xl transition-all text-sm font-semibold shadow-lg flex items-center justify-center gap-2" :disabled="editSaving">
                 <span>{{ editSaving ? 'در حال ذخیره...' : 'ذخیره تغییرات' }}</span>
                 <svg v-if="editSaving" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
@@ -668,7 +667,7 @@ watch([roleFilter, loginFilter], () => {
         <div class="modal-box">
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-xl font-bold text-white flex items-center gap-2">
-              <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <svg class="w-5 h-5 text-[#D4A373]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
               </svg>
               افزودن ادمین جدید
@@ -713,7 +712,7 @@ watch([roleFilter, loginFilter], () => {
               <button type="button" class="flex-1 px-4 py-3 text-white/60 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all text-sm font-medium" @click="closeAddModal">
                 انصراف
               </button>
-              <button type="submit" class="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white rounded-xl transition-all text-sm font-semibold shadow-lg flex items-center justify-center gap-2" :disabled="addSaving">
+              <button type="submit" class="flex-1 px-4 py-3 bg-gradient-to-r from-[#C69C6D] to-[#B28C56] hover:from-[#D4A373] hover:to-[#C69C6D] text-white rounded-xl transition-all text-sm font-semibold shadow-lg flex items-center justify-center gap-2" :disabled="addSaving">
                 <span>{{ addSaving ? 'در حال ایجاد...' : 'ایجاد ادمین' }}</span>
                 <svg v-if="addSaving" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
@@ -764,14 +763,14 @@ watch([roleFilter, loginFilter], () => {
 <style>
 /* Global variables — must be unscoped to apply */
 :root {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e3a5f;
-  --bg-tertiary: #0c4a6e;
-  --text-primary: #cbd5e1;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --accent-blue: #3b82f6;
-  --accent-purple: #8b5cf6;
+  --bg-primary: #0F0F0F;
+  --bg-secondary: #1A1A1A;
+  --bg-tertiary: #262626;
+  --text-primary: #D4D4D4;
+  --text-secondary: #A3A3A3;
+  --text-muted: #525252;
+  --accent-blue: #C69C6D;
+  --accent-purple: #C69C6D;
   --accent-red: #ef4444;
   --z-modal: 200;
   --z-confirm: 300;
@@ -784,17 +783,17 @@ watch([roleFilter, loginFilter], () => {
 * { font-family: 'Vazirmatn', system-ui, sans-serif; }
 
 .admins-page {
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0c4a6e 100%);
+  background: var(--bg-primary);
   min-height: 100vh;
   min-height: 100dvh;
+  transition: background 0.3s ease;
 }
 
 html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
 
 .main-body {
-  margin-right: 64px;
   padding: 24px;
-  padding-bottom: 80px;
+  padding-bottom: 24px;
   transition: all 0.3s ease;
 }
 
@@ -823,19 +822,19 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
 
 /* ===== GLASS EFFECTS ===== */
 .glass-effect {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(30,30,30,0.6);
   backdrop-filter: blur(var(--blur-amount));
   -webkit-backdrop-filter: blur(var(--blur-amount));
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #333333;
   will-change: transform;
 }
 
 /* ===== USER CARDS (MOBILE) ===== */
 .user-card {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(30,30,30,0.6);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid #333333;
   border-radius: 16px;
   padding: 16px;
   margin-bottom: 12px;
@@ -843,8 +842,8 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
 }
 .user-card:last-child { margin-bottom: 0; }
 .user-card:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(30,30,30,0.8);
+  border-color: #C69C6D;
   transform: translateY(-2px);
 }
 
@@ -861,7 +860,7 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
   display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
 }
 .user-card-email {
-  color: rgba(147, 197, 253, 0.7); font-size: 13px;
+  color: #A3A3A3; font-size: 13px;
   word-break: break-all; direction: ltr; text-align: left;
 }
 .user-card-phone { color: rgba(255, 255, 255, 0.3); font-size: 12px; direction: ltr; text-align: left; }
@@ -872,10 +871,10 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 .user-card-detail-label {
-  color: rgba(147, 197, 253, 0.5); font-size: 11px; font-weight: 500;
+  color: #A3A3A3; font-size: 11px; font-weight: 500;
   text-transform: uppercase; letter-spacing: 0.3px;
 }
-.user-card-detail-value { color: rgba(255, 255, 255, 0.8); font-size: 14px; font-weight: 400; }
+.user-card-detail-value { color: #D4D4D4; font-size: 14px; font-weight: 400; }
 
 .user-card-actions {
   display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end;
@@ -889,8 +888,8 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
   padding: 3px 10px; border-radius: 20px; font-size: 11px;
   font-weight: 600; white-space: nowrap;
 }
-.role-super_admin { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
-.role-admin { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+.role-super_admin { background: rgba(198,156,109,0.2); color: #D4A373; border: 1px solid rgba(198,156,109,0.3); }
+.role-admin { background: rgba(198,156,109,0.15); color: #C69C6D; border: 1px solid rgba(198,156,109,0.2); }
 .role-user { background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); }
 
 /* ===== SKELETON ===== */
@@ -915,13 +914,13 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
 
 /* ===== FILTERS ===== */
 .filter-input {
-  background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(30,30,30,0.6); border: 1px solid #333333;
   border-radius: var(--radius-default); padding: 10px 16px; color: white;
   font-size: 14px; outline: none; transition: all 0.2s ease; width: 100%;
 }
 .filter-input::placeholder { color: rgba(255, 255, 255, 0.4); }
-.filter-input:focus { border-color: rgba(59, 130, 246, 0.6); background: rgba(255, 255, 255, 0.12); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
-.filter-input option { background: #1e293b; color: white; }
+.filter-input:focus { border-color: rgba(198,156,109,0.6); background: rgba(30,30,30,0.8); box-shadow: 0 0 0 3px rgba(198,156,109,0.15); }
+.filter-input option { background: #1A1A1A; color: white; }
 
 /* ===== BUTTONS ===== */
 .btn-action {
@@ -930,8 +929,8 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
   display: inline-flex; align-items: center; gap: 5px;
 }
 .btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn-edit { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
-@media (hover: hover) { .btn-edit:hover:not(:disabled) { background: rgba(59, 130, 246, 0.35); transform: translateY(-1px); } }
+.btn-edit { background: rgba(198,156,109,0.2); color: #D4A373; border: 1px solid rgba(198,156,109,0.3); }
+@media (hover: hover) { .btn-edit:hover:not(:disabled) { background: rgba(198,156,109,0.35); transform: translateY(-1px); } }
 .btn-delete { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
 @media (hover: hover) { .btn-delete:hover:not(:disabled) { background: rgba(239, 68, 68, 0.35); transform: translateY(-1px); } }
 
@@ -943,21 +942,21 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
   align-items: center; justify-content: center;
 }
 .modal-box {
-  background: linear-gradient(135deg, #1e293b, #0f172a);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: linear-gradient(135deg, #1A1A1A, #0F0F0F);
+  border: 1px solid #333333;
   border-radius: 24px; padding: 32px; width: 90%; max-width: 480px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
   animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .modal-input {
-  width: 100%; background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  width: 100%; background: rgba(30,30,30,0.6);
+  border: 1px solid #333333;
   border-radius: var(--radius-default); padding: 11px 14px; color: white;
   font-size: 14px; outline: none; transition: all 0.2s ease; margin-top: 6px;
 }
 .modal-input::placeholder { color: rgba(255, 255, 255, 0.3); }
-.modal-input:focus { border-color: rgba(59, 130, 246, 0.6); background: rgba(255, 255, 255, 0.12); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
-.modal-input option { background: #1e293b; color: white; }
+.modal-input:focus { border-color: rgba(198,156,109,0.6); background: rgba(30,30,30,0.8); box-shadow: 0 0 0 3px rgba(198,156,109,0.15); }
+.modal-input option { background: #1A1A1A; color: white; }
 .modal-label { color: rgba(255, 255, 255, 0.7); font-size: 13px; font-weight: 500; }
 
 /* ===== CONFIRM ===== */
@@ -968,7 +967,7 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
   align-items: center; justify-content: center;
 }
 .confirm-box {
-  background: linear-gradient(135deg, #1e293b, #0f172a);
+  background: linear-gradient(135deg, #1A1A1A, #0F0F0F);
   border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 20px; padding: 28px; width: 90%; max-width: 380px;
   text-align: center; animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -993,24 +992,24 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
   font-weight: 700; font-size: 14px; flex-shrink: 0; color: white;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
-.empty-state { text-align: center; padding: 60px 20px; color: rgba(255, 255, 255, 0.4); }
+.empty-state { text-align: center; padding: 60px 20px; color: #A3A3A3; }
 
 /* ===== PAGINATION ===== */
 .page-btn {
   width: 34px; height: 34px; border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
   font-size: 13px; cursor: pointer; transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #333333; color: #A3A3A3;
+  background: rgba(30,30,30,0.6);
 }
 @media (hover: hover) {
   .page-btn:hover:not(:disabled):not(.cursor-default) {
-    background: rgba(59, 130, 246, 0.2); color: #93c5fd;
-    border-color: rgba(59, 130, 246, 0.3);
+    background: rgba(198,156,109,0.2); color: #D4A373;
+    border-color: rgba(198,156,109,0.3);
   }
 }
 .page-btn.active {
-  background: linear-gradient(135deg, var(--accent-blue), #2563eb);
+  background: linear-gradient(135deg, #C69C6D, #B28C56);
   color: white; border-color: transparent;
 }
 .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }

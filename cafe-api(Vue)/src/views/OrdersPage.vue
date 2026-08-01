@@ -7,7 +7,6 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getOrders, updateOrderStatus } from '@/services/orders'
 import { useToast } from '@/composables/useToast'
-import AdminFooter from '@/components/AdminFooter.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -318,7 +317,6 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <AdminFooter />
   </main>
 
   <!-- ============ مودال تغییر وضعیت ============ -->
@@ -387,14 +385,14 @@ onUnmounted(() => {
 
 /* ============ افکت شیشه‌ای ============ */
 .glass-effect {
-  background: rgba(255,255,255,0.08);
+  background: rgba(30,30,30,0.6);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid #333333;
 }
 .card-glass {
-  background: rgba(255,255,255,0.05);
+  background: rgba(30,30,30,0.6);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid #333333;
   border-radius: 16px;
   padding: 16px;
   transition: all 0.3s ease;
@@ -402,8 +400,8 @@ onUnmounted(() => {
   flex-direction: column;
 }
 .card-glass:hover {
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.2);
+  background: rgba(30,30,30,0.8);
+  border-color: #C69C6D;
   transform: translateY(-4px);
   box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3);
 }
@@ -430,10 +428,10 @@ onUnmounted(() => {
 @media (min-width: 640px) {
   .btn { padding: 10px 20px; font-size: 14px; border-radius: 12px; gap: 6px; }
 }
-.btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(59,130,246,0.4); }
-.btn-secondary { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
-.btn-secondary:hover { background: rgba(255,255,255,0.15); }
+.btn-primary { background: linear-gradient(135deg, #C69C6D, #B28C56); color: white; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(198,156,109,0.4); }
+.btn-secondary { background: rgba(30,30,30,0.8); color: #D4D4D4; border: 1px solid #333333; }
+.btn-secondary:hover { background: rgba(30,30,30,1); }
 
 /* ============ دکمه‌های عملیات کارت ============ */
 .card-actions {
@@ -442,7 +440,7 @@ onUnmounted(() => {
   gap: 6px;
   margin-top: auto;
   padding-top: 10px;
-  border-top: 1px solid rgba(255,255,255,0.08);
+  border-top: 1px solid #333333;
 }
 @media (min-width: 400px) {
   .card-actions { grid-template-columns: repeat(3, 1fr); gap: 6px; }
@@ -472,9 +470,9 @@ onUnmounted(() => {
 
 /* ============ هدر ============ */
 .header {
-  background: rgba(15,23,42,0.95);
+  background: rgba(26,26,26,0.95);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid #333333;
   position: sticky;
   top: 0;
   z-index: 40;
@@ -499,8 +497,8 @@ onUnmounted(() => {
 
 /* ============ فیلترها ============ */
 .search-box, .filter-select, .filter-date {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(30,30,30,0.8);
+  border: 1px solid #333333;
   border-radius: 10px;
   padding: 8px 12px;
   color: white;
@@ -513,13 +511,13 @@ onUnmounted(() => {
   .search-box, .filter-select, .filter-date { padding: 10px 16px; font-size: 14px; border-radius: 12px; }
 }
 .search-box:focus, .filter-select:focus, .filter-date:focus {
-  border-color: #3b82f6;
-  background: rgba(255,255,255,0.12);
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+  border-color: #C69C6D;
+  background: rgba(30,30,30,1);
+  box-shadow: 0 0 0 3px rgba(198,156,109,0.15);
 }
 .search-box::placeholder { color: rgba(255,255,255,0.4); }
 .filter-select { cursor: pointer; appearance: none; }
-.filter-select option { background: #1e293b; color: white; }
+.filter-select option { background: #1A1A1A; color: white; }
 .filter-date::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
 
 .filter-container {
@@ -610,9 +608,9 @@ onUnmounted(() => {
   .stats-grid { gap: 16px; margin-bottom: 32px; }
 }
 .stats-card {
-  background: rgba(255,255,255,0.05);
+  background: rgba(30,30,30,0.6);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid #333333;
   border-radius: 12px;
   padding: 14px 10px;
   text-align: center;
@@ -624,7 +622,7 @@ onUnmounted(() => {
 @media (min-width: 1024px) {
   .stats-card { padding: 20px; }
 }
-.stats-card:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); }
+.stats-card:hover { background: rgba(30,30,30,0.8); transform: translateY(-2px); }
 .stats-icon { font-size: 18px; margin-bottom: 6px; }
 @media (min-width: 640px) {
   .stats-icon { font-size: 22px; margin-bottom: 8px; }
@@ -660,8 +658,8 @@ onUnmounted(() => {
   padding: 16px;
 }
 .modal-content {
-  background: #1e293b;
-  border: 1px solid rgba(255,255,255,0.1);
+  background: #1A1A1A;
+  border: 1px solid #333333;
   border-radius: 16px;
   padding: 20px;
   width: 100%;
@@ -713,8 +711,8 @@ onUnmounted(() => {
   padding: 14px;
   border-radius: 12px;
   text-align: center;
-  border: 2px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.03);
+  border: 2px solid #333333;
+  background: rgba(30,30,30,0.6);
   cursor: pointer;
   transition: all 0.3s ease;
   width: 100%;
@@ -724,13 +722,13 @@ onUnmounted(() => {
 }
 .status-card-btn:hover {
   transform: translateY(-3px);
-  border-color: rgba(255,255,255,0.3);
-  background: rgba(255,255,255,0.06);
+  border-color: rgba(198,156,109,0.3);
+  background: rgba(30,30,30,0.8);
 }
 .status-card-btn.selected {
-  border-color: #3b82f6;
-  background: rgba(59,130,246,0.1);
-  box-shadow: 0 0 20px rgba(59,130,246,0.15);
+  border-color: #C69C6D;
+  background: rgba(198,156,109,0.1);
+  box-shadow: 0 0 20px rgba(198,156,109,0.15);
 }
 .status-icon { font-size: 24px; margin-bottom: 6px; }
 @media (min-width: 640px) {
@@ -742,8 +740,8 @@ onUnmounted(() => {
   display: inline-block;
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: white;
+  border: 2px solid rgba(198,156,109,0.3);
+  border-top-color: #C69C6D;
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
