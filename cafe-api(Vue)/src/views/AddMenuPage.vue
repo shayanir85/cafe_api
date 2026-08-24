@@ -4,9 +4,11 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getCategories } from '@/services/categories'
 import { createMenuItem } from '@/services/menuItems'
+import AdminSidebar from '@/components/AdminSidebar.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
+const sidebarOpen = ref(false)
 
 if (!auth.isAdmin) {
   router.push('/login')
@@ -172,8 +174,10 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <AdminSidebar v-model="sidebarOpen" />
+
   <div class="add-menu-page">
-    <header class="header">
+    <header class="header" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
       <div class="header-content">
         <div class="flex items-center gap-3">
           <router-link to="/dashboard" class="text-white/60 hover:text-white transition-colors">
@@ -191,7 +195,7 @@ onUnmounted(() => {
       </div>
     </header>
 
-    <main class="main-content">
+    <main class="main-content" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
       <div class="form-grid">
         <div class="space-y-16 fade-in-up">
           <div class="form-glass">
@@ -341,6 +345,7 @@ onUnmounted(() => {
   position: sticky; top: 0; z-index: 40;
   background: rgba(26,26,26,0.95); backdrop-filter: blur(20px);
   border-bottom: 1px solid #333333;
+  transition: margin-right 0.3s ease;
 }
 .header-content {
   max-width: 1200px; margin: 0 auto; padding: 12px 16px;
@@ -365,6 +370,7 @@ onUnmounted(() => {
 
 .main-content {
   max-width: 1200px; margin: 0 auto; padding: 16px; padding-bottom: 80px;
+  transition: margin-right 0.3s ease;
 }
 @media (min-width: 640px) { .main-content { padding: 24px; padding-bottom: 80px; } }
 @media (min-width: 1024px) { .main-content { padding: 32px 24px; padding-bottom: 80px; } }

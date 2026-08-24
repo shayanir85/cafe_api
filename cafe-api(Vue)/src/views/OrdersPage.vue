@@ -7,9 +7,11 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getOrders, updateOrderStatus } from '@/services/orders'
 import { useToast } from '@/composables/useToast'
+import AdminSidebar from '@/components/AdminSidebar.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
+const sidebarOpen = ref(false)
 
 if (!auth.isAdmin) {
   router.push('/login')
@@ -168,7 +170,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header class="header">
+  <AdminSidebar v-model="sidebarOpen" />
+
+  <header class="header" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
     <div class="header-content">
       <div class="flex items-center gap-3">
         <router-link to="/dashboard" class="text-white/70 hover:text-white transition-colors">
@@ -186,7 +190,7 @@ onUnmounted(() => {
     </div>
   </header>
 
-  <main class="main-container">
+  <main class="main-body" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
     <!-- ============ آمار ============ -->
     <div class="stats-grid fade-in-up">
       <div class="stats-card">
@@ -476,6 +480,7 @@ onUnmounted(() => {
   position: sticky;
   top: 0;
   z-index: 40;
+  transition: margin-right 0.3s ease;
 }
 .header-content {
   max-width: 1400px;
@@ -536,17 +541,18 @@ onUnmounted(() => {
 }
 
 /* ============ گرید محصولات ============ */
-.main-container {
+.main-body {
   max-width: 1400px;
   margin: 0 auto;
   padding: 16px 12px;
   padding-bottom: 80px;
+  transition: margin-right 0.3s ease;
 }
 @media (min-width: 640px) {
-  .main-container { padding: 24px 16px; padding-bottom: 80px; }
+  .main-body { padding: 24px 16px; padding-bottom: 80px; }
 }
 @media (min-width: 1024px) {
-  .main-container { padding: 32px 24px; padding-bottom: 80px; }
+  .main-body { padding: 32px 24px; padding-bottom: 80px; }
 }
 
 .products-grid {

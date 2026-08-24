@@ -5,9 +5,11 @@ import { useAuthStore } from '@/stores/auth'
 import { resetPassword } from '@/services/auth'
 import LogoCup from '@/components/LogoCup.vue'
 import BackgroundBlobs from '@/components/BackgroundBlobs.vue'
+import AdminSidebar from '@/components/AdminSidebar.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
+const sidebarOpen = ref(false)
 
 const passwordInput = ref('')
 const newPasswordInput = ref('')
@@ -102,8 +104,9 @@ onMounted(() => {
 
 <template>
   <BackgroundBlobs />
+  <AdminSidebar v-model="sidebarOpen" />
 
-  <header class="header">
+  <header class="header" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
     <div class="header-content">
       <router-link to="/" class="logo-link">
         <LogoCup />
@@ -116,7 +119,7 @@ onMounted(() => {
     </div>
   </header>
 
-  <main class="main-container">
+  <main class="main-container" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
     <div class="reset-wrapper">
       <div class="reset-card" :class="{ 'animate-shake': cardShake }">
         <div class="card-header">
@@ -264,6 +267,7 @@ onMounted(() => {
   -webkit-backdrop-filter: blur(28px);
   border-bottom: 1px solid var(--border-primary);
   flex-shrink: 0;
+  transition: margin-right 0.3s ease;
 }
 
 .header-content {
@@ -331,6 +335,7 @@ onMounted(() => {
   min-height: calc(100vh - 70px);
   min-height: calc(100dvh - 70px);
   background: var(--bg-primary);
+  transition: margin-right 0.3s ease;
 }
 
 .reset-wrapper {

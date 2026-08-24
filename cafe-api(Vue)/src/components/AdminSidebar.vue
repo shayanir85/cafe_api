@@ -64,7 +64,7 @@ const roleText = computed(() => user.value?.role === 'super_admin' ? 'سوپر �
           <button class="rail-icon" @click="router.push('/menu-management')" aria-label="مدیریت منو">
             <i class="fa-solid fa-utensils"></i>
           </button>
-          <button class="rail-icon" @click="router.push('/add-menu')" aria-label="اضافه کردن به منو">
+          <button class="rail-icon" @click="router.push('/menu-management/add')" aria-label="اضافه کردن به منو">
             <i class="fa-solid fa-plus-circle"></i>
           </button>
         </div>
@@ -95,9 +95,6 @@ const roleText = computed(() => user.value?.role === 'super_admin' ? 'سوپر �
             <h2 class="text-lg font-bold text-white tracking-tight">پنل مدیریت</h2>
             <span class="sidebar-role-badge">{{ roleText }}</span>
           </div>
-          <button class="sidebar-close-btn" @click="toggleMenu">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
         </div>
 
         <nav class="sidebar-nav">
@@ -123,7 +120,7 @@ const roleText = computed(() => user.value?.role === 'super_admin' ? 'سوپر �
               <i class="fa-solid fa-utensils sidebar-link-icon"></i>
               <span>مدیریت منو</span>
             </router-link>
-            <router-link to="/add-menu" class="sidebar-link">
+            <router-link to="/menu-management/add" class="sidebar-link">
               <i class="fa-solid fa-circle-plus sidebar-link-icon"></i>
               <span>اضافه کردن به منو</span>
             </router-link>

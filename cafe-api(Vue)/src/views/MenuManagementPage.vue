@@ -10,9 +10,11 @@ import { getMenuItems, updateMenuItem, deleteMenuItem } from '@/services/menuIte
 import { getCategories, createCategory, updateCategory, deleteCategory } from '@/services/categories'
 import { getImageUrl } from '@/services/api'
 import { useToast } from '@/composables/useToast'
+import AdminSidebar from '@/components/AdminSidebar.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
+const sidebarOpen = ref(false)
 
 if (!auth.isAdmin) {
   router.push('/login')
@@ -433,7 +435,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header class="header">
+  <AdminSidebar v-model="sidebarOpen" />
+
+  <header class="header" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
     <div class="header-content">
       <div class="flex items-center gap-2">
         <h1 class="header-title">
@@ -480,7 +484,7 @@ onUnmounted(() => {
     </div>
   </header>
 
-  <main class="main-container">
+  <main class="main-body" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
     <!-- ============ تب دسته‌بندی ============ -->
     <div class="category-header">
       <div class="category-tabs fade-in-up">
@@ -804,6 +808,7 @@ onUnmounted(() => {
   position: sticky; top: 0; z-index: 50;
   background: rgba(26,26,26,0.95); backdrop-filter: blur(20px);
   border-bottom: 1px solid #333333;
+  transition: margin-right 0.3s ease;
 }
 .header-content {
   max-width: 1400px; margin: 0 auto; padding: 12px 16px;
@@ -871,9 +876,9 @@ onUnmounted(() => {
 .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
 /* ============ کانتینر اصلی ============ */
-.main-container { max-width: 1400px; margin: 0 auto; padding: 12px; padding-bottom: 80px; }
-@media (min-width: 640px) { .main-container { padding: 16px 20px; padding-bottom: 80px; } }
-@media (min-width: 1024px) { .main-container { padding: 20px 24px; padding-bottom: 80px; } }
+.main-body { max-width: 1400px; margin: 0 auto; padding: 12px; padding-bottom: 80px; transition: margin-right 0.3s ease; }
+@media (min-width: 640px) { .main-body { padding: 16px 20px; padding-bottom: 80px; } }
+@media (min-width: 1024px) { .main-body { padding: 20px 24px; padding-bottom: 80px; } }
 
 /* ============ تب دسته‌بندی ============ */
 .category-header {
