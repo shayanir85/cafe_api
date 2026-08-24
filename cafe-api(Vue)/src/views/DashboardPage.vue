@@ -91,7 +91,7 @@ onMounted(() => {})
 
 .dash-header {
   top: 0;
-  z-index: 40;
+  z-index: 0;
   background: rgba(26,26,26,0.95);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid #2A2A2A;

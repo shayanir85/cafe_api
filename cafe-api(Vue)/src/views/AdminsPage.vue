@@ -353,74 +353,76 @@ watch([roleFilter, loginFilter], () => {
   <div class="admins-page">
     <AdminSidebar v-model="sidebarOpen" />
 
+    <header class="header" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
+      <div class="header-content">
+        <div class="flex items-center gap-3">
+          <router-link to="/dashboard" class="text-white/70 hover:text-white transition-colors">
+            <i class="fa-solid fa-arrow-right text-lg"></i>
+          </router-link>
+          <h1 class="header-title">
+            <i class="fa-solid fa-users-gear"></i> مدیریت ادمین‌ها
+          </h1>
+        </div>
+        <div class="stats-wrapper">
+          <div class="stats-bar fade-in-up">
+            <div class="stat-item">
+              <span class="stat-dot blue"></span>
+              <span class="stat-count">{{ stats.total }}</span>
+              <span class="stat-text">کل</span>
+            </div>
+            <span class="stat-divider"></span>
+            <div class="stat-item">
+              <span class="stat-dot gold"></span>
+              <span class="stat-count">{{ stats.admins }}</span>
+              <span class="stat-text">ادمین</span>
+            </div>
+            <span class="stat-divider"></span>
+            <div class="stat-item">
+              <span class="stat-dot green"></span>
+              <span class="stat-count">{{ stats.active }}</span>
+              <span class="stat-text">فعال</span>
+            </div>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="btn btn-secondary" @click="loadUsers(); showToast('لیست به‌روزرسانی شد')">
+            <i class="fa-solid fa-rotate"></i>
+            <span class="btn-text">بروزرسانی</span>
+          </button>
+          <button class="btn btn-primary" @click="openAddModal">
+            <i class="fa-solid fa-plus"></i>
+            <span class="btn-text">افزودن ادمین</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
     <main class="main-body" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
-      <div class="glass-effect rounded-3xl shadow-2xl p-6 lg:p-8 fade-in-up border border-white/10">
-
-        <!-- Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <div class="flex items-center gap-3 mb-1">
-              <div class="w-10 h-10 rounded-xl bg-[#C69C6D]/20 flex items-center justify-center">
-                <svg class="w-5 h-5 text-[#D4A373]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              </div>
-              <h1 class="text-2xl font-bold text-white">مدیریت ادمین‌ها</h1>
-            </div>
-            <p class="text-[#A3A3A3] text-sm mr-13">مشاهده، ویرایش و حذف کاربران سیستم</p>
-          </div>
-          <div class="flex gap-3">
-            <div class="glass-effect rounded-xl px-4 py-3 text-center min-w-[80px]">
-              <div class="text-xl font-bold text-white">{{ stats.total }}</div>
-              <div class="text-xs text-[#A3A3A3] mt-0.5">کل کاربران</div>
-            </div>
-            <div class="glass-effect rounded-xl px-4 py-3 text-center min-w-[80px]">
-              <div class="text-xl font-bold text-[#D4A373]">{{ stats.admins }}</div>
-              <div class="text-xs text-[#A3A3A3] mt-0.5">ادمین‌ها</div>
-            </div>
-            <div class="glass-effect rounded-xl px-4 py-3 text-center min-w-[80px]">
-              <div class="text-xl font-bold text-emerald-400">{{ stats.active }}</div>
-              <div class="text-xs text-[#A3A3A3] mt-0.5">فعال امروز</div>
-            </div>
-          </div>
+      <!-- Filters -->
+      <div class="filters-bar fade-in-up">
+        <div class="relative flex-1 min-w-[200px]">
+          <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input type="text" placeholder="جستجو بر اساس نام یا ایمیل..." class="filter-input w-full pr-10" v-model="searchQuery" @input="onSearchInput" />
         </div>
+        <select class="filter-input min-w-[150px]" v-model="roleFilter">
+          <option value="">همه نقش‌ها</option>
+          <option value="super_admin">سوپر ادمین</option>
+          <option value="admin">ادمین</option>
+          <option value="user">کاربر</option>
+        </select>
+        <select class="filter-input min-w-[160px]" v-model="loginFilter">
+          <option value="">فیلتر آخرین ورود</option>
+          <option value="today">امروز</option>
+          <option value="week">این هفته</option>
+          <option value="month">این ماه</option>
+          <option value="never">هرگز وارد نشده</option>
+        </select>
+      </div>
 
-        <!-- Filters -->
-        <div class="flex flex-wrap gap-3 mb-6">
-          <div class="relative flex-1 min-w-[200px]">
-            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input type="text" placeholder="جستجو بر اساس نام یا ایمیل..." class="filter-input w-full pr-10" v-model="searchQuery" @input="onSearchInput" />
-          </div>
-          <select class="filter-input min-w-[150px]" v-model="roleFilter">
-            <option value="">همه نقش‌ها</option>
-            <option value="super_admin">سوپر ادمین</option>
-            <option value="admin">ادمین</option>
-            <option value="user">کاربر</option>
-          </select>
-          <select class="filter-input min-w-[160px]" v-model="loginFilter">
-            <option value="">فیلتر آخرین ورود</option>
-            <option value="today">امروز</option>
-            <option value="week">این هفته</option>
-            <option value="month">این ماه</option>
-            <option value="never">هرگز وارد نشده</option>
-          </select>
-          <button class="btn-action btn-edit px-4" @click="loadUsers" :disabled="loading">
-            <svg class="w-4 h-4" :class="{ 'animate-spin': loading }" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            بارگذاری مجدد
-          </button>
-          <button class="btn-action px-4 bg-gradient-to-r from-[#C69C6D] to-[#B28C56] hover:from-[#D4A373] hover:to-[#C69C6D] text-white shadow-lg" @click="openAddModal">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            افزودن ادمین
-          </button>
-        </div>
-
-        <!-- Table wrapper -->
+      <!-- Table -->
+      <div class="content-card fade-in-up">
         <div class="rounded-2xl overflow-hidden border border-[#333333]">
           <!-- Desktop header -->
           <div class="hidden md:grid grid-cols-12 gap-2 px-5 py-3 text-xs font-semibold text-[#A3A3A3] uppercase tracking-wider bg-white/5 border-b border-[#333333]">
@@ -572,9 +574,10 @@ watch([roleFilter, loginFilter], () => {
             </template>
           </div>
         </div>
+      </div>
 
-        <!-- Pagination -->
-        <div v-if="filteredUsers.length > 0" class="flex items-center justify-between mt-5">
+      <!-- Pagination -->
+      <div v-if="filteredUsers.length > 0" class="flex items-center justify-between mt-5">
           <div class="text-sm text-white/50">{{ paginationInfo }}</div>
           <div class="flex gap-2">
             <button class="page-btn" :disabled="currentPage === 1" @click="currentPage--">
@@ -593,7 +596,6 @@ watch([roleFilter, loginFilter], () => {
             </button>
           </div>
         </div>
-      </div>
 
     </main>
 
@@ -644,11 +646,11 @@ watch([roleFilter, loginFilter], () => {
               <span>{{ editError }}</span>
             </div>
 
-            <div class="flex gap-3">
-              <button type="button" class="flex-1 px-4 py-3 text-white/60 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all text-sm font-medium" @click="closeEditModal">
+            <div class="modal-actions">
+              <button type="button" class="modal-btn modal-btn-cancel" @click="closeEditModal">
                 انصراف
               </button>
-              <button type="submit" class="flex-1 px-4 py-3 bg-gradient-to-r from-[#C69C6D] to-[#B28C56] hover:from-[#D4A373] hover:to-[#C69C6D] text-white rounded-xl transition-all text-sm font-semibold shadow-lg flex items-center justify-center gap-2" :disabled="editSaving">
+              <button type="submit" class="modal-btn modal-btn-primary" :disabled="editSaving">
                 <span>{{ editSaving ? 'در حال ذخیره...' : 'ذخیره تغییرات' }}</span>
                 <svg v-if="editSaving" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
@@ -708,11 +710,11 @@ watch([roleFilter, loginFilter], () => {
               <span>{{ addError }}</span>
             </div>
 
-            <div class="flex gap-3">
-              <button type="button" class="flex-1 px-4 py-3 text-white/60 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all text-sm font-medium" @click="closeAddModal">
+            <div class="modal-actions">
+              <button type="button" class="modal-btn modal-btn-cancel" @click="closeAddModal">
                 انصراف
               </button>
-              <button type="submit" class="flex-1 px-4 py-3 bg-gradient-to-r from-[#C69C6D] to-[#B28C56] hover:from-[#D4A373] hover:to-[#C69C6D] text-white rounded-xl transition-all text-sm font-semibold shadow-lg flex items-center justify-center gap-2" :disabled="addSaving">
+              <button type="submit" class="modal-btn modal-btn-primary" :disabled="addSaving">
                 <span>{{ addSaving ? 'در حال ایجاد...' : 'ایجاد ادمین' }}</span>
                 <svg v-if="addSaving" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
@@ -737,11 +739,11 @@ watch([roleFilter, loginFilter], () => {
           <h3 class="text-white text-lg font-bold mb-2">حذف کاربر</h3>
           <p class="text-white/50 text-sm mb-2">آیا مطمئن هستید؟</p>
           <p class="text-red-300 text-sm font-medium mb-6">«{{ deleteTargetName }}» حذف خواهد شد و این عملیات قابل بازگشت نیست.</p>
-          <div class="flex gap-3">
-            <button class="flex-1 px-4 py-2.5 text-white/60 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all text-sm font-medium" @click="closeDeleteConfirm">
+          <div class="modal-actions">
+            <button class="modal-btn modal-btn-cancel" @click="closeDeleteConfirm">
               انصراف
             </button>
-            <button class="flex-1 px-4 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white rounded-xl transition-all text-sm font-semibold flex items-center justify-center gap-2" @click="confirmDelete">
+            <button class="modal-btn modal-btn-danger" @click="confirmDelete">
               بله، حذف شود
             </button>
           </div>
@@ -761,7 +763,6 @@ watch([roleFilter, loginFilter], () => {
 </template>
 
 <style>
-/* Global variables — must be unscoped to apply */
 :root {
   --bg-primary: #0F0F0F;
   --bg-secondary: #1A1A1A;
@@ -769,12 +770,19 @@ watch([roleFilter, loginFilter], () => {
   --text-primary: #D4D4D4;
   --text-secondary: #A3A3A3;
   --text-muted: #525252;
-  --accent-blue: #C69C6D;
-  --accent-purple: #C69C6D;
-  --accent-red: #ef4444;
+  --accent: #C69C6D;
+  --accent-dark: #B28C56;
+  --accent-bg: rgba(198,156,109,0.12);
+  --border-primary: #333333;
+  --border-subtle: rgba(255,255,255,0.06);
+  --bg-card: rgba(30,30,30,0.6);
+  --bg-elevated: rgba(30,30,30,0.8);
+  --bg-hover: rgba(255,255,255,0.06);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.4);
   --z-modal: 200;
   --z-confirm: 300;
-  --z-tooltip: 99999;
   --z-toast: 9999;
   --blur-amount: 20px;
   --radius-default: 12px;
@@ -791,13 +799,98 @@ watch([roleFilter, loginFilter], () => {
 
 html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
 
+/* ===== HEADER ===== */
+.header {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(26,26,26,0.95); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-primary);
+  transition: margin-right 0.3s ease;
+}
+.header-content {
+  max-width: 1400px; margin: 0 auto; padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+}
+@media (min-width: 768px) { .header-content { padding: 16px 24px; } }
+@media (max-width: 767px) {
+  .header-content { flex-direction: column; align-items: stretch; }
+  .stats-wrapper { order: 1; margin: 8px 0; }
+  .header-right { order: 2; justify-content: center; }
+}
+.header-title { font-size: 17px; font-weight: 700; color: white; display: flex; align-items: center; gap: 8px; }
+@media (min-width: 640px) { .header-title { font-size: 20px; gap: 10px; } }
+.stats-wrapper { display: flex; align-items: center; justify-content: center; flex: 1; }
+.stats-bar {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 6px 12px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 48px;
+  flex-wrap: wrap;
+}
+@media (min-width: 640px) { .stats-bar { gap: 16px; padding: 6px 20px; } }
+.stat-item { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+@media (max-width: 480px) { .stat-item { gap: 4px; } }
+.stat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.stat-dot.blue { background: #60a5fa; box-shadow: 0 0 6px rgba(96,165,250,0.5); }
+.stat-dot.green { background: #34d399; box-shadow: 0 0 6px rgba(52,211,153,0.5); }
+.stat-dot.gold { background: #D4A373; box-shadow: 0 0 6px rgba(212,163,115,0.5); }
+.stat-count { font-size: 14px; font-weight: 700; color: white; min-width: 28px; text-align: center; }
+@media (min-width: 640px) { .stat-count { font-size: 16px; min-width: 32px; } }
+.stat-text { font-size: 10px; color: rgba(255,255,255,0.6); }
+@media (min-width: 640px) { .stat-text { font-size: 11px; } }
+.stat-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.1); }
+@media (min-width: 640px) { .stat-divider { height: 20px; } }
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 12px; border-radius: 10px; font-weight: 600; font-size: 12px;
+  cursor: pointer; transition: all 0.3s ease; border: none; white-space: nowrap;
+}
+@media (min-width: 640px) { .btn { padding: 10px 20px; font-size: 14px; border-radius: 12px; gap: 8px; } }
+.btn-primary {
+  background: linear-gradient(135deg, #C69C6D, #B28C56); color: white;
+  box-shadow: 0 4px 15px rgba(198,156,109,0.3);
+}
+@media (hover: hover) { .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(198,156,109,0.4); } }
+.btn-secondary {
+  background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.1);
+}
+@media (hover: hover) { .btn-secondary:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.2); } }
+.header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+@media (max-width: 480px) { .header-right { gap: 5px; } }
+
+/* ===== MAIN BODY ===== */
 .main-body {
   padding: 24px;
   padding-bottom: 24px;
   transition: all 0.3s ease;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+@media (min-width: 1024px) { .main-body { padding: 32px; } }
+
+/* ===== FILTERS ===== */
+.filters-bar {
+  display: flex; flex-wrap: wrap; gap: 12px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: 16px;
+  backdrop-filter: blur(var(--blur-amount));
+}
+@media (max-width: 768px) {
+  .filters-bar { padding: 12px; }
 }
 
-@media (min-width: 1024px) { .main-body { padding: 32px; } }
+/* ===== CONTENT CARD ===== */
+.content-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: 16px;
+  overflow: hidden;
+  backdrop-filter: blur(var(--blur-amount));
+}
 
 /* ===== KEYFRAMES ===== */
 @keyframes fadeInUp {
@@ -820,21 +913,12 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
   will-change: transform, opacity;
 }
 
-/* ===== GLASS EFFECTS ===== */
-.glass-effect {
-  background: rgba(30,30,30,0.6);
-  backdrop-filter: blur(var(--blur-amount));
-  -webkit-backdrop-filter: blur(var(--blur-amount));
-  border: 1px solid #333333;
-  will-change: transform;
-}
-
 /* ===== USER CARDS (MOBILE) ===== */
 .user-card {
   background: rgba(30,30,30,0.6);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid #333333;
+  border: 1px solid var(--border-primary);
   border-radius: 16px;
   padding: 16px;
   margin-bottom: 12px;
@@ -843,7 +927,7 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
 .user-card:last-child { margin-bottom: 0; }
 .user-card:hover {
   background: rgba(30,30,30,0.8);
-  border-color: #C69C6D;
+  border-color: var(--accent);
   transform: translateY(-2px);
 }
 
@@ -957,7 +1041,51 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
 .modal-input::placeholder { color: rgba(255, 255, 255, 0.3); }
 .modal-input:focus { border-color: rgba(198,156,109,0.6); background: rgba(30,30,30,0.8); box-shadow: 0 0 0 3px rgba(198,156,109,0.15); }
 .modal-input option { background: #1A1A1A; color: white; }
-.modal-label { color: rgba(255, 255, 255, 0.7); font-size: 13px; font-weight: 500; }
+.modal-label { color: rgba(255, 255, 255, 0.7); font-size: 13px; font-weight: 500; padding-top: 10px;}
+
+.modal-actions {
+  padding: 15px;
+  display: flex;
+  gap: 12px;
+}
+
+.modal-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.25s ease; border: none;
+}
+
+.modal-btn-cancel {
+  background: rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+@media (hover: hover) {
+  .modal-btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.1); color: white;
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+}
+
+.modal-btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: white; box-shadow: 0 4px 15px rgba(198, 156, 109, 0.25);
+}
+@media (hover: hover) {
+  .modal-btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px); box-shadow: 0 6px 20px rgba(198, 156, 109, 0.35);
+  }
+}
+.modal-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.modal-btn-danger {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.25);
+}
+@media (hover: hover) {
+  .modal-btn-danger:hover {
+    transform: translateY(-1px); box-shadow: 0 6px 20px rgba(220, 38, 38, 0.35);
+  }
+}
 
 /* ===== CONFIRM ===== */
 .confirm-overlay {
@@ -1013,25 +1141,6 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
   color: white; border-color: transparent;
 }
 .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-/* ===== DESKTOP ===== */
-@media (min-width: 769px) {
-  .md\:hidden { display: none !important; }
-  .hidden.md\:grid { display: grid !important; }
-  .hidden.md\:block { display: block !important; }
-}
-
-/* ===== MOBILE ===== */
-@media (max-width: 768px) {
-  .md\:hidden { display: block !important; }
-  .hidden.md\:grid { display: none !important; }
-  .hidden.md\:block { display: none !important; }
-  .flex-col.sm\:flex-row { flex-direction: column !important; gap: 10px !important; }
-  .flex-col.sm\:flex-row .flex.gap-3 { flex-wrap: wrap !important; gap: 6px !important; }
-  .flex-col.sm\:flex-row .glass-effect { min-width: 60px !important; padding: 8px 12px !important; }
-  .flex-col.sm\:flex-row .glass-effect .text-xl { font-size: 18px !important; }
-  .modal-box { padding: 24px 20px; max-width: 95%; margin: 16px; }
-}
 
 @media (max-width: 480px) {
   .user-card-details { grid-template-columns: 1fr; gap: 4px; }
