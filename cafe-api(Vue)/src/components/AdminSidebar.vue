@@ -49,7 +49,9 @@ const roleText = computed(() => user.value?.role === 'super_admin' ? 'سوپر �
           <i class="fa-solid fa-gear"></i>
         </button>
 
-        <div class="flex flex-col items-center gap-4">
+        <div class="rail-divider"></div>
+
+        <div class="flex flex-col items-center gap-3">
           <button class="rail-icon" @click="router.push('/dashboard')" aria-label="بازگشت به داشبورد">
             <i class="fa-solid fa-house"></i>
           </button>
@@ -69,15 +71,19 @@ const roleText = computed(() => user.value?.role === 'super_admin' ? 'سوپر �
 
         <div class="flex-1"></div>
 
-        <button class="rail-icon rail-icon-logout" @click="handleLogout" aria-label="خروج از حساب کاربری">
-          <i class="fa-solid fa-right-from-bracket"></i>
-        </button>
+        <div class="rail-divider"></div>
 
-        <div class="relative">
-          <div class="user-avatar-circle">
-            <span class="text-sm">{{ userInitials }}</span>
+        <div class="rail-bottom">
+          <button class="rail-icon rail-icon-logout" @click="handleLogout" aria-label="خروج از حساب کاربری">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+
+          <div class="relative">
+            <div class="user-avatar-circle">
+              <span class="text-sm">{{ userInitials }}</span>
+            </div>
+            <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#1A1A1A]"></span>
           </div>
-          <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#1A1A1A]"></span>
         </div>
       </div>
 
@@ -85,46 +91,61 @@ const roleText = computed(() => user.value?.role === 'super_admin' ? 'سوپر �
         class="sidebar-expanded"
         :class="{ open: menuOpen }">
         <div class="sidebar-header">
-          <h2 class="text-xl font-bold text-white tracking-tight">پنل مدیریت</h2>
-          <p class="text-xs text-[#A3A3A3] mt-1.5">{{ roleText }}</p>
+          <div class="sidebar-header-content">
+            <h2 class="text-lg font-bold text-white tracking-tight">پنل مدیریت</h2>
+            <span class="sidebar-role-badge">{{ roleText }}</span>
+          </div>
+          <button class="sidebar-close-btn" @click="toggleMenu">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
         </div>
 
-        <nav class="py-6 flex-1 space-y-1">
-          <div class="px-3">
-            <button
-              class="sidebar-item w-full flex items-center justify-between px-4 py-2.5 text-[#D4D4D4] hover:text-[#C69C6D] transition-all duration-200 group">
-              <div class="flex items-center">
-                <svg class="w-5 h-5 ml-3 text-[#A3A3A3] group-hover:text-[#C69C6D] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                </svg>
-                <span class="font-medium text-sm">داشبورد</span>
-              </div>
-            </button>
-            <div class="mr-8 mt-1 space-y-0.5 border-r-2 border-[#333333] pr-3">
-              <router-link to="/dashboard" class="dashboard-subitem flex items-center px-3 py-2 text-sm text-[#A3A3A3] hover:text-[#C69C6D] transition-all">مدیریت سفارشات</router-link>
-              <router-link to="/admins" class="dashboard-subitem flex items-center px-3 py-2 text-sm text-[#C69C6D] font-semibold hover:text-[#D4A373] transition-all">مدیریت ادمین ها</router-link>
-              <router-link to="/add-menu" class="dashboard-subitem flex items-center px-3 py-2 text-sm text-[#A3A3A3] hover:text-[#C69C6D] transition-all">اضافه کردن به منو</router-link>
-            </div>
+        <nav class="sidebar-nav">
+          <div class="sidebar-section">
+            <span class="sidebar-section-label">منوی اصلی</span>
+            <router-link to="/dashboard" class="sidebar-link">
+              <i class="fa-solid fa-gauge-high sidebar-link-icon"></i>
+              <span>داشبورد</span>
+            </router-link>
+            <router-link to="/dashboard" class="sidebar-link">
+              <i class="fa-solid fa-receipt sidebar-link-icon"></i>
+              <span>مدیریت سفارشات</span>
+            </router-link>
           </div>
 
-          <div class="px-3 mt-1">
-            <router-link
-              to="/dashboard"
-              class="sidebar-item w-full flex items-center px-4 py-2.5 text-[#D4D4D4] hover:text-[#C69C6D] transition-all duration-200 group">
-              <svg class="w-5 h-5 ml-3 text-[#A3A3A3] group-hover:text-[#C69C6D] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              <span class="font-medium text-sm">بازگشت به داشبورد</span>
+          <div class="sidebar-section">
+            <span class="sidebar-section-label">مدیریت</span>
+            <router-link to="/admins" class="sidebar-link">
+              <i class="fa-solid fa-users-gear sidebar-link-icon"></i>
+              <span>مدیریت ادمین ها</span>
+            </router-link>
+            <router-link to="/menu-management" class="sidebar-link">
+              <i class="fa-solid fa-utensils sidebar-link-icon"></i>
+              <span>مدیریت منو</span>
+            </router-link>
+            <router-link to="/add-menu" class="sidebar-link">
+              <i class="fa-solid fa-circle-plus sidebar-link-icon"></i>
+              <span>اضافه کردن به منو</span>
+            </router-link>
+          </div>
+
+          <div class="sidebar-section">
+            <span class="sidebar-section-label">حساب کاربری</span>
+            <router-link to="/new-password" class="sidebar-link">
+              <i class="fa-solid fa-key sidebar-link-icon"></i>
+              <span>تغییر رمز عبور</span>
             </router-link>
           </div>
         </nav>
 
-        <button
-          class="w-full flex items-center justify-center gap-3 px-4 py-2.5 mb-2 text-red-400 hover:text-red-500 hover:bg-red-900/20 transition-all duration-200 mt-4"
-          @click="handleLogout">
-          <i class="fa-solid fa-right-from-bracket"></i>
-          <span class="font-medium text-base">خروج از حساب کاربری</span>
-        </button>
+        <div class="sidebar-footer">
+          <button
+            class="sidebar-logout-btn"
+            @click="handleLogout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>خروج از حساب کاربری</span>
+          </button>
+        </div>
       </div>
     </div>
   </aside>
@@ -132,51 +153,63 @@ const roleText = computed(() => user.value?.role === 'super_admin' ? 'سوپر �
 
 <style scoped>
 .sidebar-rail {
-  background: linear-gradient(to bottom, #1A1A1A, #262626, #1A1A1A);
+  background: linear-gradient(to bottom, #1A1A1A, #202020, #1A1A1A);
   width: 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 0;
-  gap: 24px;
+  padding: 20px 0 24px;
+  gap: 12px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+}
+
+.rail-divider {
+  width: 24px;
+  height: 1px;
+  background: #333333;
+  margin: 4px 0;
+}
+
+.rail-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 4px;
 }
 
 .rail-icon {
   width: 40px;
   height: 40px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  color: #A3A3A3;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #737373;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
   cursor: pointer;
   border: none;
-  font-size: 18px;
+  font-size: 16px;
   position: relative;
   z-index: 100;
 }
 
 @media (hover: hover) {
   .rail-icon:hover {
-    background: linear-gradient(135deg, #C69C6D, #B28C56);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(198, 156, 109, 0.4);
+    background: rgba(198, 156, 109, 0.15);
+    color: #C69C6D;
   }
 }
 
 .rail-icon-logout {
-  color: #EF4444;
+  color: #6B7280;
 }
 
 @media (hover: hover) {
   .rail-icon-logout:hover {
-    background: linear-gradient(135deg, #DC2626, #B91C1C);
-    color: white;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.12);
+    color: #EF4444;
   }
 }
 
@@ -184,21 +217,22 @@ const roleText = computed(() => user.value?.role === 'super_admin' ? 'سوپر �
   content: attr(aria-label);
   position: fixed;
   left: auto;
-  right: 70px;
+  right: 72px;
   top: 50%;
   transform: translateY(-50%);
-  background: #262626;
-  color: white;
+  background: #2A2A2A;
+  color: #E5E5E5;
   font-size: 11px;
-  padding: 5px 10px;
-  border-radius: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
   white-space: nowrap;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.15s ease;
   pointer-events: none;
   z-index: 99999;
-  border: 1px solid #333333;
+  border: 1px solid #3A3A3A;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 @media (hover: hover) {
@@ -209,96 +243,189 @@ const roleText = computed(() => user.value?.role === 'super_admin' ? 'سوپر �
 }
 
 .user-avatar-circle {
-  width: 44px;
-  height: 44px;
-  border-radius: 16px;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
   background: linear-gradient(135deg, #D4A373, #C69C6D);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-weight: bold;
-  font-size: 16px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-  border: 2px solid rgba(198, 156, 109, 0.3);
+  font-weight: 700;
+  font-size: 13px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .sidebar-expanded {
-  background: rgba(26, 26, 26, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-right: 1px solid #333333;
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
+  background: rgba(22, 22, 22, 0.98);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-right: 1px solid #2A2A2A;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.4);
   width: 0;
   opacity: 0;
   visibility: hidden;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
 .sidebar-expanded.open {
-  width: 256px;
+  width: 260px;
   opacity: 1;
   visibility: visible;
 }
 
 .sidebar-header {
-  padding: 24px;
-  border-bottom: 1px solid #333333;
-  position: sticky;
-  top: 0;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  z-index: 10;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid #2A2A2A;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
 }
 
-.sidebar-item {
-  transition: all 0.2s ease;
-  border-radius: 12px;
-  margin: 2px 8px;
-  color: #D4D4D4;
+.sidebar-header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-role-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 500;
+  color: #C69C6D;
+  background: rgba(198, 156, 109, 0.1);
+  padding: 3px 10px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.sidebar-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: #737373;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 14px;
+  flex-shrink: 0;
 }
 
 @media (hover: hover) {
-  .sidebar-item:hover {
-    background: linear-gradient(135deg, rgba(198, 156, 109, 0.15), rgba(178, 140, 86, 0.15));
+  .sidebar-close-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #A3A3A3;
   }
 }
 
-.dashboard-subitem {
-  position: relative;
-  padding-right: 20px;
-  color: #A3A3A3;
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0;
 }
 
-.dashboard-subitem::before {
-  content: '';
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 4px;
-  background: #525252;
-  border-radius: 50%;
-  transition: all 0.2s ease;
+.sidebar-section {
+  padding: 0 16px;
+  margin-bottom: 8px;
+}
+
+.sidebar-section-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  color: #525252;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 8px 12px 6px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: #A3A3A3;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  margin: 1px 0;
+}
+
+.sidebar-link-icon {
+  width: 18px;
+  text-align: center;
+  font-size: 14px;
+  color: #525252;
+  transition: color 0.15s ease;
 }
 
 @media (hover: hover) {
-  .dashboard-subitem:hover::before {
-    background: #C69C6D;
-    width: 6px;
-    height: 6px;
+  .sidebar-link:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: #E5E5E5;
+  }
+  .sidebar-link:hover .sidebar-link-icon {
+    color: #C69C6D;
+  }
+}
+
+.router-link-exact-active,
+.router-link-active[href="/dashboard"] {
+  background: rgba(198, 156, 109, 0.1);
+  color: #C69C6D;
+}
+
+.router-link-exact-active .sidebar-link-icon,
+.router-link-active[href="/dashboard"] .sidebar-link-icon {
+  color: #C69C6D;
+}
+
+.sidebar-footer {
+  padding: 12px 16px 16px;
+  border-top: 1px solid #2A2A2A;
+  flex-shrink: 0;
+}
+
+.sidebar-logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #EF4444;
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.12);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+@media (hover: hover) {
+  .sidebar-logout-btn:hover {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.2);
   }
 }
 
 /* Menu icon lines */
 .menu-icon {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -307,19 +434,19 @@ const roleText = computed(() => user.value?.role === 'super_admin' ? 'سوپر �
 }
 
 .menu-icon-line {
-  width: 20px;
-  height: 2px;
+  width: 18px;
+  height: 1.5px;
   background-color: currentColor;
   border-radius: 2px;
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transition: all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   position: absolute;
 }
 
 .menu-icon-line.top { top: 2px; }
-.menu-icon-line.middle { top: 9px; opacity: 1; }
+.menu-icon-line.middle { top: 8px; opacity: 1; }
 .menu-icon-line.bottom { bottom: 2px; }
 
-.menu-icon.active .top { transform: rotate(45deg); top: 9px; }
+.menu-icon.active .top { transform: rotate(45deg); top: 8px; }
 .menu-icon.active .middle { opacity: 0; transform: scaleX(0); }
-.menu-icon.active .bottom { transform: rotate(-45deg); bottom: 9px; }
+.menu-icon.active .bottom { transform: rotate(-45deg); bottom: 8px; }
 </style>
