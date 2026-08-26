@@ -1,1 +1,0 @@
-npx tailwindcss -i SRC/Css/input.css -o SRC/Css/output.css --watch

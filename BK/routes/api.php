@@ -37,8 +37,8 @@ Route::prefix('v1')->group(function () {
         Route::middleware(['auth:sanctum', 'permission:manage-users'])->group(function () {
             Route::get('users', [DashboardController::class, 'Login_status']);
             Route::delete('users/{id}', [AuthController::class, 'delete']);
+            Route::get('users/list', [AuthController::class, 'list']);
             Route::put('users/{id}', [AuthController::class, 'update']);
-            Route::get('users', [AuthController::class, 'list']);
             Route::post('users', [AuthController::class, 'Register']);
             Route::patch('users/{user}/roles', [AuthController::class, 'assignRoles']);
         });

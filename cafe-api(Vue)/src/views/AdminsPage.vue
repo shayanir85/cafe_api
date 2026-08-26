@@ -182,7 +182,12 @@ async function loadUsers() {
   loading.value = true
   try {
     const data = await getUsers()
-    allUsers.value = Array.isArray(data) ? data : (data?.data || data?.users || [])
+    const rawUsers = Array.isArray(data) ? data : (data?.data || data?.users || [])
+    allUsers.value = rawUsers.map(u => ({
+      ...u,
+      role: u.role || (Array.isArray(u.roles) && u.roles.length > 0 ? (typeof u.roles[0] === 'string' ? u.roles[0] : u.roles[0]?.name) : 'user'),
+      phone: u.phone || u.phone_number || ''
+    }))
     applyFilters()
   } catch (err) {
     console.error(err)
@@ -350,10 +355,10 @@ watch([roleFilter, loginFilter], () => {
 </script>
 
 <template>
-  <div class="admins-page">
+  <div class="admins-page" :style="{ paddingRight: sidebarOpen ? '320px' : '64px' }">
     <AdminSidebar v-model="sidebarOpen" />
 
-    <header class="header" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
+    <header class="header">
       <div class="header-content">
         <div class="flex items-center gap-3">
           <router-link to="/dashboard" class="text-white/70 hover:text-white transition-colors">
@@ -397,7 +402,7 @@ watch([roleFilter, loginFilter], () => {
       </div>
     </header>
 
-    <main class="main-body" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
+    <main class="main-body">
       <!-- Filters -->
       <div class="filters-bar fade-in-up">
         <div class="relative flex-1 min-w-[200px]">
@@ -423,20 +428,34 @@ watch([roleFilter, loginFilter], () => {
 
       <!-- Table -->
       <div class="content-card fade-in-up">
-        <div class="rounded-2xl overflow-hidden border border-[#333333]">
-          <!-- Desktop header -->
-          <div class="hidden md:grid grid-cols-12 gap-2 px-5 py-3 text-xs font-semibold text-[#A3A3A3] uppercase tracking-wider bg-white/5 border-b border-[#333333]">
-            <div class="col-span-4">کاربر</div>
-            <div class="col-span-2">نقش</div>
-            <div class="col-span-3">آخرین ورود</div>
-            <div class="col-span-2">تاریخ عضویت</div>
-            <div class="col-span-1 text-left">عملیات</div>
+        <div class="modern-table-container">
+          <!-- Desktop Table Header -->
+          <div class="user-table-desktop table-header-row">
+            <div class="col-user">
+              <i class="fa-regular fa-user text-xs opacity-60 ml-1.5"></i>
+              <span>کاربر</span>
+            </div>
+            <div class="col-role">
+              <i class="fa-solid fa-shield-halved text-xs opacity-60 ml-1.5"></i>
+              <span>نقش سیستم</span>
+            </div>
+            <div class="col-login">
+              <i class="fa-regular fa-clock text-xs opacity-60 ml-1.5"></i>
+              <span>آخرین ورود و وضعیت</span>
+            </div>
+            <div class="col-joined">
+              <i class="fa-regular fa-calendar-check text-xs opacity-60 ml-1.5"></i>
+              <span>تاریخ عضویت</span>
+            </div>
+            <div class="col-actions text-left">
+              <span>عملیات</span>
+            </div>
           </div>
 
           <!-- Skeleton loader -->
           <div v-if="loading">
             <!-- Mobile skeleton -->
-            <div class="md:hidden space-y-3 p-3">
+            <div class="user-table-mobile space-y-3 p-3">
               <div v-for="i in 3" :key="i" class="skeleton-card">
                 <div class="flex items-center gap-3 mb-3">
                   <div class="skeleton w-12 h-12 rounded-xl flex-shrink-0"></div>
@@ -457,23 +476,21 @@ watch([roleFilter, loginFilter], () => {
               </div>
             </div>
             <!-- Desktop skeleton -->
-            <div class="hidden md:block">
-              <div v-for="i in 3" :key="i" class="user-row px-5 py-4">
-                <div class="grid grid-cols-12 gap-2 items-center">
-                  <div class="col-span-4 flex items-center gap-3">
-                    <div class="skeleton w-10 h-10 rounded-xl flex-shrink-0"></div>
-                    <div class="flex flex-col gap-2 flex-1">
-                      <div class="skeleton h-3.5 w-28 rounded"></div>
-                      <div class="skeleton h-3 w-36 rounded"></div>
-                    </div>
+            <div class="user-table-desktop-container">
+              <div v-for="i in 3" :key="i" class="modern-user-row">
+                <div class="col-user flex items-center gap-3">
+                  <div class="skeleton w-11 h-11 rounded-xl flex-shrink-0"></div>
+                  <div class="flex flex-col gap-2 flex-1">
+                    <div class="skeleton h-4 w-28 rounded"></div>
+                    <div class="skeleton h-3 w-36 rounded"></div>
                   </div>
-                  <div class="col-span-2"><div class="skeleton h-6 w-20 rounded-full"></div></div>
-                  <div class="col-span-3"><div class="skeleton h-3.5 w-32 rounded"></div></div>
-                  <div class="col-span-2"><div class="skeleton h-3.5 w-24 rounded"></div></div>
-                  <div class="col-span-1 flex gap-1 justify-end">
-                    <div class="skeleton h-8 w-8 rounded-lg"></div>
-                    <div class="skeleton h-8 w-8 rounded-lg"></div>
-                  </div>
+                </div>
+                <div class="col-role"><div class="skeleton h-7 w-24 rounded-full"></div></div>
+                <div class="col-login"><div class="skeleton h-4 w-32 rounded"></div></div>
+                <div class="col-joined"><div class="skeleton h-4 w-24 rounded"></div></div>
+                <div class="col-actions flex gap-2 justify-end">
+                  <div class="skeleton h-9 w-9 rounded-xl"></div>
+                  <div class="skeleton h-9 w-9 rounded-xl"></div>
                 </div>
               </div>
             </div>
@@ -481,93 +498,136 @@ watch([roleFilter, loginFilter], () => {
 
           <!-- Empty state -->
           <div v-else-if="filteredUsers.length === 0" class="empty-state">
-            <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            <p class="text-sm">هیچ کاربری یافت نشد</p>
+            <div class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-3 text-white/30">
+              <i class="fa-solid fa-user-slash text-2xl"></i>
+            </div>
+            <p class="text-white font-medium text-base mb-1">هیچ کاربری یافت نشد</p>
+            <p class="text-white/40 text-xs">می‌توانید فیلترها یا عبارت جستجو را تغییر دهید</p>
           </div>
 
           <!-- User rows -->
-          <div v-else>
+          <div v-else class="user-rows-wrapper">
             <template v-for="u in paginatedUsers" :key="u.id">
               <!-- Mobile card -->
-              <div class="md:hidden user-card">
-                <div class="flex items-center gap-3">
-                  <div class="user-card-avatar" :style="{ background: `linear-gradient(135deg, ${avatarColor(u.id)[0]}, ${avatarColor(u.id)[1]})` }">
-                    {{ (u.name || u.email || '?').slice(0, 2).toUpperCase() }}
-                  </div>
-                  <div class="user-card-info">
-                    <div class="user-card-name flex items-center gap-1.5">
-                      {{ u.name || '—' }}
-                      <span v-if="u.id === auth.user?.id" class="text-xs text-[#C69C6D] bg-[#C69C6D]/10 px-1.5 py-0.5 rounded-md">شما</span>
+              <div class="user-table-mobile modern-user-card">
+                <div class="flex items-start justify-between gap-3 mb-3">
+                  <div class="flex items-center gap-3">
+                    <div class="user-avatar-glow flex-shrink-0" :style="{ background: `linear-gradient(135deg, ${avatarColor(u.id)[0]}, ${avatarColor(u.id)[1]})` }">
+                      {{ (u.name || u.email || '?').slice(0, 2).toUpperCase() }}
                     </div>
-                    <div class="user-card-email">{{ u.email || '—' }}</div>
-                    <div v-if="u.phone" class="user-card-phone">{{ u.phone }}</div>
+                    <div>
+                      <div class="font-bold text-white text-base flex items-center gap-2">
+                        <span>{{ u.name || 'کاربر بدون نام' }}</span>
+                        <span v-if="u.id === auth.user?.id" class="self-badge">شما</span>
+                      </div>
+                      <div class="flex items-center gap-1.5 text-xs text-white/50 mt-0.5" dir="ltr">
+                        <i v-if="u.email" class="fa-regular fa-envelope text-[11px] opacity-70"></i>
+                        <span v-if="u.email">{{ u.email }}</span>
+                        <span v-if="u.email && u.phone" class="opacity-30">•</span>
+                        <i v-if="u.phone" class="fa-solid fa-phone text-[10px] opacity-70"></i>
+                        <span v-if="u.phone">{{ u.phone }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <span class="role-pill" :class="roleLabel(u.role).cls">
+                    <i :class="u.role === 'super_admin' ? 'fa-solid fa-crown' : (u.role === 'admin' ? 'fa-solid fa-shield-halved' : 'fa-regular fa-user')"></i>
+                    {{ roleLabel(u.role).text }}
+                  </span>
+                </div>
+
+                <div class="mobile-meta-grid">
+                  <div class="meta-item">
+                    <span class="meta-label">آخرین ورود</span>
+                    <span class="meta-val flex items-center gap-1.5">
+                      <span class="status-indicator-dot" :class="u.last_login ? 'active' : 'offline'"></span>
+                      {{ formatDate(u.last_login) }}
+                    </span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="meta-label">تاریخ عضویت</span>
+                    <span class="meta-val">{{ formatJoinDate(u.created_at) }}</span>
                   </div>
                 </div>
-                <div class="user-card-details">
-                  <div>
-                    <div class="user-card-detail-label">نقش</div>
-                    <span class="role-badge text-xs" :class="roleLabel(u.role).cls">{{ roleLabel(u.role).text }}</span>
-                  </div>
-                  <div>
-                    <div class="user-card-detail-label">آخرین ورود</div>
-                    <div class="user-card-detail-value">{{ formatDate(u.last_login) }}</div>
-                  </div>
-                  <div class="col-span-2">
-                    <div class="user-card-detail-label">تاریخ عضویت</div>
-                    <div class="user-card-detail-value">{{ formatJoinDate(u.created_at) }}</div>
-                  </div>
-                </div>
-                <div class="user-card-actions">
-                  <button class="btn-action btn-edit" @click="openEditModal(u.id)">
-                    <i class="fa-regular fa-pen-to-square"></i> ویرایش
+
+                <div class="mobile-card-footer">
+                  <button class="action-btn-modern edit-btn flex-1" @click="openEditModal(u.id)">
+                    <i class="fa-regular fa-pen-to-square"></i>
+                    <span>ویرایش اطلاعات</span>
                   </button>
                   <button
-                    class="btn-action btn-delete"
+                    class="action-btn-modern delete-btn"
                     :class="{ 'opacity-30 cursor-not-allowed': u.id === auth.user?.id }"
                     :disabled="u.id === auth.user?.id"
-                    @click="openDeleteConfirm(u.id, u.name || u.email)">
-                    <i class="fa-regular fa-trash-can"></i> حذف
+                    @click="openDeleteConfirm(u.id, u.name || u.email)"
+                    :title="u.id === auth.user?.id ? 'حذف حساب شخصی ممکن نیست' : 'حذف'">
+                    <i class="fa-regular fa-trash-can"></i>
                   </button>
                 </div>
               </div>
 
               <!-- Desktop row -->
-              <div class="hidden md:grid grid-cols-12 gap-2 px-5 py-4 items-center hover:bg-white/5 transition-colors border-b border-[#333333] last:border-b-0">
-                <div class="col-span-4 flex items-center gap-3 min-w-0">
-                  <div class="user-avatar flex-shrink-0" :style="{ background: `linear-gradient(135deg, ${avatarColor(u.id)[0]}, ${avatarColor(u.id)[1]})` }">
+              <div class="user-table-desktop modern-user-row">
+                <!-- User Col -->
+                <div class="col-user flex items-center gap-3.5 min-w-0">
+                  <div class="user-avatar-glow flex-shrink-0" :style="{ background: `linear-gradient(135deg, ${avatarColor(u.id)[0]}, ${avatarColor(u.id)[1]})` }">
                     {{ (u.name || u.email || '?').slice(0, 2).toUpperCase() }}
                   </div>
-                  <div class="min-w-0">
-                    <div class="text-white font-medium text-sm truncate flex items-center gap-1.5">
-                      {{ u.name || '—' }}
-                      <span v-if="u.id === auth.user?.id" class="text-xs text-[#C69C6D] bg-[#C69C6D]/10 px-1.5 py-0.5 rounded-md">شما</span>
+                  <div class="min-w-0 flex flex-col justify-center">
+                    <div class="flex items-center gap-2">
+                      <span class="font-bold text-white text-sm tracking-tight truncate hover:text-[#D4A373] transition-colors">
+                        {{ u.name || 'کاربر بدون نام' }}
+                      </span>
+                      <span v-if="u.id === auth.user?.id" class="self-badge">شما</span>
                     </div>
-                    <div class="text-white/40 text-xs truncate mt-0.5">{{ u.email || '—' }}</div>
-                    <div v-if="u.phone" class="text-white/30 text-xs truncate">{{ u.phone }}</div>
+                    <div class="flex items-center gap-2 mt-0.5 text-xs text-white/50" dir="ltr">
+                      <div v-if="u.email" class="flex items-center gap-1 truncate" title="ایمیل">
+                        <i class="fa-regular fa-envelope text-[10px] text-white/40"></i>
+                        <span class="truncate">{{ u.email }}</span>
+                      </div>
+                      <span v-if="u.email && u.phone" class="text-white/20">•</span>
+                      <div v-if="u.phone" class="flex items-center gap-1 text-white/40 truncate font-mono text-[11px]" title="شماره تماس">
+                        <i class="fa-solid fa-phone text-[9px] opacity-60"></i>
+                        <span>{{ u.phone }}</span>
+                      </div>
+                      <div v-if="!u.email && !u.phone" class="text-white/30 text-[11px]">اطلاعات تماس ثبت نشده</div>
+                    </div>
                   </div>
                 </div>
-                <div class="col-span-2">
-                  <span class="role-badge" :class="roleLabel(u.role).cls">{{ roleLabel(u.role).text }}</span>
+
+                <!-- Role Col -->
+                <div class="col-role">
+                  <span class="role-pill" :class="roleLabel(u.role).cls">
+                    <i :class="u.role === 'super_admin' ? 'fa-solid fa-crown' : (u.role === 'admin' ? 'fa-solid fa-shield-halved' : 'fa-regular fa-user')"></i>
+                    <span>{{ roleLabel(u.role).text }}</span>
+                  </span>
                 </div>
-                <div class="col-span-3 text-white/70 text-sm">{{ formatDate(u.last_login) }}</div>
-                <div class="col-span-2 text-white/50 text-sm">{{ formatJoinDate(u.created_at) }}</div>
-                <div class="col-span-1 flex gap-1 justify-end">
-                  <button class="btn-action btn-edit p-2" @click="openEditModal(u.id)" title="ویرایش">
-                    <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
+
+                <!-- Last Login Col -->
+                <div class="col-login">
+                  <div class="flex items-center gap-2">
+                    <span class="status-indicator-dot" :class="u.last_login ? 'active' : 'offline'" :title="u.last_login ? 'فعال' : 'غیرفعال'"></span>
+                    <span v-if="u.last_login" class="text-white/80 text-xs font-medium">{{ formatDate(u.last_login) }}</span>
+                    <span v-else class="never-login-badge">هرگز وارد نشده</span>
+                  </div>
+                </div>
+
+                <!-- Joined Col -->
+                <div class="col-joined">
+                  <span class="text-white/60 text-xs font-medium">{{ formatJoinDate(u.created_at) }}</span>
+                </div>
+
+                <!-- Actions Col -->
+                <div class="col-actions flex items-center justify-end gap-1.5">
+                  <button class="action-btn-modern edit-btn" @click="openEditModal(u.id)" title="ویرایش اطلاعات">
+                    <i class="fa-regular fa-pen-to-square"></i>
                   </button>
                   <button
-                    class="btn-action btn-delete p-2"
-                    :class="{ 'opacity-30 cursor-not-allowed': u.id === auth.user?.id }"
+                    class="action-btn-modern delete-btn"
+                    :class="{ 'opacity-25 cursor-not-allowed': u.id === auth.user?.id }"
                     :disabled="u.id === auth.user?.id"
                     @click="openDeleteConfirm(u.id, u.name || u.email)"
-                    :title="u.id === auth.user?.id ? 'نمی‌توانید خودتان را حذف کنید' : 'حذف'">
-                    <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
+                    :title="u.id === auth.user?.id ? 'حذف حساب شخصی مجاز نیست' : 'حذف کاربر'">
+                    <i class="fa-regular fa-trash-can"></i>
                   </button>
                 </div>
               </div>
@@ -913,58 +973,251 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
   will-change: transform, opacity;
 }
 
-/* ===== USER CARDS (MOBILE) ===== */
-.user-card {
-  background: rgba(30,30,30,0.6);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--border-primary);
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 12px;
-  transition: all 0.3s ease;
+/* ===== TABLE RESPONSIVENESS ===== */
+.user-table-desktop {
+  display: none;
 }
-.user-card:last-child { margin-bottom: 0; }
-.user-card:hover {
-  background: rgba(30,30,30,0.8);
-  border-color: var(--accent);
+.user-table-desktop-container {
+  display: none;
+}
+.user-table-mobile {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .user-table-desktop {
+    display: grid !important;
+  }
+  .user-table-desktop-container {
+    display: block !important;
+  }
+  .user-table-mobile {
+    display: none !important;
+  }
+}
+
+/* ===== REDESIGNED MODERN USER TABLE & CARDS ===== */
+.modern-table-container {
+  background: rgba(24, 24, 27, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.4);
+}
+
+.table-header-row {
+  grid-template-columns: 3.5fr 1.8fr 2.5fr 2fr 1.2fr;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  color: #a1a1aa;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.modern-user-row {
+  grid-template-columns: 3.5fr 1.8fr 2.5fr 2fr 1.2fr;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.modern-user-row:last-child {
+  border-bottom: none;
+}
+
+.modern-user-row:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.user-avatar-glow {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 15px;
+  color: white;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  letter-spacing: 0.5px;
+}
+
+.self-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #e5b887;
+  background: rgba(198, 156, 109, 0.15);
+  border: 1px solid rgba(198, 156, 109, 0.3);
+  padding: 1px 7px;
+  border-radius: 6px;
+}
+
+/* Role Pills */
+.role-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 30px;
+  font-size: 11.5px;
+  font-weight: 600;
+  width: fit-content;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.role-super_admin {
+  background: linear-gradient(135deg, rgba(212, 163, 115, 0.2), rgba(180, 83, 9, 0.25));
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.role-admin {
+  background: linear-gradient(135deg, rgba(198, 156, 109, 0.18), rgba(178, 140, 86, 0.22));
+  color: #e5b887;
+  border: 1px solid rgba(198, 156, 109, 0.3);
+}
+
+.role-user {
+  background: rgba(100, 116, 139, 0.15);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+/* Status Indicator Dot */
+.status-indicator-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-indicator-dot.active {
+  background: #34d399;
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+}
+
+.status-indicator-dot.offline {
+  background: #71717a;
+}
+
+.never-login-badge {
+  font-size: 11px;
+  color: #71717a;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+/* Modern Action Buttons */
+.action-btn-modern {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+}
+
+.action-btn-modern.edit-btn {
+  background: rgba(198, 156, 109, 0.12);
+  color: #d4a373;
+  border-color: rgba(198, 156, 109, 0.25);
+}
+
+.action-btn-modern.edit-btn:hover {
+  background: rgba(198, 156, 109, 0.25);
+  color: #ffffff;
+  border-color: rgba(198, 156, 109, 0.45);
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(198, 156, 109, 0.25);
 }
 
-.user-card-avatar {
-  width: 48px; height: 48px; border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 18px; color: white; flex-shrink: 0;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+.action-btn-modern.delete-btn {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.25);
 }
 
-.user-card-info { flex: 1; min-width: 0; }
-.user-card-name {
-  color: #ffffff; font-weight: 600; font-size: 15px;
-  display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+.action-btn-modern.delete-btn:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.25);
+  color: #ffffff;
+  border-color: rgba(239, 68, 68, 0.45);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 }
-.user-card-email {
-  color: #A3A3A3; font-size: 13px;
-  word-break: break-all; direction: ltr; text-align: left;
-}
-.user-card-phone { color: rgba(255, 255, 255, 0.3); font-size: 12px; direction: ltr; text-align: left; }
 
-.user-card-details {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px;
-  margin-top: 12px; padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+/* Mobile Modern Card */
+.modern-user-card {
+  background: rgba(255, 255, 255, 0.025);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 18px 16px;
+  transition: background 0.2s ease;
 }
-.user-card-detail-label {
-  color: #A3A3A3; font-size: 11px; font-weight: 500;
-  text-transform: uppercase; letter-spacing: 0.3px;
-}
-.user-card-detail-value { color: #D4D4D4; font-size: 14px; font-weight: 400; }
 
-.user-card-actions {
-  display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end;
-  padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.06);
+.modern-user-card:last-child {
+  border-bottom: none;
 }
-.user-card-actions .btn-action { padding: 8px 16px; font-size: 13px; }
+
+.mobile-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin: 12px 0;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.meta-label {
+  font-size: 11px;
+  color: #71717a;
+}
+
+.meta-val {
+  font-size: 12.5px;
+  color: #e4e4e7;
+  font-weight: 500;
+}
+
+.mobile-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.mobile-card-footer .edit-btn {
+  height: 38px;
+  font-size: 12.5px;
+  font-weight: 600;
+  gap: 6px;
+}
+
+.mobile-card-footer .delete-btn {
+  width: 38px;
+  height: 38px;
+}
 
 /* ===== ROLE BADGES ===== */
 .role-badge {

@@ -24,6 +24,14 @@ class ZarinpalController
 
         $order = Order::with('payment')->findOrFail($validated['order_id']);
 
+        $user = $request->user();
+        if ($user && !$user->can('manage-orders') && $order->user_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'شما دسترسی لازم برای پرداخت این سفارش را ندارید.',
+            ], 403);
+        }
+
         if ($order->payment && $order->payment->status === 'paid') {
             return response()->json([
                 'success' => false,
@@ -42,7 +50,7 @@ class ZarinpalController
     public function verifyPayment(Request $request): RedirectResponse
     {
         $authority = $request->query('Authority');
-        $status = $request->query('');
+        $status = $request->query('Status');
 
         $frontendUrl = config('app.frontend_url');
 

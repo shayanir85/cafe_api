@@ -170,27 +170,28 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <AdminSidebar v-model="sidebarOpen" />
+  <div class="admin-layout" :style="{ paddingRight: sidebarOpen ? '320px' : '64px' }">
+    <AdminSidebar v-model="sidebarOpen" />
 
-  <header class="header" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
-    <div class="header-content">
-      <div class="flex items-center gap-3">
-        <router-link to="/dashboard" class="text-white/70 hover:text-white transition-colors">
-          <i class="fa-solid fa-arrow-right text-lg"></i>
-        </router-link>
-        <h1 class="header-title font-bold text-white">
-          <i class="fa-solid fa-utensils ml-2"></i>مدیریت سفارشات
-        </h1>
+    <header class="header">
+      <div class="header-content">
+        <div class="flex items-center gap-3">
+          <router-link to="/dashboard" class="text-white/70 hover:text-white transition-colors">
+            <i class="fa-solid fa-arrow-right text-lg"></i>
+          </router-link>
+          <h1 class="header-title font-bold text-white">
+            <i class="fa-solid fa-utensils ml-2"></i>مدیریت سفارشات
+          </h1>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button class="btn btn-secondary" @click="loadOrders(); showToast('لیست به‌روزرسانی شد')">
+            <i class="fa-solid fa-rotate hidden sm:inline"></i>بروزرسانی
+          </button>
+        </div>
       </div>
-      <div class="flex items-center gap-2 flex-wrap">
-        <button class="btn btn-secondary" @click="loadOrders(); showToast('لیست به‌روزرسانی شد')">
-          <i class="fa-solid fa-rotate hidden sm:inline"></i>بروزرسانی
-        </button>
-      </div>
-    </div>
-  </header>
+    </header>
 
-  <main class="main-body" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
+    <main class="main-body">
     <!-- ============ آمار ============ -->
     <div class="stats-grid fade-in-up">
       <div class="stats-card">

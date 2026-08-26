@@ -435,56 +435,57 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <AdminSidebar v-model="sidebarOpen" />
+  <div class="admin-layout" :style="{ paddingRight: sidebarOpen ? '320px' : '64px' }">
+    <AdminSidebar v-model="sidebarOpen" />
 
-  <header class="header" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
-    <div class="header-content">
-      <div class="flex items-center gap-2">
-        <h1 class="header-title">
-          <i class="fa-solid fa-utensils"></i> مدیریت منو
-        </h1>
-      </div>
-      <div class="stats-wrapper">
-        <div class="stats-bar fade-in-up">
-          <div class="stat-item">
-            <span class="stat-dot blue"></span>
-            <span class="stat-count">{{ stats.total }}</span>
-            <span class="stat-text">کل</span>
-          </div>
-          <span class="stat-divider"></span>
-          <div class="stat-item">
-            <span class="stat-dot green"></span>
-            <span class="stat-count">{{ stats.available }}</span>
-            <span class="stat-text">موجود</span>
-          </div>
-          <span class="stat-divider"></span>
-          <div class="stat-item">
-            <span class="stat-dot red"></span>
-            <span class="stat-count">{{ stats.unavailable }}</span>
-            <span class="stat-text">ناموجود</span>
-          </div>
-          <span class="stat-divider"></span>
-          <div class="stat-item">
-            <span class="stat-dot purple"></span>
-            <span class="stat-count">{{ stats.categories }}</span>
-            <span class="stat-text">دسته</span>
+    <header class="header">
+      <div class="header-content">
+        <div class="flex items-center gap-2">
+          <h1 class="header-title">
+            <i class="fa-solid fa-utensils"></i> مدیریت منو
+          </h1>
+        </div>
+        <div class="stats-wrapper">
+          <div class="stats-bar fade-in-up">
+            <div class="stat-item">
+              <span class="stat-dot blue"></span>
+              <span class="stat-count">{{ stats.total }}</span>
+              <span class="stat-text">کل</span>
+            </div>
+            <span class="stat-divider"></span>
+            <div class="stat-item">
+              <span class="stat-dot green"></span>
+              <span class="stat-count">{{ stats.available }}</span>
+              <span class="stat-text">موجود</span>
+            </div>
+            <span class="stat-divider"></span>
+            <div class="stat-item">
+              <span class="stat-dot red"></span>
+              <span class="stat-count">{{ stats.unavailable }}</span>
+              <span class="stat-text">ناموجود</span>
+            </div>
+            <span class="stat-divider"></span>
+            <div class="stat-item">
+              <span class="stat-dot purple"></span>
+              <span class="stat-count">{{ stats.categories }}</span>
+              <span class="stat-text">دسته</span>
+            </div>
           </div>
         </div>
+        <div class="header-right">
+          <router-link to="/menu-management/add" class="btn btn-primary" style="text-decoration: none;">
+            <i class="fa-solid fa-plus"></i>
+            <span class="btn-text">آیتم جدید</span>
+          </router-link>
+          <router-link to="/dashboard" class="back-btn">
+            بازگشت
+            <i class="fa-solid fa-arrow-left"></i>
+          </router-link>
+        </div>
       </div>
-      <div class="header-right">
-        <router-link to="/menu-management/add" class="btn btn-primary" style="text-decoration: none;">
-          <i class="fa-solid fa-plus"></i>
-          <span class="btn-text">آیتم جدید</span>
-        </router-link>
-        <router-link to="/dashboard" class="back-btn">
-          بازگشت
-          <i class="fa-solid fa-arrow-left"></i>
-        </router-link>
-      </div>
-    </div>
-  </header>
+    </header>
 
-  <main class="main-body" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
+    <main class="main-body">
     <!-- ============ تب دسته‌بندی ============ -->
     <div class="category-header">
       <div class="category-tabs fade-in-up">
@@ -782,9 +783,15 @@ onUnmounted(() => {
       <span>{{ toast.message }}</span>
     </div>
   </Transition>
+  </div>
 </template>
 
 <style scoped>
+.admin-layout {
+  min-height: 100vh;
+  transition: padding-right 0.3s ease;
+  width: 100%;
+}
 /* ============ انیمیشن‌ها ============ */
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }

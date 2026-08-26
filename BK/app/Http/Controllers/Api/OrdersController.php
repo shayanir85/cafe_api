@@ -57,8 +57,16 @@ public function index(Request $request): JsonResponse
     ]);
 }
 
-    public function show(Order $order): JsonResponse
+    public function show(Request $request, Order $order): JsonResponse
     {
+        $user = $request->user();
+        if ($user && !$user->can('manage-orders') && $order->user_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'شما دسترسی لازم برای مشاهده این سفارش را ندارید.',
+            ], 403);
+        }
+
         $order->load(['orderItems.menuItem.category']);
 
         return response()->json([
