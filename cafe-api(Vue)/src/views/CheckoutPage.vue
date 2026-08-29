@@ -71,7 +71,7 @@ async function handlePurchase() {
     return
   }
 
-  if (!auth.isLoggedIn) {
+  if (!auth.isCustomerLoggedIn) {
     showOtpModal.value = true
     return
   }
@@ -235,8 +235,8 @@ function handleOtpSuccess() {
             :disabled="submitting"
             @click="handlePurchase">
             <span v-if="!submitting">
-              <i class="fas" :class="!auth.isLoggedIn ? 'fa-user-plus' : 'fa-check'"></i>
-              {{ !auth.isLoggedIn ? 'ثبت‌نام و ثبت سفارش' : 'ثبت سفارش' }}
+              <i class="fas" :class="!auth.isCustomerLoggedIn ? 'fa-user-plus' : 'fa-check'"></i>
+              {{ !auth.isCustomerLoggedIn ? 'ثبت‌نام و ثبت سفارش' : 'ثبت سفارش' }}
             </span>
             <span v-else><i class="fas fa-spinner fa-spin"></i> در حال ثبت...</span>
           </button>

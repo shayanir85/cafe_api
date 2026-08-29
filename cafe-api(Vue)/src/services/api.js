@@ -12,7 +12,9 @@ const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-  const token = sessionStorage.getItem('access_token')
+  const customerToken = sessionStorage.getItem('customer_token')
+  const adminToken = sessionStorage.getItem('access_token')
+  const token = customerToken || adminToken
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }

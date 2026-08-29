@@ -31,10 +31,16 @@ const showOtpModal = ref(false)
           <span class="brand-text">کافی شاپ</span>
         </div>
         <div class="header-right">
-          <button v-if="!auth.isLoggedIn" class="login-btn" @click="showOtpModal = true">
+          <button v-if="!auth.isCustomerLoggedIn" class="login-btn" @click="showOtpModal = true">
             <i class="fas fa-right-to-bracket"></i>
             <span class="login-text">ورود</span>
           </button>
+          <template v-else>
+            <span class="customer-name">{{ auth.customerName }}</span>
+            <button class="logout-btn" @click="auth.customerLogout()">
+              <i class="fas fa-right-from-bracket"></i>
+            </button>
+          </template>
           <button class="cart-btn-wrap" @click="router.push('/checkout')">
             <i class="fas fa-clipboard-list"></i>
             <span class="c-count" :class="{ show: cart.totalCount > 0 }">{{ cart.totalCount }}</span>
@@ -193,6 +199,36 @@ const showOtpModal = ref(false)
 .login-btn:hover {
   background: rgba(245, 158, 11, 0.2);
   border-color: rgba(245, 158, 11, 0.4);
+}
+
+.customer-name {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  font-weight: 600;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logout-btn {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  color: rgba(239, 68, 68, 0.6);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
 }
 
 .login-text {

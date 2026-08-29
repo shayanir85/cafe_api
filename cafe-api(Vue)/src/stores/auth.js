@@ -10,11 +10,20 @@ export const useAuthStore = defineStore('auth', () => {
   })())
   const token = ref(sessionStorage.getItem('access_token') || null)
 
+  // Separate customer auth (OTP-based)
+  const customerToken = ref(sessionStorage.getItem('customer_token') || null)
+  const customerUser = ref((() => {
+    try { return JSON.parse(sessionStorage.getItem('customer_user') || 'null') }
+    catch { return null }
+  })())
+
   const isLoggedIn = computed(() => !!token.value)
   const isAdmin = computed(() => user.value?.role === 'admin' || user.value?.role === 'super_admin')
   const isSuperAdmin = computed(() => user.value?.role === 'super_admin')
-  const isCustomer = computed(() => isLoggedIn.value && !isAdmin.value)
   const isStaff = computed(() => ['super_admin', 'admin', 'chef', 'waiter'].includes(user.value?.role))
+
+  const isCustomerLoggedIn = computed(() => !!customerToken.value)
+  const customerName = computed(() => customerUser.value?.name || 'کاربر')
 
   function saveAuth(data) {
     const t = data.token || data.access_token
@@ -37,11 +46,34 @@ export const useAuthStore = defineStore('auth', () => {
     return true
   }
 
+  function saveCustomerAuth(data) {
+    const t = data.token || data.access_token
+    if (!t) return false
+
+    customerToken.value = t
+    sessionStorage.setItem('customer_token', t)
+
+    customerUser.value = {
+      id: data.id || null,
+      name: data.name || 'کاربر',
+      phone_number: data.phone_number || null,
+    }
+    sessionStorage.setItem('customer_user', JSON.stringify(customerUser.value))
+    return true
+  }
+
   function clearAuth() {
     token.value = null
     user.value = null
     sessionStorage.removeItem('access_token')
     sessionStorage.removeItem('user')
+  }
+
+  function clearCustomerAuth() {
+    customerToken.value = null
+    customerUser.value = null
+    sessionStorage.removeItem('customer_token')
+    sessionStorage.removeItem('customer_user')
   }
 
   async function login({ phone_number, password }) {
@@ -53,7 +85,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function otpLogin({ phone_number, otp }) {
     const data = await otpApi.otpLogin(phone_number, otp)
-    const saved = saveAuth(data)
+    const saved = saveCustomerAuth(data)
     if (!saved) throw new Error('خطا در ذخیره اطلاعات کاربر')
     return data
   }
@@ -66,7 +98,7 @@ export const useAuthStore = defineStore('auth', () => {
       password_confirmation,
       verification_token,
     })
-    const saved = saveAuth(data)
+    const saved = saveCustomerAuth(data)
     if (!saved) throw new Error('خطا در ذخیره اطلاعات کاربر')
     return data
   }
@@ -77,6 +109,10 @@ export const useAuthStore = defineStore('auth', () => {
     } finally {
       clearAuth()
     }
+  }
+
+  function customerLogout() {
+    clearCustomerAuth()
   }
 
   async function fetchUser() {
@@ -94,5 +130,5 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { user, token, isLoggedIn, isAdmin, isSuperAdmin, isCustomer, isStaff, login, otpLogin, registerByOtp, logout, fetchUser, clearAuth, saveAuth }
+  return { user, token, isLoggedIn, isAdmin, isSuperAdmin, isStaff, customerToken, customerUser, isCustomerLoggedIn, customerName, login, otpLogin, registerByOtp, logout, customerLogout, fetchUser, clearAuth, saveAuth }
 })
