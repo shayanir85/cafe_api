@@ -4,7 +4,7 @@ import { useAuthStore } from '@/stores/auth'
 import AdminSidebar from '@/components/AdminSidebar.vue'
 
 const authStore = useAuthStore()
-const sidebarOpen = ref(false)
+const sidebarOpen = ref(localStorage.getItem('admin_sidebar') === '1')
 
 onMounted(() => {})
 </script>
@@ -90,14 +90,14 @@ onMounted(() => {})
 }
 
 .dash-header {
+  position: sticky;
   top: 0;
-  z-index: 0;
+  z-index: 40;
   background: rgba(26,26,26,0.95);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid #2A2A2A;
-  padding: 14px 20px;
+  padding: 0;
   flex-shrink: 0;
-  transition: margin-right 0.3s ease;
 }
 
 .dash-title {
@@ -110,6 +110,7 @@ onMounted(() => {})
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  padding: 14px 20px;
 }
 
 .dash-title i {

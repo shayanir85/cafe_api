@@ -14,7 +14,7 @@ import AdminSidebar from '@/components/AdminSidebar.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
-const sidebarOpen = ref(false)
+const sidebarOpen = ref(localStorage.getItem('admin_sidebar') === '1')
 
 if (!auth.isAdmin) {
   router.push('/login')
@@ -883,7 +883,7 @@ onUnmounted(() => {
 .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
 /* ============ کانتینر اصلی ============ */
-.main-body { max-width: 1400px; margin: 0 auto; padding: 12px; padding-bottom: 80px; transition: margin-right 0.3s ease; }
+.main-body { padding: 12px; padding-bottom: 80px; transition: margin-right 0.3s ease; }
 @media (min-width: 640px) { .main-body { padding: 16px 20px; padding-bottom: 80px; } }
 @media (min-width: 1024px) { .main-body { padding: 20px 24px; padding-bottom: 80px; } }
 

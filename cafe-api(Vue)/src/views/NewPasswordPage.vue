@@ -9,7 +9,7 @@ import AdminSidebar from '@/components/AdminSidebar.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
-const sidebarOpen = ref(false)
+const sidebarOpen = ref(localStorage.getItem('admin_sidebar') === '1')
 
 const passwordInput = ref('')
 const newPasswordInput = ref('')

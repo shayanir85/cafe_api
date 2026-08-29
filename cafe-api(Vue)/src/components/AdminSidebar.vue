@@ -14,7 +14,10 @@ const auth = useAuthStore()
 
 const menuOpen = computed({
   get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val)
+  set: (val) => {
+    emit('update:modelValue', val)
+    localStorage.setItem('admin_sidebar', val ? '1' : '0')
+  }
 })
 
 function toggleMenu() {

@@ -7,7 +7,7 @@ import AdminSidebar from '@/components/AdminSidebar.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
-const sidebarOpen = ref(false)
+const sidebarOpen = ref(localStorage.getItem('admin_sidebar') === '1')
 
 if (!auth.isSuperAdmin) {
   router.push(auth.user ? '/dashboard' : '/login')
@@ -924,8 +924,6 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
   padding: 24px;
   padding-bottom: 24px;
   transition: all 0.3s ease;
-  max-width: 1400px;
-  margin: 0 auto;
 }
 @media (min-width: 1024px) { .main-body { padding: 32px; } }
 

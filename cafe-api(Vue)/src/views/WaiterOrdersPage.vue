@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { getOrders, updateOrderStatus } from '@/services/orders'
 import AdminSidebar from '@/components/AdminSidebar.vue'
 
-const sidebarOpen = ref(false)
+const sidebarOpen = ref(localStorage.getItem('admin_sidebar') === '1')
 
 const orders = ref([])
 const loading = ref(true)
@@ -290,8 +290,6 @@ onMounted(async () => {
 
 .main-body {
   padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
   transition: margin-right 0.3s ease;
 }
 @media (min-width: 1024px) { .main-body { padding: 32px; } }
