@@ -1,9 +1,10 @@
 <script setup>
-import { computed } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import LogoCup from '@/components/LogoCup.vue'
+import OtpLoginModal from '@/components/OtpLoginModal.vue'
 
 defineProps({
   showSearch: { type: Boolean, default: false },
@@ -16,7 +17,7 @@ const router = useRouter()
 const cart = useCartStore()
 const auth = useAuthStore()
 
-const userInitials = computed(() => (auth.user?.name || auth.user?.phone_number || '?').slice(0, 2).toUpperCase())
+const showOtpModal = ref(false)
 </script>
 
 <template>
@@ -30,18 +31,10 @@ const userInitials = computed(() => (auth.user?.name || auth.user?.phone_number 
           <span class="brand-text">کافی شاپ</span>
         </div>
         <div class="header-right">
-          <button v-if="!auth.isLoggedIn" class="login-btn" @click="router.push('/login')">
+          <button v-if="!auth.isLoggedIn" class="login-btn" @click="showOtpModal = true">
             <i class="fas fa-right-to-bracket"></i>
             <span class="login-text">ورود</span>
           </button>
-          <template v-else>
-            <router-link v-if="auth.isAdmin" to="/dashboard" class="admin-link">
-              <i class="fas fa-gauge-high"></i>
-            </router-link>
-            <div v-else class="user-avatar" @click="router.push('/')">
-              <span>{{ userInitials }}</span>
-            </div>
-          </template>
           <button class="cart-btn-wrap" @click="router.push('/checkout')">
             <i class="fas fa-clipboard-list"></i>
             <span class="c-count" :class="{ show: cart.totalCount > 0 }">{{ cart.totalCount }}</span>
@@ -61,6 +54,8 @@ const userInitials = computed(() => (auth.user?.name || auth.user?.phone_number 
       </div>
     </div>
   </header>
+
+  <OtpLoginModal v-if="showOtpModal" @close="showOtpModal = false" @success="showOtpModal = false" />
 </template>
 
 <style scoped>
@@ -206,45 +201,6 @@ const userInitials = computed(() => (auth.user?.name || auth.user?.phone_number 
 
 @media (min-width: 400px) {
   .login-text { display: inline; }
-}
-
-.admin-link {
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  background: rgba(198, 156, 109, 0.1);
-  border: 1px solid rgba(198, 156, 109, 0.2);
-  color: #C69C6D;
-  font-size: 14px;
-  text-decoration: none;
-  transition: all 0.2s;
-}
-
-.admin-link:hover {
-  background: rgba(198, 156, 109, 0.2);
-  border-color: rgba(198, 156, 109, 0.3);
-}
-
-.user-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #1a0e0a;
-  font-weight: 700;
-  font-size: 11px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.user-avatar:hover {
-  transform: scale(1.05);
 }
 
 .c-count {

@@ -9,9 +9,7 @@ const auth = useAuthStore()
 const step = ref(1)
 const phone = ref('')
 const otpDigits = ref(['', '', '', ''])
-const name = ref('')
 const password = ref('')
-const passwordConfirm = ref('')
 const loading = ref(false)
 const error = ref('')
 const verificationToken = ref('')
@@ -111,25 +109,17 @@ async function verifyOtp() {
 
 async function handleRegister() {
   error.value = ''
-  if (!name.value.trim()) {
-    error.value = 'نام خود را وارد کنید'
-    return
-  }
   if (!password.value || password.value.length < 8) {
     error.value = 'رمز عبور باید حداقل ۸ کاراکتر باشد'
-    return
-  }
-  if (password.value !== passwordConfirm.value) {
-    error.value = 'تأیید رمز عبور مطابقت ندارد'
     return
   }
   loading.value = true
   try {
     await auth.registerByOtp({
-      name: name.value.trim(),
+      name: 'کاربر',
       phone_number: phone.value,
       password: password.value,
-      password_confirmation: passwordConfirm.value,
+      password_confirmation: password.value,
       verification_token: verificationToken.value,
     })
     emit('success')
@@ -169,8 +159,8 @@ async function resendOtp() {
           <div class="otp-icon">
             <i class="fas fa-mobile-screen"></i>
           </div>
-          <h2 class="otp-title">ورود با شماره موبایل</h2>
-          <p class="otp-subtitle">شماره موبایل خود را وارد کنید تا کد تأیید دریافت کنید</p>
+          <h2 class="otp-title">ثبت‌نام با شماره موبایل</h2>
+          <p class="otp-subtitle">برای ثبت سفارش، شماره موبایل خود را وارد کنید</p>
 
           <div v-if="error" class="otp-error">
             <i class="fas fa-exclamation-circle"></i> {{ error }}
@@ -241,28 +231,18 @@ async function resendOtp() {
         <!-- Step 3: Register -->
         <div v-if="step === 3" class="otp-step">
           <div class="otp-icon">
-            <i class="fas fa-user-plus"></i>
+            <i class="fas fa-lock"></i>
           </div>
-          <h2 class="otp-title">ثبت‌نام</h2>
-          <p class="otp-subtitle">حساب کاربری جدیدی با این شماره بسازید</p>
+          <h2 class="otp-title">انتخاب رمز عبور</h2>
+          <p class="otp-subtitle">برای حساب کاربری خود رمز عبور تعیین کنید</p>
 
           <div v-if="error" class="otp-error">
             <i class="fas fa-exclamation-circle"></i> {{ error }}
           </div>
 
           <div class="otp-input-group">
-            <label>نام کامل</label>
-            <input v-model="name" type="text" placeholder="نام خود را وارد کنید" class="otp-text-input" />
-          </div>
-
-          <div class="otp-input-group">
             <label>رمز عبور</label>
             <input v-model="password" type="password" placeholder="حداقل ۸ کاراکتر" class="otp-text-input" />
-          </div>
-
-          <div class="otp-input-group">
-            <label>تأیید رمز عبور</label>
-            <input v-model="passwordConfirm" type="password" placeholder="رمز عبور را مجدداً وارد کنید" class="otp-text-input" />
           </div>
 
           <button class="otp-btn-primary" @click="handleRegister" :disabled="loading">

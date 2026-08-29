@@ -56,11 +56,6 @@ function clearCart() {
 }
 
 async function handlePurchase() {
-  if (!auth.isLoggedIn) {
-    showOtpModal.value = true
-    return
-  }
-
   if (cart.items.length === 0) {
     showToast('سبد خرید خالی است', false)
     return
@@ -73,6 +68,11 @@ async function handlePurchase() {
 
   if (isDineIn.value && !tableNumber.value.trim()) {
     showToast('شماره میز را وارد کنید', false)
+    return
+  }
+
+  if (!auth.isLoggedIn) {
+    showOtpModal.value = true
     return
   }
 
@@ -107,7 +107,7 @@ async function handlePurchase() {
 
 function handleOtpSuccess() {
   showOtpModal.value = false
-  showToast('ورود موفقیت‌آمیز بود! سفارش خود را ثبت کنید.')
+  handlePurchase()
 }
 </script>
 
@@ -235,8 +235,8 @@ function handleOtpSuccess() {
             :disabled="submitting"
             @click="handlePurchase">
             <span v-if="!submitting">
-              <i class="fas" :class="!auth.isLoggedIn ? 'fa-right-to-bracket' : 'fa-check'"></i>
-              {{ !auth.isLoggedIn ? 'ورود و ثبت سفارش' : 'ثبت سفارش' }}
+              <i class="fas" :class="!auth.isLoggedIn ? 'fa-user-plus' : 'fa-check'"></i>
+              {{ !auth.isLoggedIn ? 'ثبت‌نام و ثبت سفارش' : 'ثبت سفارش' }}
             </span>
             <span v-else><i class="fas fa-spinner fa-spin"></i> در حال ثبت...</span>
           </button>
