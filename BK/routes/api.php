@@ -23,6 +23,8 @@ Route::prefix('v1')->group(function () {
             ->middleware('throttle:5,300');
         Route::post('resend-otp', [AuthController::class, 'resendOTP'])
             ->middleware('throttle:2,60');
+        Route::post('otp-login', [AuthController::class, 'otpLogin'])
+            ->middleware('throttle:5,300');
 
         Route::middleware('auth:sanctum')->post('sanctum/user', [AuthController::class, 'TokenCheck']);
         Route::middleware('auth:sanctum')->post('resetPassword', [AuthController::class, 'Update_Pass']);
@@ -93,6 +95,7 @@ Route::prefix('v1')->group(function () {
         Route::middleware(['auth:sanctum', 'cafe_open'])->group(function () {
             Route::post('orders', [OrdersController::class, 'store']);
             Route::get('orders/{order}', [OrdersController::class, 'show']);
+            Route::get('my-orders', [OrdersController::class, 'myOrders']);
             Route::post('payments/request', [ZarinpalController::class, 'requestPayment']);
         });
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\LoginRequest;
 use App\Services\AuthService;
 use App\Http\Requests\RegisterRequest;
+use App\Models\PhoneVerification;
 use App\Models\User;
 use App\Services\SMS;
 use Carbon\Carbon;
@@ -82,8 +83,17 @@ class AuthController extends Controller
 
     public function Register(RegisterRequest $request)
     {
-    // Check if phone is verified (session set by verifyOTP)
-     if (!session()->has('verified_phone')) {
+    // Check if phone is verified (session set by verifyOTP OR verification_token)
+     $verified = session()->has('verified_phone');
+
+     if (!$verified && $request->has('verification_token')) {
+         $verified = PhoneVerification::where('phone_number', $request->phone_number)
+             ->where('verification_token', $request->verification_token)
+             ->where('is_verified', true)
+             ->exists();
+     }
+
+     if (!$verified) {
          return response()->json([
              'success' => false,
              'message' => 'Phone number not verified. Please verify your phone first.'
@@ -92,6 +102,10 @@ class AuthController extends Controller
 
     // Phone is verified, proceed with registration
         $result = $this->authService->register($request->validated());
+
+        if (isset($result['token'])) {
+            session()->forget('verified_phone');
+        }
 
         return response()->json($result, $result ? 201 : 400);
     }
@@ -171,7 +185,9 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Phone number verified successfully'
+                'message' => 'Phone number verified successfully',
+                'verification_token' => $result['verification_token'] ?? null,
+                'user_exists' => $user ? true : false,
             ], 200);
         }
 
@@ -189,6 +205,51 @@ class AuthController extends Controller
         $result = $this->smsService->resendOTP($request->phone_number);
         
         return response()->json($result, $result ? 200 : 400);
+    }
+
+    /**
+     * OTP Login for existing users
+     */
+    public function otpLogin(Request $request)
+    {
+        $request->validate([
+            'phone_number' => 'required|string|regex:/^[0-9]{10,11}$/',
+            'otp' => 'required|string|size:4|regex:/^[0-9]+$/',
+        ]);
+
+        $result = $this->smsService->verifyOTP(
+            $request->phone_number,
+            $request->otp
+        );
+
+        if (!$result['success']) {
+            return response()->json($result, 422);
+        }
+
+        $user = User::where('phone_number', $request->phone_number)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'کاربری با این شماره یافت نشد. لطفاً ابتدا ثبت‌نام کنید.',
+                'user_exists' => false,
+            ], 404);
+        }
+
+        $user->update(['phone_number_verified_at' => Carbon::now()]);
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        $roles = $user->getRoleNames();
+
+        return response()->json([
+            'success' => true,
+            'token' => $token,
+            'name' => $user->name,
+            'id' => $user->id,
+            'phone_number' => $user->phone_number,
+            'roles' => $roles,
+            'role' => $roles->first() ?? 'user',
+        ], 200);
     }
 
     /**

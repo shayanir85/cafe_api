@@ -113,4 +113,20 @@ public function index(Request $request): JsonResponse
             'message' => 'سفارش حذف شد.',
         ]);
     }
+
+    public function myOrders(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $orders = Order::where('user_id', $user->id)
+            ->with(['orderItems.menuItem'])
+            ->latest('id')
+            ->get()
+            ->each->append('jalali_created_at');
+
+        return response()->json([
+            'success' => true,
+            'data' => $orders,
+        ]);
+    }
 }

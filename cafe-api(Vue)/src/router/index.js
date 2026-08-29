@@ -49,6 +49,17 @@ const routes = [
     component: () => import('@/views/CheckoutPage.vue'),
   },
   {
+    path: '/order/:id',
+    name: 'order-tracking',
+    component: () => import('@/views/OrderTrackingPage.vue'),
+  },
+  {
+    path: '/orders-management',
+    name: 'orders-management',
+    component: () => import('@/views/WaiterOrdersPage.vue'),
+    meta: { requiresAuth: true, requiresStaff: true },
+  },
+  {
     path: '/new-password',
     name: 'new-password',
     component: () => import('@/views/NewPasswordPage.vue'),
@@ -78,6 +89,10 @@ router.beforeEach((to) => {
 
   if (to.meta.requiresSuperAdmin && !auth.isSuperAdmin) {
     return { name: 'dashboard' }
+  }
+
+  if (to.meta.requiresStaff && !auth.isStaff) {
+    return { name: 'login' }
   }
 
   if (to.meta.guest && auth.isLoggedIn && auth.isAdmin) {

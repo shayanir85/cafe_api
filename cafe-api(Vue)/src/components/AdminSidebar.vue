@@ -30,7 +30,8 @@ function handleLogout() {
 
 const user = computed(() => auth.user)
 const userInitials = computed(() => (user.value?.name || user.value?.email || '?').slice(0, 2).toUpperCase())
-const roleText = computed(() => user.value?.role === 'super_admin' ? 'سوپر ادمین' : user.value?.role === 'admin' ? 'ادمین' : 'کاربر')
+const roleText = computed(() => user.value?.role === 'super_admin' ? 'سوپر ادمین' : user.value?.role === 'admin' ? 'ادمین' : user.value?.role === 'chef' ? 'آشپز' : user.value?.role === 'waiter' ? 'گارسون' : 'کاربر')
+const isStaff = computed(() => ['super_admin', 'admin', 'chef', 'waiter'].includes(user.value?.role))
 
 // ============ Settings Modal ============
 const showSettingsModal = ref(false)
@@ -166,6 +167,9 @@ onUnmounted(() => {
           <button class="rail-icon" @click="router.push('/menu-management/add')" aria-label="اضافه کردن به منو">
             <i class="fa-solid fa-plus-circle"></i>
           </button>
+          <button class="rail-icon" @click="router.push('/orders-management')" aria-label="پنل سفارشات">
+            <i class="fa-solid fa-bell-concierge"></i>
+          </button>
         </div>
 
         <div class="flex-1"></div>
@@ -209,6 +213,10 @@ onUnmounted(() => {
             <router-link to="/orders" class="sidebar-link">
               <i class="fa-solid fa-receipt sidebar-link-icon"></i>
               <span>مدیریت سفارشات</span>
+            </router-link>
+            <router-link v-if="isStaff" to="/orders-management" class="sidebar-link">
+              <i class="fa-solid fa-bell-concierge sidebar-link-icon"></i>
+              <span>پنل سفارشات</span>
             </router-link>
           </div>
 
