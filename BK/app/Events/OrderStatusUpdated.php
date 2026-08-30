@@ -13,6 +13,10 @@ class OrderStatusUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public bool $deleteWhenMissingModels = true;
+
+    public $afterCommit = true;
+
     public function __construct(
         public Order $order
     ) {}

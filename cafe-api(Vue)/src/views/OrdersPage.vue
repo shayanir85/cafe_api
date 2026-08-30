@@ -373,6 +373,7 @@ onUnmounted(() => {
       <span class="text-sm">{{ toast.message }}</span>
     </div>
   </Transition>
+  </div>
 </template>
 
 <style scoped>

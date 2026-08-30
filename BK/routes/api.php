@@ -17,13 +17,16 @@ Route::prefix('v1')->group(function () {
 
     Route::prefix('auth')->group(function () {
         Route::post('send-otp', [AuthController::class, 'sendOTP'])
-            ->middleware('throttle:3,60');
-        Route::post('verify-otp', [AuthController::class, 'verifyOTP'])
-            ->middleware('throttle:5,300');
+            ->middleware('throttle:10,5'); 
+
         Route::post('resend-otp', [AuthController::class, 'resendOTP'])
-            ->middleware('throttle:2,60');
+            ->middleware('throttle:10,10'); 
+
+        Route::post('verify-otp', [AuthController::class, 'verifyOTP'])
+            ->middleware('throttle:10,1'); 
+
         Route::post('otp-login', [AuthController::class, 'otpLogin'])
-            ->middleware('throttle:5,300');
+            ->middleware('throttle:10,1');
 
         Route::middleware('auth:sanctum')->post('sanctum/user', [AuthController::class, 'TokenCheck']);
         Route::middleware('auth:sanctum')->post('resetPassword', [AuthController::class, 'Update_Pass']);
@@ -67,7 +70,7 @@ Route::prefix('v1')->group(function () {
 
             Route::get('orders', [OrdersController::class, 'index'])
                 ->middleware('permission:manage-orders');
-            Route::patch('orders/{id}/status', [OrdersController::class, 'updateStatus'])
+            Route::patch('orders/{order}/status', [OrdersController::class, 'updateStatus'])
                 ->middleware('permission:manage-orders');
         });
     });

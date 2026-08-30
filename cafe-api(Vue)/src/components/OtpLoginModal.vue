@@ -64,6 +64,7 @@ function handlePaste(event) {
 }
 
 async function sendOtp() {
+  if (loading.value) return
   error.value = ''
   if (!phone.value || phone.value.length < 10) {
     error.value = 'شماره موبایل را صحیح وارد کنید'
@@ -82,6 +83,7 @@ async function sendOtp() {
 }
 
 async function verifyOtp() {
+  if (loading.value) return
   error.value = ''
   if (otpCode.value.length !== 4) {
     error.value = 'کد تأیید ۴ رقمی را وارد کنید'
@@ -108,6 +110,7 @@ async function verifyOtp() {
 }
 
 async function handleRegister() {
+  if (loading.value) return
   error.value = ''
   if (!password.value || password.value.length < 8) {
     error.value = 'رمز عبور باید حداقل ۸ کاراکتر باشد'
@@ -132,7 +135,7 @@ async function handleRegister() {
 }
 
 async function resendOtp() {
-  if (countdown.value > 0) return
+  if (loading.value || countdown.value > 0) return
   error.value = ''
   loading.value = true
   try {
