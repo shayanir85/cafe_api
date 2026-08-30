@@ -20,9 +20,9 @@ export async function createMenuItem(menuItemData) {
 export async function updateMenuItem(id, menuItemData) {
   let response
   if (menuItemData instanceof FormData) {
+    menuItemData.append('_method', 'PUT')
     response = await api.post(`/Dashboard/admin/menu-items/${id}`, menuItemData, {
       headers: { 'Content-Type': 'multipart/form-data' },
-      params: { _method: 'PUT' },
     })
   } else {
     response = await api.put(`/Dashboard/admin/menu-items/${id}`, menuItemData)

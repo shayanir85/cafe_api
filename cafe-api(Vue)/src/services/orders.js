@@ -14,7 +14,7 @@ export async function getOrders(filters = {}) {
 }
 
 export async function getOrder(id) {
-  const response = await api.get(`/orders/${id}`)
+  const response = await api.get(`/cafe/orders/${id}`)
   return response.data
 }
 

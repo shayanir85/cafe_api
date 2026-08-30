@@ -8,13 +8,12 @@ use App\Http\Controllers\Api\MenuItemsController;
 use App\Http\Controllers\Api\OrdersController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\ZarinpalController;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
-Route::fallback(function () {
-    abort(404);
-});
-
 Route::prefix('v1')->group(function () {
+
+    Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
     Route::prefix('auth')->group(function () {
         Route::post('send-otp', [AuthController::class, 'sendOTP'])
@@ -108,4 +107,8 @@ Route::prefix('v1')->group(function () {
         ->middleware('throttle:5,1');
     Route::post('login', [AuthController::class, 'login'])
         ->middleware('throttle:5,1');
+});
+
+Route::fallback(function () {
+    abort(404);
 });

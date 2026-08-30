@@ -19,9 +19,15 @@ class OrderStatusUpdated implements ShouldBroadcast
 
     public function broadcastOn(): array
     {
-        return [
-            new PrivateChannel('user.orders.' . $this->order->user_id),
+        $channels = [
+            new PrivateChannel('admin.orders'),
         ];
+
+        if (!empty($this->order->user_id)) {
+            $channels[] = new PrivateChannel('user.orders.' . $this->order->user_id);
+        }
+
+        return $channels;
     }
 
     public function broadcastWith(): array

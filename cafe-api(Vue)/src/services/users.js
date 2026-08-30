@@ -21,6 +21,6 @@ export async function deleteUser(id) {
 }
 
 export async function getUserLoginStatus() {
-  const response = await api.get('/Dashboard/userLoginStatus')
+  const response = await api.get('/Dashboard/users')
   return response.data
 }

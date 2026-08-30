@@ -1,7 +1,8 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { getOrders, updateOrderStatus } from '@/services/orders'
 import AdminSidebar from '@/components/AdminSidebar.vue'
+import { echo } from '@/services/echo'
 
 const sidebarOpen = ref(localStorage.getItem('admin_sidebar') === '1')
 
@@ -26,19 +27,23 @@ const statusConfig = {
 }
 
 const filteredOrders = computed(() => {
+  if (!Array.isArray(orders.value)) return []
   if (filterStatus.value === 'all') return orders.value
   return orders.value.filter(o => o.status === filterStatus.value)
 })
 
-const stats = computed(() => ({
-  total: orders.value.length,
-  pending: orders.value.filter(o => o.status === 'pending').length,
-  ready: orders.value.filter(o => o.status === 'ready').length,
-  delivered: orders.value.filter(o => o.status === 'delivered').length,
-}))
+const stats = computed(() => {
+  const list = Array.isArray(orders.value) ? orders.value : []
+  return {
+    total: list.length,
+    pending: list.filter(o => o.status === 'pending').length,
+    ready: list.filter(o => o.status === 'ready').length,
+    delivered: list.filter(o => o.status === 'delivered').length,
+  }
+})
 
 function formatPrice(price) {
-  return Math.floor(Number(price)).toLocaleString('fa-IR')
+  return Math.floor(Number(price || 0)).toLocaleString('fa-IR')
 }
 
 function formatTime(date) {
@@ -49,10 +54,20 @@ function formatTime(date) {
 async function loadOrders() {
   loading.value = true
   try {
-    const result = await getOrders()
-    orders.value = result?.data || []
-  } catch {
+    const result = await getOrders({ paginate: false })
+    let data = []
+    if (result && Array.isArray(result.data)) {
+      data = result.data
+    } else if (result && result.data && Array.isArray(result.data.data)) {
+      data = result.data.data
+    } else if (Array.isArray(result)) {
+      data = result
+    }
+    orders.value = data
+  } catch (error) {
+    console.error('Error loading orders:', error)
     showToast('خطا در بارگذاری سفارشات', 'error')
+    orders.value = []
   } finally {
     loading.value = false
   }
@@ -72,6 +87,37 @@ async function changeStatus(orderId, newStatus) {
 
 onMounted(async () => {
   await loadOrders()
+
+  try {
+    echo.private('admin.orders')
+      .listen('OrderCreated', (event) => {
+        if (event.order) {
+          const exists = orders.value.some(o => o.id === event.order.id)
+          if (!exists) {
+            orders.value.unshift(event.order)
+          }
+          showToast(`سفارش جدید #${event.order.id} دریافت شد`, 'success')
+        }
+      })
+      .listen('OrderStatusUpdated', (event) => {
+        if (event.order) {
+          const index = orders.value.findIndex(o => o.id === event.order.id)
+          if (index !== -1) {
+            orders.value[index].status = event.order.status
+          }
+        }
+      })
+  } catch (err) {
+    console.error('Echo connection error:', err)
+  }
+})
+
+onUnmounted(() => {
+  try {
+    echo.leave('admin.orders')
+  } catch (err) {
+    console.error('Echo leave error:', err)
+  }
 })
 
 </script>
