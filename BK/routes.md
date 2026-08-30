@@ -944,7 +944,7 @@ GET /api/v1/Dashboard/admin/orders?status=pending&paginate=true&per_page=10
 
 ---
 
-### PATCH `/Dashboard/admin/orders/{id}/status`
+### PATCH `/Dashboard/admin/orders/{order}/status`
 - **Required permission:** `manage-orders`
 - **Content-Type:** `application/json`
 
@@ -1694,6 +1694,50 @@ All routes in this section also pass through `cafe_open` middleware.
 
 ---
 
+### GET `/cafe/my-orders`
+- **Auth:** `auth:sanctum`
+- **Description:** Returns all orders belonging to the authenticated customer, ordered by newest first.
+
+**Input:** none
+
+**Example response `200`**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 8,
+      "user_id": 2,
+      "table_number": "A5",
+      "status": "pending",
+      "total_amount": "210000.00",
+      "notes": "No cinnamon",
+      "is_out": false,
+      "address": null,
+      "jalali_created_at": "1403/10/11 13:30:00",
+      "created_at": "2025-01-01T10:00:00.000000Z",
+      "updated_at": "2025-01-01T10:00:00.000000Z",
+      "order_items": [
+        {
+          "id": 15,
+          "order_id": 8,
+          "menu_item_id": 12,
+          "quantity": 2,
+          "unit_price": "90000.00",
+          "subtotal": "180000.00",
+          "menu_item": {
+            "id": 12,
+            "name": "Iced Latte"
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+---
+
 ### POST `/cafe/payments/request`
 - **Auth:** `auth:sanctum`
 - **Content-Type:** `application/json`
@@ -1764,6 +1808,80 @@ GET /api/v1/cafe/payments/verify?Authority=A00000000000000000000000000123456789&
 ```text
 {FRONTEND_URL}?payment=failed&message=پرداخت+لغو+شد
 ```
+
+---
+
+## Real-time WebSockets & Laravel Reverb
+
+Laravel Reverb provides a WebSocket backend for real-time events.
+
+### 1. Connecting with Laravel Echo
+
+Install and configure `laravel-echo` and `pusher-js` on the frontend:
+
+```bash
+npm install laravel-echo pusher-js
+```
+
+```javascript
+import Echo from 'laravel-echo'
+import Pusher from 'pusher-js'
+
+window.Pusher = Pusher
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:8000'
+
+export const echo = new Echo({
+  broadcaster: 'reverb',
+  key: import.meta.env.VITE_REVERB_APP_KEY || 'my-cafe-app-key-2024',
+  wsHost: import.meta.env.VITE_REVERB_HOST || '127.0.0.1',
+  wsPort: Number(import.meta.env.VITE_REVERB_PORT || 8080),
+  wssPort: Number(import.meta.env.VITE_REVERB_PORT || 8080),
+  forceTLS: (import.meta.env.VITE_REVERB_SCHEME || 'http') === 'https',
+  enabledTransports: ['ws', 'wss'],
+  authEndpoint: `${API_BASE}/api/v1/broadcasting/auth`,
+  auth: {
+    headers: {
+      get Authorization() {
+        const token = sessionStorage.getItem('access_token') || sessionStorage.getItem('customer_token')
+        return token ? `Bearer ${token}` : ''
+      },
+      Accept: 'application/json',
+    },
+  },
+})
+```
+
+---
+
+### 2. Channels and Events
+
+#### **A. Admin / Staff Orders (`private('admin.orders')`)**
+- **Authorization:** Authenticated users with the `manage-orders` permission (e.g. `super_admin`, `admin`, `waiter`, `chef`).
+- **Events:**
+  - **`OrderCreated`**: Dispatched when a customer creates a new order.
+    ```javascript
+    echo.private('admin.orders').listen('OrderCreated', (event) => {
+      console.log('New Order:', event.order)
+      console.log('Payment details:', event.payment)
+    })
+    ```
+  - **`OrderStatusUpdated`**: Dispatched when an order's status changes (`pending`, `ready`, `delivered`).
+    ```javascript
+    echo.private('admin.orders').listen('OrderStatusUpdated', (event) => {
+      console.log('Updated Order:', event.order)
+    })
+    ```
+
+#### **B. Customer Order Tracking (`private('user.orders.{userId}')`)**
+- **Authorization:** The authenticated customer matching `userId`.
+- **Events:**
+  - **`OrderStatusUpdated`**: Dispatched when their specific order status changes.
+    ```javascript
+    echo.private(`user.orders.${userId}`).listen('OrderStatusUpdated', (event) => {
+      console.log('Your order status updated:', event.order.status)
+    })
+    ```
 
 ---
 
