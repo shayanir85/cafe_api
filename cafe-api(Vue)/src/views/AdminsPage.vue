@@ -9,6 +9,9 @@ const router = useRouter()
 const auth = useAuthStore()
 const sidebarOpen = ref(localStorage.getItem('admin_sidebar') === '1')
 
+// محاسبه margin-right برای هدر و بدنه
+const mainMarginRight = computed(() => sidebarOpen.value ? '320px' : '64px')
+
 if (!auth.isSuperAdmin) {
   router.push(auth.user ? '/dashboard' : '/login')
 }
@@ -343,6 +346,7 @@ function handleKeydown(e) {
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
   loadUsers()
+  window.scrollTo({ top: 0, behavior: 'instant' })
 })
 
 onUnmounted(() => {
@@ -355,10 +359,11 @@ watch([roleFilter, loginFilter], () => {
 </script>
 
 <template>
-  <div class="admins-page" :style="{ paddingRight: sidebarOpen ? '320px' : '64px' }">
+  <div class="admins-page">
     <AdminSidebar v-model="sidebarOpen" />
 
-    <header class="header">
+    <!-- Header Fixed -->
+    <header class="dash-header" :style="{ marginRight: mainMarginRight }">
       <div class="header-content">
         <div class="flex items-center gap-3">
           <router-link to="/dashboard" class="text-white/70 hover:text-white transition-colors">
@@ -402,242 +407,244 @@ watch([roleFilter, loginFilter], () => {
       </div>
     </header>
 
-    <main class="main-body">
-      <!-- Filters -->
-      <div class="filters-bar fade-in-up">
-        <div class="relative flex-1 min-w-[200px]">
-          <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input type="text" placeholder="جستجو بر اساس نام یا ایمیل..." class="filter-input w-full pr-10" v-model="searchQuery" @input="onSearchInput" />
+    <!-- Main Body -->
+    <main class="main-body" :style="{ marginRight: mainMarginRight }">
+      <div class="main-content">
+        <!-- Filters -->
+        <div class="filters-bar fade-in-up">
+          <div class="relative flex-1 min-w-[200px]">
+            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" placeholder="جستجو بر اساس نام یا ایمیل..." class="filter-input w-full pr-10" v-model="searchQuery" @input="onSearchInput" />
+          </div>
+          <select class="filter-input min-w-[150px]" v-model="roleFilter">
+            <option value="">همه نقش‌ها</option>
+            <option value="super_admin">سوپر ادمین</option>
+            <option value="admin">ادمین</option>
+            <option value="user">کاربر</option>
+          </select>
+          <select class="filter-input min-w-[160px]" v-model="loginFilter">
+            <option value="">فیلتر آخرین ورود</option>
+            <option value="today">امروز</option>
+            <option value="week">این هفته</option>
+            <option value="month">این ماه</option>
+            <option value="never">هرگز وارد نشده</option>
+          </select>
         </div>
-        <select class="filter-input min-w-[150px]" v-model="roleFilter">
-          <option value="">همه نقش‌ها</option>
-          <option value="super_admin">سوپر ادمین</option>
-          <option value="admin">ادمین</option>
-          <option value="user">کاربر</option>
-        </select>
-        <select class="filter-input min-w-[160px]" v-model="loginFilter">
-          <option value="">فیلتر آخرین ورود</option>
-          <option value="today">امروز</option>
-          <option value="week">این هفته</option>
-          <option value="month">این ماه</option>
-          <option value="never">هرگز وارد نشده</option>
-        </select>
-      </div>
 
-      <!-- Table -->
-      <div class="content-card fade-in-up">
-        <div class="modern-table-container">
-          <!-- Desktop Table Header -->
-          <div class="user-table-desktop table-header-row">
-            <div class="col-user">
-              <i class="fa-regular fa-user text-xs opacity-60 ml-1.5"></i>
-              <span>کاربر</span>
+        <!-- Table -->
+        <div class="content-card fade-in-up">
+          <div class="modern-table-container">
+            <!-- Desktop Table Header -->
+            <div class="user-table-desktop table-header-row">
+              <div class="col-user">
+                <i class="fa-regular fa-user text-xs opacity-60 ml-1.5"></i>
+                <span>کاربر</span>
+              </div>
+              <div class="col-role">
+                <i class="fa-solid fa-shield-halved text-xs opacity-60 ml-1.5"></i>
+                <span>نقش سیستم</span>
+              </div>
+              <div class="col-login">
+                <i class="fa-regular fa-clock text-xs opacity-60 ml-1.5"></i>
+                <span>آخرین ورود و وضعیت</span>
+              </div>
+              <div class="col-joined">
+                <i class="fa-regular fa-calendar-check text-xs opacity-60 ml-1.5"></i>
+                <span>تاریخ عضویت</span>
+              </div>
+              <div class="col-actions text-left">
+                <span>عملیات</span>
+              </div>
             </div>
-            <div class="col-role">
-              <i class="fa-solid fa-shield-halved text-xs opacity-60 ml-1.5"></i>
-              <span>نقش سیستم</span>
-            </div>
-            <div class="col-login">
-              <i class="fa-regular fa-clock text-xs opacity-60 ml-1.5"></i>
-              <span>آخرین ورود و وضعیت</span>
-            </div>
-            <div class="col-joined">
-              <i class="fa-regular fa-calendar-check text-xs opacity-60 ml-1.5"></i>
-              <span>تاریخ عضویت</span>
-            </div>
-            <div class="col-actions text-left">
-              <span>عملیات</span>
-            </div>
-          </div>
 
-          <!-- Skeleton loader -->
-          <div v-if="loading">
-            <!-- Mobile skeleton -->
-            <div class="user-table-mobile space-y-3 p-3">
-              <div v-for="i in 3" :key="i" class="skeleton-card">
-                <div class="flex items-center gap-3 mb-3">
-                  <div class="skeleton w-12 h-12 rounded-xl flex-shrink-0"></div>
-                  <div class="flex-1">
-                    <div class="skeleton h-4 w-32 rounded mb-2"></div>
-                    <div class="skeleton h-3 w-40 rounded"></div>
+            <!-- Skeleton loader -->
+            <div v-if="loading">
+              <!-- Mobile skeleton -->
+              <div class="user-table-mobile space-y-3 p-3">
+                <div v-for="i in 3" :key="i" class="skeleton-card">
+                  <div class="flex items-center gap-3 mb-3">
+                    <div class="skeleton w-12 h-12 rounded-xl flex-shrink-0"></div>
+                    <div class="flex-1">
+                      <div class="skeleton h-4 w-32 rounded mb-2"></div>
+                      <div class="skeleton h-3 w-40 rounded"></div>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2">
+                    <div><span class="text-[#A3A3A3] text-xs">نقش:</span> <div class="skeleton h-5 w-16 rounded-full inline-block"></div></div>
+                    <div><span class="text-[#A3A3A3] text-xs">آخرین ورود:</span> <div class="skeleton h-4 w-20 inline-block rounded"></div></div>
+                    <div class="col-span-2"><span class="text-[#A3A3A3] text-xs">تاریخ عضویت:</span> <div class="skeleton h-4 w-24 inline-block rounded"></div></div>
+                  </div>
+                  <div class="flex gap-2 mt-3 justify-end">
+                    <div class="skeleton h-9 w-16 rounded-lg"></div>
+                    <div class="skeleton h-9 w-16 rounded-lg"></div>
                   </div>
                 </div>
-                <div class="grid grid-cols-2 gap-2">
-                  <div><span class="text-[#A3A3A3] text-xs">نقش:</span> <div class="skeleton h-5 w-16 rounded-full inline-block"></div></div>
-                  <div><span class="text-[#A3A3A3] text-xs">آخرین ورود:</span> <div class="skeleton h-4 w-20 inline-block rounded"></div></div>
-                  <div class="col-span-2"><span class="text-[#A3A3A3] text-xs">تاریخ عضویت:</span> <div class="skeleton h-4 w-24 inline-block rounded"></div></div>
-                </div>
-                <div class="flex gap-2 mt-3 justify-end">
-                  <div class="skeleton h-9 w-16 rounded-lg"></div>
-                  <div class="skeleton h-9 w-16 rounded-lg"></div>
+              </div>
+              <!-- Desktop skeleton -->
+              <div class="user-table-desktop-container">
+                <div v-for="i in 3" :key="i" class="modern-user-row">
+                  <div class="col-user flex items-center gap-3">
+                    <div class="skeleton w-11 h-11 rounded-xl flex-shrink-0"></div>
+                    <div class="flex flex-col gap-2 flex-1">
+                      <div class="skeleton h-4 w-28 rounded"></div>
+                      <div class="skeleton h-3 w-36 rounded"></div>
+                    </div>
+                  </div>
+                  <div class="col-role"><div class="skeleton h-7 w-24 rounded-full"></div></div>
+                  <div class="col-login"><div class="skeleton h-4 w-32 rounded"></div></div>
+                  <div class="col-joined"><div class="skeleton h-4 w-24 rounded"></div></div>
+                  <div class="col-actions flex gap-2 justify-end">
+                    <div class="skeleton h-9 w-9 rounded-xl"></div>
+                    <div class="skeleton h-9 w-9 rounded-xl"></div>
+                  </div>
                 </div>
               </div>
             </div>
-            <!-- Desktop skeleton -->
-            <div class="user-table-desktop-container">
-              <div v-for="i in 3" :key="i" class="modern-user-row">
-                <div class="col-user flex items-center gap-3">
-                  <div class="skeleton w-11 h-11 rounded-xl flex-shrink-0"></div>
-                  <div class="flex flex-col gap-2 flex-1">
-                    <div class="skeleton h-4 w-28 rounded"></div>
-                    <div class="skeleton h-3 w-36 rounded"></div>
+
+            <!-- Empty state -->
+            <div v-else-if="filteredUsers.length === 0" class="empty-state">
+              <div class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-3 text-white/30">
+                <i class="fa-solid fa-user-slash text-2xl"></i>
+              </div>
+              <p class="text-white font-medium text-base mb-1">هیچ کاربری یافت نشد</p>
+              <p class="text-white/40 text-xs">می‌توانید فیلترها یا عبارت جستجو را تغییر دهید</p>
+            </div>
+
+            <!-- User rows -->
+            <div v-else class="user-rows-wrapper">
+              <template v-for="u in paginatedUsers" :key="u.id">
+                <!-- Mobile card -->
+                <div class="user-table-mobile modern-user-card">
+                  <div class="flex items-start justify-between gap-3 mb-3">
+                    <div class="flex items-center gap-3">
+                      <div class="user-avatar-glow flex-shrink-0" :style="{ background: `linear-gradient(135deg, ${avatarColor(u.id)[0]}, ${avatarColor(u.id)[1]})` }">
+                        {{ (u.name || u.email || '?').slice(0, 2).toUpperCase() }}
+                      </div>
+                      <div>
+                        <div class="font-bold text-white text-base flex items-center gap-2">
+                          <span>{{ u.name || 'کاربر بدون نام' }}</span>
+                          <span v-if="u.id === auth.user?.id" class="self-badge">شما</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-xs text-white/50 mt-0.5" dir="ltr">
+                          <i v-if="u.email" class="fa-regular fa-envelope text-[11px] opacity-70"></i>
+                          <span v-if="u.email">{{ u.email }}</span>
+                          <span v-if="u.email && u.phone" class="opacity-30">•</span>
+                          <i v-if="u.phone" class="fa-solid fa-phone text-[10px] opacity-70"></i>
+                          <span v-if="u.phone">{{ u.phone }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <span class="role-pill" :class="roleLabel(u.role).cls">
+                      <i :class="u.role === 'super_admin' ? 'fa-solid fa-crown' : (u.role === 'admin' ? 'fa-solid fa-shield-halved' : 'fa-regular fa-user')"></i>
+                      {{ roleLabel(u.role).text }}
+                    </span>
+                  </div>
+
+                  <div class="mobile-meta-grid">
+                    <div class="meta-item">
+                      <span class="meta-label">آخرین ورود</span>
+                      <span class="meta-val flex items-center gap-1.5">
+                        <span class="status-indicator-dot" :class="u.last_login ? 'active' : 'offline'"></span>
+                        {{ formatDate(u.last_login) }}
+                      </span>
+                    </div>
+                    <div class="meta-item">
+                      <span class="meta-label">تاریخ عضویت</span>
+                      <span class="meta-val">{{ formatJoinDate(u.created_at) }}</span>
+                    </div>
+                  </div>
+
+                  <div class="mobile-card-footer">
+                    <button class="action-btn-modern edit-btn flex-1" @click="openEditModal(u.id)">
+                      <i class="fa-regular fa-pen-to-square"></i>
+                      <span>ویرایش اطلاعات</span>
+                    </button>
+                    <button
+                      class="action-btn-modern delete-btn"
+                      :class="{ 'opacity-30 cursor-not-allowed': u.id === auth.user?.id }"
+                      :disabled="u.id === auth.user?.id"
+                      @click="openDeleteConfirm(u.id, u.name || u.email)"
+                      :title="u.id === auth.user?.id ? 'حذف حساب شخصی ممکن نیست' : 'حذف'">
+                      <i class="fa-regular fa-trash-can"></i>
+                    </button>
                   </div>
                 </div>
-                <div class="col-role"><div class="skeleton h-7 w-24 rounded-full"></div></div>
-                <div class="col-login"><div class="skeleton h-4 w-32 rounded"></div></div>
-                <div class="col-joined"><div class="skeleton h-4 w-24 rounded"></div></div>
-                <div class="col-actions flex gap-2 justify-end">
-                  <div class="skeleton h-9 w-9 rounded-xl"></div>
-                  <div class="skeleton h-9 w-9 rounded-xl"></div>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <!-- Empty state -->
-          <div v-else-if="filteredUsers.length === 0" class="empty-state">
-            <div class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-3 text-white/30">
-              <i class="fa-solid fa-user-slash text-2xl"></i>
-            </div>
-            <p class="text-white font-medium text-base mb-1">هیچ کاربری یافت نشد</p>
-            <p class="text-white/40 text-xs">می‌توانید فیلترها یا عبارت جستجو را تغییر دهید</p>
-          </div>
-
-          <!-- User rows -->
-          <div v-else class="user-rows-wrapper">
-            <template v-for="u in paginatedUsers" :key="u.id">
-              <!-- Mobile card -->
-              <div class="user-table-mobile modern-user-card">
-                <div class="flex items-start justify-between gap-3 mb-3">
-                  <div class="flex items-center gap-3">
+                <!-- Desktop row -->
+                <div class="user-table-desktop modern-user-row">
+                  <!-- User Col -->
+                  <div class="col-user flex items-center gap-3.5 min-w-0">
                     <div class="user-avatar-glow flex-shrink-0" :style="{ background: `linear-gradient(135deg, ${avatarColor(u.id)[0]}, ${avatarColor(u.id)[1]})` }">
                       {{ (u.name || u.email || '?').slice(0, 2).toUpperCase() }}
                     </div>
-                    <div>
-                      <div class="font-bold text-white text-base flex items-center gap-2">
-                        <span>{{ u.name || 'کاربر بدون نام' }}</span>
+                    <div class="min-w-0 flex flex-col justify-center">
+                      <div class="flex items-center gap-2">
+                        <span class="font-bold text-white text-sm tracking-tight truncate hover:text-[#D4A373] transition-colors">
+                          {{ u.name || 'کاربر بدون نام' }}
+                        </span>
                         <span v-if="u.id === auth.user?.id" class="self-badge">شما</span>
                       </div>
-                      <div class="flex items-center gap-1.5 text-xs text-white/50 mt-0.5" dir="ltr">
-                        <i v-if="u.email" class="fa-regular fa-envelope text-[11px] opacity-70"></i>
-                        <span v-if="u.email">{{ u.email }}</span>
-                        <span v-if="u.email && u.phone" class="opacity-30">•</span>
-                        <i v-if="u.phone" class="fa-solid fa-phone text-[10px] opacity-70"></i>
-                        <span v-if="u.phone">{{ u.phone }}</span>
+                      <div class="flex items-center gap-2 mt-0.5 text-xs text-white/50" dir="ltr">
+                        <div v-if="u.email" class="flex items-center gap-1 truncate" title="ایمیل">
+                          <i class="fa-regular fa-envelope text-[10px] text-white/40"></i>
+                          <span class="truncate">{{ u.email }}</span>
+                        </div>
+                        <span v-if="u.email && u.phone" class="text-white/20">•</span>
+                        <div v-if="u.phone" class="flex items-center gap-1 text-white/40 truncate font-mono text-[11px]" title="شماره تماس">
+                          <i class="fa-solid fa-phone text-[9px] opacity-60"></i>
+                          <span>{{ u.phone }}</span>
+                        </div>
+                        <div v-if="!u.email && !u.phone" class="text-white/30 text-[11px]">اطلاعات تماس ثبت نشده</div>
                       </div>
                     </div>
                   </div>
-                  <span class="role-pill" :class="roleLabel(u.role).cls">
-                    <i :class="u.role === 'super_admin' ? 'fa-solid fa-crown' : (u.role === 'admin' ? 'fa-solid fa-shield-halved' : 'fa-regular fa-user')"></i>
-                    {{ roleLabel(u.role).text }}
-                  </span>
-                </div>
 
-                <div class="mobile-meta-grid">
-                  <div class="meta-item">
-                    <span class="meta-label">آخرین ورود</span>
-                    <span class="meta-val flex items-center gap-1.5">
-                      <span class="status-indicator-dot" :class="u.last_login ? 'active' : 'offline'"></span>
-                      {{ formatDate(u.last_login) }}
+                  <!-- Role Col -->
+                  <div class="col-role">
+                    <span class="role-pill" :class="roleLabel(u.role).cls">
+                      <i :class="u.role === 'super_admin' ? 'fa-solid fa-crown' : (u.role === 'admin' ? 'fa-solid fa-shield-halved' : 'fa-regular fa-user')"></i>
+                      <span>{{ roleLabel(u.role).text }}</span>
                     </span>
                   </div>
-                  <div class="meta-item">
-                    <span class="meta-label">تاریخ عضویت</span>
-                    <span class="meta-val">{{ formatJoinDate(u.created_at) }}</span>
-                  </div>
-                </div>
 
-                <div class="mobile-card-footer">
-                  <button class="action-btn-modern edit-btn flex-1" @click="openEditModal(u.id)">
-                    <i class="fa-regular fa-pen-to-square"></i>
-                    <span>ویرایش اطلاعات</span>
-                  </button>
-                  <button
-                    class="action-btn-modern delete-btn"
-                    :class="{ 'opacity-30 cursor-not-allowed': u.id === auth.user?.id }"
-                    :disabled="u.id === auth.user?.id"
-                    @click="openDeleteConfirm(u.id, u.name || u.email)"
-                    :title="u.id === auth.user?.id ? 'حذف حساب شخصی ممکن نیست' : 'حذف'">
-                    <i class="fa-regular fa-trash-can"></i>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Desktop row -->
-              <div class="user-table-desktop modern-user-row">
-                <!-- User Col -->
-                <div class="col-user flex items-center gap-3.5 min-w-0">
-                  <div class="user-avatar-glow flex-shrink-0" :style="{ background: `linear-gradient(135deg, ${avatarColor(u.id)[0]}, ${avatarColor(u.id)[1]})` }">
-                    {{ (u.name || u.email || '?').slice(0, 2).toUpperCase() }}
-                  </div>
-                  <div class="min-w-0 flex flex-col justify-center">
+                  <!-- Last Login Col -->
+                  <div class="col-login">
                     <div class="flex items-center gap-2">
-                      <span class="font-bold text-white text-sm tracking-tight truncate hover:text-[#D4A373] transition-colors">
-                        {{ u.name || 'کاربر بدون نام' }}
-                      </span>
-                      <span v-if="u.id === auth.user?.id" class="self-badge">شما</span>
-                    </div>
-                    <div class="flex items-center gap-2 mt-0.5 text-xs text-white/50" dir="ltr">
-                      <div v-if="u.email" class="flex items-center gap-1 truncate" title="ایمیل">
-                        <i class="fa-regular fa-envelope text-[10px] text-white/40"></i>
-                        <span class="truncate">{{ u.email }}</span>
-                      </div>
-                      <span v-if="u.email && u.phone" class="text-white/20">•</span>
-                      <div v-if="u.phone" class="flex items-center gap-1 text-white/40 truncate font-mono text-[11px]" title="شماره تماس">
-                        <i class="fa-solid fa-phone text-[9px] opacity-60"></i>
-                        <span>{{ u.phone }}</span>
-                      </div>
-                      <div v-if="!u.email && !u.phone" class="text-white/30 text-[11px]">اطلاعات تماس ثبت نشده</div>
+                      <span class="status-indicator-dot" :class="u.last_login ? 'active' : 'offline'" :title="u.last_login ? 'فعال' : 'غیرفعال'"></span>
+                      <span v-if="u.last_login" class="text-white/80 text-xs font-medium">{{ formatDate(u.last_login) }}</span>
+                      <span v-else class="never-login-badge">هرگز وارد نشده</span>
                     </div>
                   </div>
-                </div>
 
-                <!-- Role Col -->
-                <div class="col-role">
-                  <span class="role-pill" :class="roleLabel(u.role).cls">
-                    <i :class="u.role === 'super_admin' ? 'fa-solid fa-crown' : (u.role === 'admin' ? 'fa-solid fa-shield-halved' : 'fa-regular fa-user')"></i>
-                    <span>{{ roleLabel(u.role).text }}</span>
-                  </span>
-                </div>
+                  <!-- Joined Col -->
+                  <div class="col-joined">
+                    <span class="text-white/60 text-xs font-medium">{{ formatJoinDate(u.created_at) }}</span>
+                  </div>
 
-                <!-- Last Login Col -->
-                <div class="col-login">
-                  <div class="flex items-center gap-2">
-                    <span class="status-indicator-dot" :class="u.last_login ? 'active' : 'offline'" :title="u.last_login ? 'فعال' : 'غیرفعال'"></span>
-                    <span v-if="u.last_login" class="text-white/80 text-xs font-medium">{{ formatDate(u.last_login) }}</span>
-                    <span v-else class="never-login-badge">هرگز وارد نشده</span>
+                  <!-- Actions Col -->
+                  <div class="col-actions flex items-center justify-end gap-1.5">
+                    <button class="action-btn-modern edit-btn" @click="openEditModal(u.id)" title="ویرایش اطلاعات">
+                      <i class="fa-regular fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      class="action-btn-modern delete-btn"
+                      :class="{ 'opacity-25 cursor-not-allowed': u.id === auth.user?.id }"
+                      :disabled="u.id === auth.user?.id"
+                      @click="openDeleteConfirm(u.id, u.name || u.email)"
+                      :title="u.id === auth.user?.id ? 'حذف حساب شخصی مجاز نیست' : 'حذف کاربر'">
+                      <i class="fa-regular fa-trash-can"></i>
+                    </button>
                   </div>
                 </div>
-
-                <!-- Joined Col -->
-                <div class="col-joined">
-                  <span class="text-white/60 text-xs font-medium">{{ formatJoinDate(u.created_at) }}</span>
-                </div>
-
-                <!-- Actions Col -->
-                <div class="col-actions flex items-center justify-end gap-1.5">
-                  <button class="action-btn-modern edit-btn" @click="openEditModal(u.id)" title="ویرایش اطلاعات">
-                    <i class="fa-regular fa-pen-to-square"></i>
-                  </button>
-                  <button
-                    class="action-btn-modern delete-btn"
-                    :class="{ 'opacity-25 cursor-not-allowed': u.id === auth.user?.id }"
-                    :disabled="u.id === auth.user?.id"
-                    @click="openDeleteConfirm(u.id, u.name || u.email)"
-                    :title="u.id === auth.user?.id ? 'حذف حساب شخصی مجاز نیست' : 'حذف کاربر'">
-                    <i class="fa-regular fa-trash-can"></i>
-                  </button>
-                </div>
-              </div>
-            </template>
+              </template>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Pagination -->
-      <div v-if="filteredUsers.length > 0" class="flex items-center justify-between mt-5">
+        <!-- Pagination -->
+        <div v-if="filteredUsers.length > 0" class="flex items-center justify-between mt-5">
           <div class="text-sm text-white/50">{{ paginationInfo }}</div>
           <div class="flex gap-2">
             <button class="page-btn" :disabled="currentPage === 1" @click="currentPage--">
@@ -656,7 +663,7 @@ watch([roleFilter, loginFilter], () => {
             </button>
           </div>
         </div>
-
+      </div>
     </main>
 
     <!-- Edit Modal -->
@@ -859,77 +866,247 @@ watch([roleFilter, loginFilter], () => {
 
 html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
 
-/* ===== HEADER ===== */
-.header {
-  position: sticky; top: 0; z-index: 50;
-  background: rgba(26,26,26,0.95); backdrop-filter: blur(20px);
+/* ===== HEADER (FIXED) ===== */
+.dash-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: rgba(26, 26, 26, 0.95);
+  backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-primary);
   transition: margin-right 0.3s ease;
 }
-.header-content {
-  max-width: 1400px; margin: 0 auto; padding: 12px 16px;
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-}
-@media (min-width: 768px) { .header-content { padding: 16px 24px; } }
-@media (max-width: 767px) {
-  .header-content { flex-direction: column; align-items: stretch; }
-  .stats-wrapper { order: 1; margin: 8px 0; }
-  .header-right { order: 2; justify-content: center; }
-}
-.header-title { font-size: 17px; font-weight: 700; color: white; display: flex; align-items: center; gap: 8px; }
-@media (min-width: 640px) { .header-title { font-size: 20px; gap: 10px; } }
-.stats-wrapper { display: flex; align-items: center; justify-content: center; flex: 1; }
-.stats-bar {
-  display: flex; align-items: center; justify-content: center;
-  gap: 8px; padding: 6px 12px;
-  background: rgba(255,255,255,0.03);
-  border-radius: 48px;
-  flex-wrap: wrap;
-}
-@media (min-width: 640px) { .stats-bar { gap: 16px; padding: 6px 20px; } }
-.stat-item { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-@media (max-width: 480px) { .stat-item { gap: 4px; } }
-.stat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.stat-dot.blue { background: #60a5fa; box-shadow: 0 0 6px rgba(96,165,250,0.5); }
-.stat-dot.green { background: #34d399; box-shadow: 0 0 6px rgba(52,211,153,0.5); }
-.stat-dot.gold { background: #D4A373; box-shadow: 0 0 6px rgba(212,163,115,0.5); }
-.stat-count { font-size: 14px; font-weight: 700; color: white; min-width: 28px; text-align: center; }
-@media (min-width: 640px) { .stat-count { font-size: 16px; min-width: 32px; } }
-.stat-text { font-size: 10px; color: rgba(255,255,255,0.6); }
-@media (min-width: 640px) { .stat-text { font-size: 11px; } }
-.stat-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.1); }
-@media (min-width: 640px) { .stat-divider { height: 20px; } }
 
-/* ===== BUTTONS ===== */
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  padding: 8px 12px; border-radius: 10px; font-weight: 600; font-size: 12px;
-  cursor: pointer; transition: all 0.3s ease; border: none; white-space: nowrap;
+.header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
 }
-@media (min-width: 640px) { .btn { padding: 10px 20px; font-size: 14px; border-radius: 12px; gap: 8px; } }
-.btn-primary {
-  background: linear-gradient(135deg, #C69C6D, #B28C56); color: white;
-  box-shadow: 0 4px 15px rgba(198,156,109,0.3);
+
+@media (min-width: 768px) {
+  .header-content {
+    padding: 16px 24px;
+  }
 }
-@media (hover: hover) { .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(198,156,109,0.4); } }
-.btn-secondary {
-  background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.1);
+
+@media (max-width: 767px) {
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .stats-wrapper {
+    order: 1;
+    margin: 8px 0;
+  }
+  .header-right {
+    order: 2;
+    justify-content: center;
+  }
 }
-@media (hover: hover) { .btn-secondary:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.2); } }
-.header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-@media (max-width: 480px) { .header-right { gap: 5px; } }
+
+.header-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .header-title {
+    font-size: 20px;
+    gap: 10px;
+  }
+}
 
 /* ===== MAIN BODY ===== */
 .main-body {
+  padding-top: 70px;
+  transition: margin-right 0.3s ease;
+  min-height: 100vh;
+}
+
+.main-content {
+  max-width: 1400px;
+  margin: 0 auto;
   padding: 24px;
   padding-bottom: 24px;
-  transition: all 0.3s ease;
 }
-@media (min-width: 1024px) { .main-body { padding: 32px; } }
+
+@media (min-width: 1024px) {
+  .main-content {
+    padding: 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 16px;
+  }
+}
+
+/* ===== STATS BAR ===== */
+.stats-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.stats-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 48px;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 640px) {
+  .stats-bar {
+    gap: 16px;
+    padding: 6px 20px;
+  }
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.stat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.stat-dot.blue {
+  background: #60a5fa;
+  box-shadow: 0 0 6px rgba(96, 165, 250, 0.5);
+}
+.stat-dot.green {
+  background: #34d399;
+  box-shadow: 0 0 6px rgba(52, 211, 153, 0.5);
+}
+.stat-dot.gold {
+  background: #D4A373;
+  box-shadow: 0 0 6px rgba(212, 163, 115, 0.5);
+}
+
+.stat-count {
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  min-width: 28px;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .stat-count {
+    font-size: 16px;
+    min-width: 32px;
+  }
+}
+
+.stat-text {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.stat-divider {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@media (min-width: 640px) {
+  .stat-divider {
+    height: 20px;
+  }
+}
+
+/* ===== HEADER RIGHT ===== */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .header-right {
+    gap: 5px;
+  }
+  .btn-text {
+    display: none;
+  }
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 12px;
+    gap: 8px;
+  }
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #C69C6D, #B28C56);
+  color: white;
+  box-shadow: 0 4px 15px rgba(198, 156, 109, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(198, 156, 109, 0.4);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+}
 
 /* ===== FILTERS ===== */
 .filters-bar {
-  display: flex; flex-wrap: wrap; gap: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   margin-bottom: 20px;
   padding: 16px;
   background: var(--bg-card);
@@ -937,8 +1114,38 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
   border-radius: 16px;
   backdrop-filter: blur(var(--blur-amount));
 }
+
 @media (max-width: 768px) {
-  .filters-bar { padding: 12px; }
+  .filters-bar {
+    padding: 12px;
+  }
+}
+
+.filter-input {
+  background: rgba(30, 30, 30, 0.6);
+  border: 1px solid #333333;
+  border-radius: var(--radius-default);
+  padding: 10px 16px;
+  color: white;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.filter-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.filter-input:focus {
+  border-color: rgba(198, 156, 109, 0.6);
+  background: rgba(30, 30, 30, 0.8);
+  box-shadow: 0 0 0 3px rgba(198, 156, 109, 0.15);
+}
+
+.filter-input option {
+  background: #1A1A1A;
+  color: white;
 }
 
 /* ===== CONTENT CARD ===== */
@@ -952,13 +1159,25 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
 
 /* ===== KEYFRAMES ===== */
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes shimmer {
@@ -1217,82 +1436,143 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
   height: 38px;
 }
 
-/* ===== ROLE BADGES ===== */
-.role-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 3px 10px; border-radius: 20px; font-size: 11px;
-  font-weight: 600; white-space: nowrap;
-}
-.role-super_admin { background: rgba(198,156,109,0.2); color: #D4A373; border: 1px solid rgba(198,156,109,0.3); }
-.role-admin { background: rgba(198,156,109,0.15); color: #C69C6D; border: 1px solid rgba(198,156,109,0.2); }
-.role-user { background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); }
-
 /* ===== SKELETON ===== */
 .skeleton {
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%);
-  background-size: 1000px 100%; animation: shimmer 1.5s infinite; border-radius: 8px;
+  background-size: 1000px 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
 }
 .skeleton-card {
-  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px; padding: 16px; margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
 }
 .skeleton-card:last-child { margin-bottom: 0; }
-.skeleton.w-10 { width: 40px; } .skeleton.w-12 { width: 48px; } .skeleton.w-16 { width: 64px; }
-.skeleton.w-14 { width: 56px; } .skeleton.w-18 { width: 72px; } .skeleton.w-20 { width: 80px; }
-.skeleton.w-22 { width: 88px; } .skeleton.w-24 { width: 96px; } .skeleton.w-26 { width: 104px; }
-.skeleton.w-28 { width: 112px; } .skeleton.w-32 { width: 128px; } .skeleton.w-36 { width: 144px; }
-.skeleton.h-3 { height: 12px; } .skeleton.h-3\.5 { height: 14px; } .skeleton.h-4 { height: 16px; }
-.skeleton.h-5 { height: 20px; } .skeleton.h-6 { height: 24px; } .skeleton.h-8 { height: 32px; }
+.skeleton.w-10 { width: 40px; }
+.skeleton.w-12 { width: 48px; }
+.skeleton.w-16 { width: 64px; }
+.skeleton.w-14 { width: 56px; }
+.skeleton.w-18 { width: 72px; }
+.skeleton.w-20 { width: 80px; }
+.skeleton.w-22 { width: 88px; }
+.skeleton.w-24 { width: 96px; }
+.skeleton.w-26 { width: 104px; }
+.skeleton.w-28 { width: 112px; }
+.skeleton.w-32 { width: 128px; }
+.skeleton.w-36 { width: 144px; }
+.skeleton.h-3 { height: 12px; }
+.skeleton.h-3\.5 { height: 14px; }
+.skeleton.h-4 { height: 16px; }
+.skeleton.h-5 { height: 20px; }
+.skeleton.h-6 { height: 24px; }
+.skeleton.h-8 { height: 32px; }
 .skeleton.h-9 { height: 36px; }
-.skeleton.rounded { border-radius: 8px; } .skeleton.rounded-full { border-radius: 9999px; }
-.skeleton.rounded-lg { border-radius: 12px; } .skeleton.rounded-xl { border-radius: 16px; }
+.skeleton.rounded { border-radius: 8px; }
+.skeleton.rounded-full { border-radius: 9999px; }
+.skeleton.rounded-lg { border-radius: 12px; }
+.skeleton.rounded-xl { border-radius: 16px; }
 
-/* ===== FILTERS ===== */
-.filter-input {
-  background: rgba(30,30,30,0.6); border: 1px solid #333333;
-  border-radius: var(--radius-default); padding: 10px 16px; color: white;
-  font-size: 14px; outline: none; transition: all 0.2s ease; width: 100%;
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #A3A3A3;
 }
-.filter-input::placeholder { color: rgba(255, 255, 255, 0.4); }
-.filter-input:focus { border-color: rgba(198,156,109,0.6); background: rgba(30,30,30,0.8); box-shadow: 0 0 0 3px rgba(198,156,109,0.15); }
-.filter-input option { background: #1A1A1A; color: white; }
 
-/* ===== BUTTONS ===== */
-.btn-action {
-  padding: 6px 14px; border-radius: 10px; font-size: 13px; font-weight: 500;
-  cursor: pointer; transition: all 0.2s ease; border: none;
-  display: inline-flex; align-items: center; gap: 5px;
+/* ===== PAGINATION ===== */
+.page-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #333333;
+  color: #A3A3A3;
+  background: rgba(30, 30, 30, 0.6);
 }
-.btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn-edit { background: rgba(198,156,109,0.2); color: #D4A373; border: 1px solid rgba(198,156,109,0.3); }
-@media (hover: hover) { .btn-edit:hover:not(:disabled) { background: rgba(198,156,109,0.35); transform: translateY(-1px); } }
-.btn-delete { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
-@media (hover: hover) { .btn-delete:hover:not(:disabled) { background: rgba(239, 68, 68, 0.35); transform: translateY(-1px); } }
+
+.page-btn:hover:not(:disabled):not(.cursor-default) {
+  background: rgba(198, 156, 109, 0.2);
+  color: #D4A373;
+  border-color: rgba(198, 156, 109, 0.3);
+}
+
+.page-btn.active {
+  background: linear-gradient(135deg, #C69C6D, #B28C56);
+  color: white;
+  border-color: transparent;
+}
+
+.page-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
 
 /* ===== MODAL ===== */
 .modal-overlay {
-  display: flex; position: fixed; inset: 0;
-  background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px); z-index: var(--z-modal);
-  align-items: center; justify-content: center;
+  display: flex;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: var(--z-modal);
+  align-items: center;
+  justify-content: center;
 }
+
 .modal-box {
   background: linear-gradient(135deg, #1A1A1A, #0F0F0F);
   border: 1px solid #333333;
-  border-radius: 24px; padding: 32px; width: 90%; max-width: 480px;
+  border-radius: 24px;
+  padding: 32px;
+  width: 90%;
+  max-width: 480px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
   animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .modal-input {
-  width: 100%; background: rgba(30,30,30,0.6);
+  width: 100%;
+  background: rgba(30, 30, 30, 0.6);
   border: 1px solid #333333;
-  border-radius: var(--radius-default); padding: 11px 14px; color: white;
-  font-size: 14px; outline: none; transition: all 0.2s ease; margin-top: 6px;
+  border-radius: var(--radius-default);
+  padding: 11px 14px;
+  color: white;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  margin-top: 6px;
 }
-.modal-input::placeholder { color: rgba(255, 255, 255, 0.3); }
-.modal-input:focus { border-color: rgba(198,156,109,0.6); background: rgba(30,30,30,0.8); box-shadow: 0 0 0 3px rgba(198,156,109,0.15); }
-.modal-input option { background: #1A1A1A; color: white; }
-.modal-label { color: rgba(255, 255, 255, 0.7); font-size: 13px; font-weight: 500; padding-top: 10px;}
+
+.modal-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.modal-input:focus {
+  border-color: rgba(198, 156, 109, 0.6);
+  background: rgba(30, 30, 30, 0.8);
+  box-shadow: 0 0 0 3px rgba(198, 156, 109, 0.15);
+}
+
+.modal-input option {
+  background: #1A1A1A;
+  color: white;
+}
+
+.modal-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 500;
+  padding-top: 10px;
+}
 
 .modal-actions {
   padding: 15px;
@@ -1301,100 +1581,116 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
 }
 
 .modal-btn {
-  flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: all 0.25s ease; border: none;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: none;
 }
 
 .modal-btn-cancel {
-  background: rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
-@media (hover: hover) {
-  .modal-btn-cancel:hover {
-    background: rgba(255, 255, 255, 0.1); color: white;
-    border-color: rgba(255, 255, 255, 0.15);
-  }
+
+.modal-btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .modal-btn-primary {
   background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-  color: white; box-shadow: 0 4px 15px rgba(198, 156, 109, 0.25);
+  color: white;
+  box-shadow: 0 4px 15px rgba(198, 156, 109, 0.25);
 }
-@media (hover: hover) {
-  .modal-btn-primary:hover:not(:disabled) {
-    transform: translateY(-1px); box-shadow: 0 6px 20px rgba(198, 156, 109, 0.35);
-  }
+
+.modal-btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(198, 156, 109, 0.35);
 }
-.modal-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.modal-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
 
 .modal-btn-danger {
   background: linear-gradient(135deg, #dc2626, #b91c1c);
-  color: white; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.25);
+  color: white;
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.25);
 }
-@media (hover: hover) {
-  .modal-btn-danger:hover {
-    transform: translateY(-1px); box-shadow: 0 6px 20px rgba(220, 38, 38, 0.35);
-  }
+
+.modal-btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.35);
 }
 
 /* ===== CONFIRM ===== */
 .confirm-overlay {
-  display: flex; position: fixed; inset: 0;
-  background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px); z-index: var(--z-confirm);
-  align-items: center; justify-content: center;
+  display: flex;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: var(--z-confirm);
+  align-items: center;
+  justify-content: center;
 }
+
 .confirm-box {
   background: linear-gradient(135deg, #1A1A1A, #0F0F0F);
   border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 20px; padding: 28px; width: 90%; max-width: 380px;
-  text-align: center; animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 20px;
+  padding: 28px;
+  width: 90%;
+  max-width: 380px;
+  text-align: center;
+  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ===== TOAST ===== */
 .toast {
-  position: fixed; bottom: 24px; left: 24px; z-index: var(--z-toast);
-  padding: 14px 20px; border-radius: 14px; font-size: 14px; font-weight: 500;
-  display: flex; align-items: center; gap: 10px;
-  animation: fadeInUp 0.3s ease; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease; transform: translateY(100px); opacity: 0;
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: var(--z-toast);
+  padding: 14px 20px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: fadeInUp 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  transform: translateY(100px);
+  opacity: 0;
 }
-.toast.show { transform: translateY(0); opacity: 1; }
-.toast-success { background: linear-gradient(135deg, #059669, #047857); color: white; }
-.toast-error { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; }
 
-/* ===== USER AVATAR (desktop) ===== */
-.user-avatar {
-  width: 38px; height: 38px; border-radius: var(--radius-default);
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 14px; flex-shrink: 0; color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
 }
-.empty-state { text-align: center; padding: 60px 20px; color: #A3A3A3; }
 
-/* ===== PAGINATION ===== */
-.page-btn {
-  width: 34px; height: 34px; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; cursor: pointer; transition: all 0.2s ease;
-  border: 1px solid #333333; color: #A3A3A3;
-  background: rgba(30,30,30,0.6);
+.toast-success {
+  background: linear-gradient(135deg, #059669, #047857);
+  color: white;
 }
-@media (hover: hover) {
-  .page-btn:hover:not(:disabled):not(.cursor-default) {
-    background: rgba(198,156,109,0.2); color: #D4A373;
-    border-color: rgba(198,156,109,0.3);
-  }
-}
-.page-btn.active {
-  background: linear-gradient(135deg, #C69C6D, #B28C56);
-  color: white; border-color: transparent;
-}
-.page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-@media (max-width: 480px) {
-  .user-card-details { grid-template-columns: 1fr; gap: 4px; }
-  .user-card-detail-label { display: inline-block; width: 80px; }
+.toast-error {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
 }
 </style>
