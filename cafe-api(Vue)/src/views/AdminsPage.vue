@@ -366,11 +366,9 @@ watch([roleFilter, loginFilter], () => {
     <header class="dash-header" :style="{ marginRight: mainMarginRight }">
       <div class="header-content">
         <div class="flex items-center gap-3">
-          <router-link to="/dashboard" class="text-white/70 hover:text-white transition-colors">
-            <i class="fa-solid fa-arrow-right text-lg"></i>
-          </router-link>
           <h1 class="header-title">
-            <i class="fa-solid fa-users-gear"></i> مدیریت ادمین‌ها
+            <i class="fa-solid fa-users-gear header-icon"></i>
+            <span>مدیریت ادمین‌ها</span>
           </h1>
         </div>
         <div class="stats-wrapper">
@@ -400,7 +398,7 @@ watch([roleFilter, loginFilter], () => {
             <span class="btn-text">بروزرسانی</span>
           </button>
           <button class="btn btn-primary" @click="openAddModal">
-            <i class="fa-solid fa-plus"></i>
+            <i class="fa-solid fa-user-plus"></i>
             <span class="btn-text">افزودن ادمین</span>
           </button>
         </div>
@@ -854,10 +852,11 @@ watch([roleFilter, loginFilter], () => {
   --blur-amount: 20px;
   --radius-default: 12px;
 }
+</style>
 
-* { font-family: 'Vazirmatn', system-ui, sans-serif; }
-
+<style scoped>
 .admins-page {
+  font-family: 'Vazirmatn', system-ui, sans-serif;
   background: var(--bg-primary);
   min-height: 100vh;
   min-height: 100dvh;
@@ -920,10 +919,18 @@ html { overflow-y: auto; height: auto; scroll-behavior: smooth; }
   gap: 8px;
 }
 
+.header-icon {
+  color: #f59e0b;
+  font-size: 18px;
+}
+
 @media (min-width: 640px) {
   .header-title {
     font-size: 20px;
     gap: 10px;
+  }
+  .header-icon {
+    font-size: 20px;
   }
 }
 

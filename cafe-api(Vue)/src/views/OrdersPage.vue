@@ -176,16 +176,15 @@ onUnmounted(() => {
     <header class="header">
       <div class="header-content">
         <div class="flex items-center gap-3">
-          <router-link to="/dashboard" class="text-white/70 hover:text-white transition-colors">
-            <i class="fa-solid fa-arrow-right text-lg"></i>
-          </router-link>
-          <h1 class="header-title font-bold text-white">
-            <i class="fa-solid fa-utensils ml-2"></i>مدیریت سفارشات
+          <h1 class="header-title">
+            <i class="fa-solid fa-receipt header-icon"></i>
+            <span>مدیریت سفارشات</span>
           </h1>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
           <button class="btn btn-secondary" @click="loadOrders(); showToast('لیست به‌روزرسانی شد')">
-            <i class="fa-solid fa-rotate hidden sm:inline"></i>بروزرسانی
+            <i class="fa-solid fa-rotate"></i>
+            <span class="btn-text">بروزرسانی</span>
           </button>
         </div>
       </div>
@@ -497,9 +496,21 @@ onUnmounted(() => {
 @media (min-width: 640px) {
   .header-content { padding: 16px 24px; }
 }
-.header-title { font-size: 16px; }
+.header-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header-icon {
+  color: #f59e0b;
+  font-size: 18px;
+}
 @media (min-width: 640px) {
   .header-title { font-size: 20px; }
+  .header-icon { font-size: 20px; }
 }
 
 /* ============ فیلترها ============ */

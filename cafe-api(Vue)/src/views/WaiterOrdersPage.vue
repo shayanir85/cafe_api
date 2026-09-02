@@ -129,11 +129,9 @@ onUnmounted(() => {
     <header class="header" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
       <div class="header-content">
         <div class="flex items-center gap-3">
-          <router-link to="/dashboard" class="text-white/70 hover:text-white transition-colors">
-            <i class="fa-solid fa-arrow-right text-lg"></i>
-          </router-link>
           <h1 class="header-title">
-            <i class="fa-solid fa-bell-concierge"></i> مدیریت سفارشات
+            <i class="fa-solid fa-bell-concierge header-icon"></i>
+            <span>مدیریت سفارشات</span>
           </h1>
         </div>
         <div class="stats-wrapper">
@@ -283,10 +281,11 @@ onUnmounted(() => {
   --blur-amount: 20px;
   --radius-default: 12px;
 }
+</style>
 
-* { font-family: 'Vazirmatn', system-ui, sans-serif; }
-
+<style scoped>
 .waiter-page {
+  font-family: 'Vazirmatn', system-ui, sans-serif;
   background: var(--bg-primary);
   min-height: 100vh;
   min-height: 100dvh;
@@ -309,7 +308,8 @@ onUnmounted(() => {
   .header-right { order: 2; justify-content: center; }
 }
 .header-title { font-size: 17px; font-weight: 700; color: white; display: flex; align-items: center; gap: 8px; }
-@media (min-width: 640px) { .header-title { font-size: 20px; gap: 10px; } }
+.header-icon { color: #f59e0b; font-size: 18px; }
+@media (min-width: 640px) { .header-title { font-size: 20px; gap: 10px; } .header-icon { font-size: 20px; } }
 .stats-wrapper { display: flex; align-items: center; justify-content: center; flex: 1; }
 .stats-bar { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 6px 12px; background: rgba(255,255,255,0.03); border-radius: 48px; flex-wrap: wrap; }
 @media (min-width: 640px) { .stats-bar { gap: 16px; padding: 6px 20px; } }

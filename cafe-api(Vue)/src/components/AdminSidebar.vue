@@ -472,12 +472,21 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   border: none;
   font-size: 16px;
   position: relative;
   z-index: 100;
+}
+
+@media (hover: hover) {
+  .rail-icon:hover {
+    transform: scale(1.08);
+  }
+  .rail-icon:active {
+    transform: scale(0.95);
+  }
 }
 
 @media (hover: hover) {
@@ -551,7 +560,7 @@ onUnmounted(() => {
   opacity: 0;
   visibility: hidden;
   overflow: hidden;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, visibility 0.2s ease;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -561,6 +570,37 @@ onUnmounted(() => {
   width: 260px;
   opacity: 1;
   visibility: visible;
+}
+
+.sidebar-expanded.open .sidebar-header {
+  animation: sidebarSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+}
+
+.sidebar-expanded.open .sidebar-section:nth-child(1) {
+  animation: sidebarSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+.sidebar-expanded.open .sidebar-section:nth-child(2) {
+  animation: sidebarSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+.sidebar-expanded.open .sidebar-section:nth-child(3) {
+  animation: sidebarSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+.sidebar-expanded.open .sidebar-footer {
+  animation: sidebarSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+}
+
+@keyframes sidebarSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .sidebar-header {
@@ -601,7 +641,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   font-size: 14px;
   flex-shrink: 0;
 }
@@ -610,6 +650,10 @@ onUnmounted(() => {
   .sidebar-close-btn:hover {
     background: rgba(255, 255, 255, 0.06);
     color: #A3A3A3;
+    transform: rotate(90deg);
+  }
+  .sidebar-close-btn:active {
+    transform: rotate(90deg) scale(0.9);
   }
 }
 
@@ -644,8 +688,17 @@ onUnmounted(() => {
   font-size: 13px;
   font-weight: 500;
   text-decoration: none;
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   margin: 1px 0;
+}
+
+@media (hover: hover) {
+  .sidebar-link:hover {
+    transform: translateX(-2px);
+  }
+  .sidebar-link:active {
+    transform: scale(0.98);
+  }
 }
 
 .sidebar-link-icon {
@@ -697,13 +750,18 @@ onUnmounted(() => {
   background: rgba(239, 68, 68, 0.06);
   border: 1px solid rgba(239, 68, 68, 0.12);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (hover: hover) {
   .sidebar-logout-btn:hover {
     background: rgba(239, 68, 68, 0.12);
     border-color: rgba(239, 68, 68, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+  }
+  .sidebar-logout-btn:active {
+    transform: scale(0.98);
   }
 }
 
@@ -723,7 +781,7 @@ onUnmounted(() => {
   height: 1.5px;
   background-color: currentColor;
   border-radius: 2px;
-  transition: all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   position: absolute;
 }
 

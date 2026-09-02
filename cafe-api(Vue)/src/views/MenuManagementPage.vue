@@ -442,7 +442,8 @@ onUnmounted(() => {
       <div class="header-content">
         <div class="flex items-center gap-2">
           <h1 class="header-title">
-            <i class="fa-solid fa-utensils"></i> مدیریت منو
+            <i class="fa-solid fa-book-open header-icon"></i>
+            <span>مدیریت منو</span>
           </h1>
         </div>
         <div class="stats-wrapper">
@@ -476,10 +477,6 @@ onUnmounted(() => {
           <router-link to="/menu-management/add" class="btn btn-primary" style="text-decoration: none;">
             <i class="fa-solid fa-plus"></i>
             <span class="btn-text">آیتم جدید</span>
-          </router-link>
-          <router-link to="/dashboard" class="back-btn">
-            بازگشت
-            <i class="fa-solid fa-arrow-left"></i>
           </router-link>
         </div>
       </div>
@@ -828,7 +825,8 @@ onUnmounted(() => {
   .header-right { order: 2; justify-content: center; }
 }
 .header-title { font-size: 17px; font-weight: 700; color: white; display: flex; align-items: center; gap: 8px; }
-@media (min-width: 640px) { .header-title { font-size: 20px; gap: 10px; } }
+.header-icon { color: #f59e0b; font-size: 18px; }
+@media (min-width: 640px) { .header-title { font-size: 20px; gap: 10px; } .header-icon { font-size: 20px; } }
 .stats-wrapper { display: flex; align-items: center; justify-content: center; flex: 1; }
 .stats-bar {
   display: flex; align-items: center; justify-content: center;
@@ -863,23 +861,6 @@ onUnmounted(() => {
 .btn-primary:hover { background: #B28C56; transform: translateY(-1px); }
 .btn-outline { background: transparent; color: #D4D4D4; border: 1px solid #333333; }
 .btn-outline:hover { background: rgba(30,30,30,0.8); }
-.back-btn {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 5px 10px; border-radius: 8px;
-  font-size: 11px; font-weight: 600;
-  color: #A3A3A3;
-  background: rgba(30,30,30,0.6);
-  border: 1px solid #333333;
-  cursor: pointer; transition: all 0.25s ease;
-  white-space: nowrap; text-decoration: none;
-}
-.back-btn:hover {
-  color: white; background: rgba(30,30,30,0.8);
-  border-color: #C69C6D;
-  transform: translateY(-1px);
-}
-.back-btn i { font-size: 10px; transition: transform 0.25s ease; }
-.back-btn:hover i { transform: translateX(-2px); }
 .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
 /* ============ کانتینر اصلی ============ */

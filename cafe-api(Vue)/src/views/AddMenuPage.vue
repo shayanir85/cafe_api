@@ -180,12 +180,9 @@ onUnmounted(() => {
     <header class="header" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
       <div class="header-content">
         <div class="flex items-center gap-3">
-          <router-link to="/dashboard" class="text-white/60 hover:text-white transition-colors">
-            <i class="fa-solid fa-arrow-right text-lg"></i>
-          </router-link>
           <h1 class="header-title">
-            <i class="fa-solid fa-mug-hot"></i>
-            افزودن محصول جدید
+            <i class="fa-solid fa-circle-plus header-icon"></i>
+            <span>افزودن محصول جدید</span>
           </h1>
         </div>
         <button class="btn btn-primary" @click="submitForm" :disabled="submitting">
@@ -195,8 +192,9 @@ onUnmounted(() => {
       </div>
     </header>
 
-    <main class="main-content" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
-      <div class="form-grid">
+    <main class="main-body" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
+      <div class="main-content">
+        <div class="form-grid">
         <div class="space-y-16 fade-in-up">
           <div class="form-glass">
             <h2 class="section-title">
@@ -301,8 +299,8 @@ onUnmounted(() => {
             </div>
           </div>
         </div>
+        </div>
       </div>
-
     </main>
 
     <div class="toast" :class="[toastVisible ? 'show' : '', `toast-${toastType}`]">
@@ -313,9 +311,8 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-* { font-family: 'Vazirmatn', system-ui, sans-serif; }
-
 .add-menu-page {
+  font-family: 'Vazirmatn', system-ui, sans-serif;
   background: linear-gradient(135deg, #0F0F0F 0%, #1A1A1A 50%, #262626 100%);
   min-height: 100vh;
   overflow-x: hidden;
@@ -356,7 +353,8 @@ onUnmounted(() => {
   font-size: 17px; font-weight: 700; color: white;
   display: flex; align-items: center; gap: 8px;
 }
-@media (min-width: 640px) { .header-title { font-size: 20px; } }
+.header-icon { color: #f59e0b; font-size: 18px; }
+@media (min-width: 640px) { .header-title { font-size: 20px; } .header-icon { font-size: 20px; } }
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -368,9 +366,13 @@ onUnmounted(() => {
 .btn-primary:hover { background: #B28C56; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(198,156,109,0.3); }
 .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
+.main-body {
+  transition: margin-right 0.3s ease;
+  min-height: calc(100vh - 60px);
+}
+
 .main-content {
   max-width: 1200px; margin: 0 auto; padding: 16px; padding-bottom: 80px;
-  transition: margin-right 0.3s ease;
 }
 @media (min-width: 640px) { .main-content { padding: 24px; padding-bottom: 80px; } }
 @media (min-width: 1024px) { .main-content { padding: 32px 24px; padding-bottom: 80px; } }

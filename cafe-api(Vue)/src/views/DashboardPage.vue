@@ -15,7 +15,7 @@ const mainMarginRight = computed(() => sidebarOpen.value ? '320px' : '64px')
   <main class="main-body" :style="{ marginRight: mainMarginRight }">
     <header class="dash-header">
       <h1 class="dash-title">
-        <i class="fa-solid fa-gauge-high"></i>
+        <i class="fa-solid fa-gauge-high header-icon"></i>
         داشبورد
       </h1>
     </header>
@@ -104,12 +104,16 @@ const mainMarginRight = computed(() => sidebarOpen.value ? '320px' : '64px')
 }
 
 @media (min-width: 640px) {
-  .dash-title { padding: 16px 24px; }
+  .dash-title { padding: 16px 24px; font-size: 20px; }
 }
 
 .dash-title i {
-  color: var(--accent);
-  font-size: 16px;
+  color: #f59e0b;
+  font-size: 18px;
+}
+
+@media (min-width: 640px) {
+  .dash-title i { font-size: 20px; }
 }
 
 /* ===== MAIN BODY ===== */

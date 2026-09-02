@@ -3,7 +3,6 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { resetPassword } from '@/services/auth'
-import LogoCup from '@/components/LogoCup.vue'
 import BackgroundBlobs from '@/components/BackgroundBlobs.vue'
 import AdminSidebar from '@/components/AdminSidebar.vue'
 
@@ -108,14 +107,10 @@ onMounted(() => {
 
   <header class="header" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
     <div class="header-content">
-      <router-link to="/" class="logo-link">
-        <LogoCup />
-        <span class="brand-text">کافی شاپ</span>
-      </router-link>
-      <router-link to="/dashboard" class="back-link">
-        <i class="fas fa-arrow-right"></i>
-        <span>بازگشت</span>
-      </router-link>
+      <h1 class="header-title">
+        <i class="fa-solid fa-lock header-icon"></i>
+        <span>تغییر رمز عبور</span>
+      </h1>
     </div>
   </header>
 
@@ -278,6 +273,25 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.header-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-icon {
+  color: #f59e0b;
+  font-size: 18px;
+}
+
+@media (min-width: 640px) {
+  .header-title { font-size: 20px; gap: 10px; }
+  .header-icon { font-size: 20px; }
 }
 
 .logo-link {
