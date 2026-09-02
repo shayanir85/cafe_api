@@ -78,6 +78,7 @@ async function handlePurchase() {
   try {
     const orderData = {
       is_out: !isDineIn.value,
+      is_cash: paymentMethod.value === 'cash',
       table_number: isDineIn.value ? tableNumber.value.trim() : null,
       address: !isDineIn.value ? address.value.trim() : null,
       notes: notes.value.trim() || null,

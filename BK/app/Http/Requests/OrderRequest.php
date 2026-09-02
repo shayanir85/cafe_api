@@ -35,6 +35,7 @@ class OrderRequest extends FormRequest
             'items.*.menu_item_id' => ['required', 'integer', 'exists:menu_items,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
             'items.*.notes' => ['nullable', 'string'],
+            'is_cash' => ['required', 'boolean'],
         ];
     }
 
