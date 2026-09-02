@@ -88,6 +88,7 @@ class OrderService
                 'total_amount' => 0,
                 'notes' => $data['notes'] ?? null,
                 'is_out' => $data['is_out'] ?? false,
+                'is_cash'=> $data['is_cash'] ?? false,
                 'address' => $data['address'] ?? null,
             ]);
 
