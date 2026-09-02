@@ -130,5 +130,5 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { user, token, isLoggedIn, isAdmin, isSuperAdmin, isStaff, customerToken, customerUser, isCustomerLoggedIn, customerName, login, otpLogin, registerByOtp, logout, customerLogout, fetchUser, clearAuth, saveAuth }
+  return { user, token, isLoggedIn, isAdmin, isSuperAdmin, isStaff, customerToken, customerUser, isCustomerLoggedIn, customerName, login, otpLogin, registerByOtp, logout, customerLogout, fetchUser, clearAuth, saveAuth, saveCustomerAuth }
 })
