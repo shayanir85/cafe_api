@@ -27,6 +27,7 @@ public function index(Request $request): JsonResponse
         'date'         => $request->query('date'),
         'is_out'       => $request->has('is_out') ? $request->boolean('is_out') : null,
         'user_id'      => $request->query('user_id'),
+        'is_cash'      => $request->query('is_cash'),
         'min_amount'   => $request->query('min_amount'),
         'max_amount'   => $request->query('max_amount'),
         'search'       => $request->query('search'),

@@ -893,6 +893,7 @@ image: [binary file]
 | `table_number` | string | No | exact match |
 | `date` | string | No | date string (parsed by Carbon); defaults to today if omitted |
 | `is_out` | boolean | No | filter delivery vs dine-in |
+| `is_cash` | boolean | yes | Filter orders by payment method. true = cash payments only, false = non-cash payments |
 | `user_id` | integer | No | filter by staff who took the order |
 | `min_amount` | number | No | minimum total amount |
 | `max_amount` | number | No | maximum total amount |
@@ -918,6 +919,7 @@ GET /api/v1/Dashboard/admin/orders?status=pending&paginate=true&per_page=10
       "total_amount": "210000.00",
       "notes": "Less sugar",
       "is_out": false,
+      "is_cash": true,
       "address": null,
       "created_at": "2025-01-01T10:00:00.000000Z",
       "updated_at": "2025-01-01T10:00:00.000000Z",

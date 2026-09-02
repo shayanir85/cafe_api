@@ -42,6 +42,10 @@ class OrderService
             $query->where('is_out', filter_var($filters['is_out'], FILTER_VALIDATE_BOOLEAN));
         }
 
+        if (array_key_exists('is_cash', $filters) && $filters['is_cash'] !== null) {
+            $query->where('is_cash', filter_var($filters['is_cash'], FILTER_VALIDATE_BOOLEAN));
+        }
+
         if (!empty($filters['user_id'])) {
             $query->where('user_id', $filters['user_id']);
         }
@@ -88,6 +92,7 @@ class OrderService
                 'total_amount' => 0,
                 'notes' => $data['notes'] ?? null,
                 'is_out' => $data['is_out'] ?? false,
+                'is_cash'=> $data['is_cash'] ?? false,
                 'address' => $data['address'] ?? null,
             ]);
 

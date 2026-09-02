@@ -31,6 +31,7 @@ class OrderSeeder extends Seeder
                 'status' => 'pending',
                 'total_amount' => ($espresso->price * 2) + $latte->price + $cheesecake->price,
                 'is_out' => false,
+                'is_cash' => true,
                 'notes' => 'کاهش شکر',
             ]
         );
@@ -59,6 +60,7 @@ class OrderSeeder extends Seeder
                     'status' => 'ready',
                     'total_amount' => $breakfast->price * 2,
                     'is_out' => false,
+                    'is_cash' => false,
                     'notes' => 'بدون قند',
                 ]
             );

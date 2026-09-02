@@ -27,6 +27,8 @@ return new class extends Migration
             $table->text('notes')->nullable();
             
             $table->boolean('is_out');
+
+            $table->boolean('is_cash');
             
             $table->text('address')->nullable();
 
