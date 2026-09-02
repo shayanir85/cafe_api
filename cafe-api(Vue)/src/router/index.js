@@ -14,6 +14,12 @@ const routes = [
     meta: { guest: true },
   },
   {
+    path: '/register',
+    name: 'register',
+    component: () => import('@/views/RegisterPage.vue'),
+    meta: { guest: true },
+  },
+  {
     path: '/dashboard',
     name: 'dashboard',
     component: () => import('@/views/DashboardPage.vue'),
@@ -95,8 +101,9 @@ router.beforeEach((to) => {
     return { name: 'login' }
   }
 
-  if (to.meta.guest && auth.isLoggedIn && auth.isAdmin) {
-    return { name: 'dashboard' }
+  if (to.meta.guest && auth.isLoggedIn) {
+    if (auth.isAdmin) return { name: 'dashboard' }
+    return { name: 'menu' }
   }
 })
 

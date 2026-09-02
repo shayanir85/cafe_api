@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import AdminSidebar from '@/components/AdminSidebar.vue'
 
@@ -7,25 +7,19 @@ const authStore = useAuthStore()
 const sidebarOpen = ref(localStorage.getItem('admin_sidebar') === '1')
 
 const mainMarginRight = computed(() => sidebarOpen.value ? '320px' : '64px')
-
-onMounted(() => {
-  window.scrollTo({ top: 0, behavior: 'instant' })
-})
 </script>
 
 <template>
   <AdminSidebar v-model="sidebarOpen" />
 
-  <!-- Header Fixed -->
-  <header class="dash-header" :style="{ marginRight: mainMarginRight }">
-    <h1 class="dash-title">
-      <i class="fa-solid fa-gauge-high"></i>
-      داشبورد
-    </h1>
-  </header>
-
-  <!-- Main Body -->
   <main class="main-body" :style="{ marginRight: mainMarginRight }">
+    <header class="dash-header">
+      <h1 class="dash-title">
+        <i class="fa-solid fa-gauge-high"></i>
+        داشبورد
+      </h1>
+    </header>
+
     <div class="main-content">
       <!-- Dashboard cards -->
       <div class="cards-row">
@@ -88,17 +82,13 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* ===== HEADER (FIXED) ===== */
+/* ===== HEADER ===== */
 .dash-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
   background: rgba(26, 26, 26, 0.95);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid #2A2A2A;
-  transition: margin-right 0.3s ease;
+  flex-shrink: 0;
+  z-index: 1;
 }
 
 .dash-title {
@@ -111,7 +101,10 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 14px 20px;
-  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .dash-title { padding: 16px 24px; }
 }
 
 .dash-title i {
@@ -121,8 +114,6 @@ onMounted(() => {
 
 /* ===== MAIN BODY ===== */
 .main-body {
-  padding-top: 70px;
-  transition: margin-right 0.3s ease;
   min-height: 100vh;
   background: var(--bg-primary);
   color: var(--text-primary);

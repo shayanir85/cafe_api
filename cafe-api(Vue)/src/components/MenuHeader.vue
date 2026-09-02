@@ -1,10 +1,8 @@
 <script setup>
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import LogoCup from '@/components/LogoCup.vue'
-import OtpLoginModal from '@/components/OtpLoginModal.vue'
 
 defineProps({
   showSearch: { type: Boolean, default: false },
@@ -16,8 +14,6 @@ const emit = defineEmits(['update:searchValue'])
 const router = useRouter()
 const cart = useCartStore()
 const auth = useAuthStore()
-
-const showOtpModal = ref(false)
 </script>
 
 <template>
@@ -31,7 +27,7 @@ const showOtpModal = ref(false)
           <span class="brand-text">کافی شاپ</span>
         </div>
         <div class="header-right">
-          <button v-if="!auth.isCustomerLoggedIn" class="login-btn" @click="showOtpModal = true">
+          <button v-if="!auth.isCustomerLoggedIn" class="login-btn" @click="router.push('/login')">
             <i class="fas fa-right-to-bracket"></i>
             <span class="login-text">ورود</span>
           </button>
@@ -60,8 +56,6 @@ const showOtpModal = ref(false)
       </div>
     </div>
   </header>
-
-  <OtpLoginModal v-if="showOtpModal" @close="showOtpModal = false" @success="showOtpModal = false" />
 </template>
 
 <style scoped>

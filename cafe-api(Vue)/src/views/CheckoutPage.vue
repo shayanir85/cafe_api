@@ -7,13 +7,11 @@ import { createOrder } from '@/services/orders'
 import BackgroundBlobs from '@/components/BackgroundBlobs.vue'
 import MenuHeader from '@/components/MenuHeader.vue'
 import MenuFooter from '@/components/MenuFooter.vue'
-import OtpLoginModal from '@/components/OtpLoginModal.vue'
 
 const router = useRouter()
 const cart = useCartStore()
 const auth = useAuthStore()
 
-const showOtpModal = ref(false)
 const isDineIn = ref(true)
 const tableNumber = ref('')
 const address = ref('')
@@ -72,7 +70,7 @@ async function handlePurchase() {
   }
 
   if (!auth.isCustomerLoggedIn) {
-    showOtpModal.value = true
+    router.push({ name: 'register', query: { redirect: '/checkout' } })
     return
   }
 
@@ -103,11 +101,6 @@ async function handlePurchase() {
   } finally {
     submitting.value = false
   }
-}
-
-function handleOtpSuccess() {
-  showOtpModal.value = false
-  handlePurchase()
 }
 </script>
 
@@ -250,9 +243,6 @@ function handleOtpSuccess() {
   </main>
 
   <MenuFooter :showCategories="false" />
-
-  <!-- OTP Login Modal -->
-  <OtpLoginModal v-if="showOtpModal" @close="showOtpModal = false" @success="handleOtpSuccess" />
 
   <!-- Toast -->
   <div class="toast" :class="{ show: toastVisible }">
