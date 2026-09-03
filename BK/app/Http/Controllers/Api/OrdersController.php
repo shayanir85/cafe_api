@@ -31,6 +31,7 @@ public function index(Request $request): JsonResponse
         'min_amount'   => $request->query('min_amount'),
         'max_amount'   => $request->query('max_amount'),
         'search'       => $request->query('search'),
+        'all_dates'    => $request->boolean('all_dates', false),
     ], function ($value) {
         return !is_null($value) && $value !== '';
     });
