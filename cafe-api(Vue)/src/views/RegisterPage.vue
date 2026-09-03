@@ -344,7 +344,7 @@ onMounted(() => {
             <span>کد تأیید به شماره <strong>{{ phoneInput }}</strong> ارسال شد</span>
           </div>
 
-          <div class="form-group">
+          <div class="form-group otp-group">
             <label>
               <i class="fas fa-shield-halved"></i>
               کد تأیید
@@ -722,10 +722,15 @@ onMounted(() => {
   direction: ltr;
 }
 
+.otp-group label {
+  justify-content: center;
+}
+
 .otp-input {
   width: 52px;
   height: 56px;
   text-align: center;
+  padding: 0;
   font-size: 22px;
   font-weight: 700;
   color: #ffffff;
@@ -737,6 +742,13 @@ onMounted(() => {
   caret-color: #f59e0b;
   direction: ltr;
   font-variant-numeric: tabular-nums;
+  line-height: 56px; /* برابر با height */
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
+  /* برای اطمینان بیشتر */
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .otp-input:focus {
@@ -974,7 +986,12 @@ input:-webkit-autofill:active {
   .card-icon { width: 50px; height: 50px; font-size: 20px; }
   .input-wrap input { min-height: 44px; padding: 10px 32px 10px 10px; }
   .submit-btn { min-height: 46px; font-size: 14px; }
-  .otp-input { width: 46px; height: 50px; font-size: 18px; }
+    .otp-input { 
+    width: 46px; 
+    height: 50px; 
+    font-size: 18px;
+    line-height: 50px;
+  }
 }
 
 @media (min-width: 768px) and (max-width: 1024px) {
