@@ -17,7 +17,7 @@ class OrderService
     public function list(array $filters = []): Collection|LengthAwarePaginator
     {
         $query = Order::query()
-            ->with(['orderItems.menuItem'])
+            ->with(['orderItems.menuItem', 'user'])
             ->latest('id');
 
         if (!empty($filters['date'])) {

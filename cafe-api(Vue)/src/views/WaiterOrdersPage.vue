@@ -9,6 +9,7 @@ const sidebarOpen = ref(localStorage.getItem('admin_sidebar') === '1')
 const orders = ref([])
 const loading = ref(true)
 const filterStatus = ref('all')
+const filterType = ref('all')
 const toastMessage = ref('')
 const toastVisible = ref(false)
 const toastType = ref('success')
@@ -28,8 +29,16 @@ const statusConfig = {
 
 const filteredOrders = computed(() => {
   if (!Array.isArray(orders.value)) return []
-  if (filterStatus.value === 'all') return orders.value
-  return orders.value.filter(o => o.status === filterStatus.value)
+  let result = orders.value
+  if (filterStatus.value !== 'all') {
+    result = result.filter(o => o.status === filterStatus.value)
+  }
+  if (filterType.value === 'in') {
+    result = result.filter(o => !o.is_out)
+  } else if (filterType.value === 'out') {
+    result = result.filter(o => o.is_out)
+  }
+  return result
 })
 
 const stats = computed(() => {
@@ -165,19 +174,35 @@ onUnmounted(() => {
     </header>
 
     <main class="main-body" :style="{ marginRight: sidebarOpen ? '320px' : '64px' }">
-      <!-- Filter -->
+      <!-- Filters -->
       <div class="filters-bar fade-in-up">
-        <button
-          v-for="(cfg, key) in { all: { text: 'همه', color: '#fff' }, ...statusConfig }"
-          :key="key"
-          class="filter-chip"
-          :class="{ active: filterStatus === key }"
-          :style="filterStatus === key ? { background: cfg.bg, color: cfg.color, borderColor: cfg.color + '40' } : {}"
-          @click="filterStatus = key">
-          <i class="fa-solid" :class="cfg.icon || 'fa-layer-group'"></i>
-          {{ cfg.text }}
-          <span class="chip-count">{{ key === 'all' ? stats.total : stats[key] || 0 }}</span>
-        </button>
+        <div class="filter-group">
+          <span class="filter-label">وضعیت:</span>
+          <button
+            v-for="(cfg, key) in { all: { text: 'همه', color: '#fff' }, ...statusConfig }"
+            :key="key"
+            class="filter-chip"
+            :class="{ active: filterStatus === key }"
+            :style="filterStatus === key ? { background: cfg.bg, color: cfg.color, borderColor: cfg.color + '40' } : {}"
+            @click="filterStatus = key">
+            <i class="fa-solid" :class="cfg.icon || 'fa-layer-group'"></i>
+            {{ cfg.text }}
+            <span class="chip-count">{{ key === 'all' ? stats.total : stats[key] || 0 }}</span>
+          </button>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">نوع:</span>
+          <button
+            v-for="(cfg, key) in { all: { text: 'همه', icon: 'fa-layer-group', color: '#fff' }, in: { text: 'حضوری', icon: 'fa-chair', color: '#60a5fa' }, out: { text: 'بیرون‌بر', icon: 'fa-motorcycle', color: '#fbbf24' } }"
+            :key="key"
+            class="filter-chip"
+            :class="{ active: filterType === key }"
+            :style="filterType === key ? { background: cfg.color + '20', color: cfg.color, borderColor: cfg.color + '40' } : {}"
+            @click="filterType = key">
+            <i class="fa-solid" :class="cfg.icon"></i>
+            {{ cfg.text }}
+          </button>
+        </div>
       </div>
 
       <!-- Loading -->
@@ -202,20 +227,23 @@ onUnmounted(() => {
           :key="order.id"
           class="order-card"
           :style="{ borderColor: statusConfig[order.status]?.color + '30' }">
+
           <div class="order-card-header">
-            <span class="order-id">#{{ order.id }}</span>
-            <span class="order-badge" :style="{ background: statusConfig[order.status]?.bg, color: statusConfig[order.status]?.color }">
-              <i class="fa-solid" :class="statusConfig[order.status]?.icon"></i>
-              {{ statusConfig[order.status]?.text }}
-            </span>
+            <div class="order-card-title">
+              <span class="order-customer-name">{{ order.user?.name || 'ناشناس' }}</span>
+              <span class="order-id-small">#{{ order.id }}</span>
+            </div>
+            <div class="order-header-right">
+              <span class="order-type-badge" :class="order.is_out ? 'type-out' : 'type-in'">
+                <i class="fa-solid" :class="order.is_out ? 'fa-motorcycle' : 'fa-chair'"></i>
+                {{ order.is_out ? 'بیرون‌بر' : 'حضوری' }}
+              </span>
+            </div>
           </div>
 
           <div class="order-card-meta">
             <span v-if="order.table_number" class="meta-item">
               <i class="fa-solid fa-chair"></i> میز {{ order.table_number }}
-            </span>
-            <span v-if="order.is_out" class="meta-item">
-              <i class="fa-solid fa-location-dot"></i> بیرون‌بر
             </span>
             <span class="meta-item">
               <i class="fa-solid fa-clock"></i> {{ formatTime(order.created_at) }}
@@ -223,8 +251,15 @@ onUnmounted(() => {
           </div>
 
           <div class="order-card-items">
-            <div v-for="item in order.orderItems" :key="item.id" class="order-card-item">
-              <span>{{ item.menuItem?.name || 'آیتم' }}</span>
+            <div class="items-header">
+              <i class="fa-solid fa-clipboard-list"></i>
+              <span>اقلام سفارش</span>
+            </div>
+            <div v-for="item in order.order_items" :key="item.id" class="order-card-item">
+              <div class="item-info">
+                <span class="item-icon"><i class="fa-solid fa-mug-hot"></i></span>
+                <span class="item-name">{{ item.menu_item?.name || 'آیتم' }}</span>
+              </div>
               <span class="item-qty">×{{ item.quantity }}</span>
             </div>
           </div>
@@ -235,26 +270,19 @@ onUnmounted(() => {
 
           <div class="order-card-footer">
             <span class="order-total">{{ formatPrice(order.total_amount) }} تومان</span>
-            <div class="order-actions">
-              <button
-                v-if="order.status === 'pending'"
-                class="action-btn action-ready"
-                @click="changeStatus(order.id, 'ready')">
-                <i class="fa-solid fa-check"></i> آماده
-              </button>
-              <button
-                v-if="order.status === 'ready'"
-                class="action-btn action-deliver"
-                @click="changeStatus(order.id, 'delivered')">
-                <i class="fa-solid fa-flag-checkered"></i> تحویل
-              </button>
-              <button
-                v-if="order.status !== 'delivered'"
-                class="action-btn action-skip"
-                @click="changeStatus(order.id, 'delivered')">
-                <i class="fa-solid fa-forward"></i>
-              </button>
-            </div>
+          </div>
+
+          <div class="order-status-actions">
+            <button
+              v-for="(cfg, key) in statusConfig"
+              :key="key"
+              class="status-action-btn"
+              :class="{ active: order.status === key }"
+              :style="order.status === key ? { background: cfg.bg, color: cfg.color, borderColor: cfg.color + '40' } : {}"
+              @click="changeStatus(order.id, key)">
+              <i class="fa-solid" :class="cfg.icon"></i>
+              {{ cfg.text }}
+            </button>
           </div>
         </div>
       </div>
@@ -344,13 +372,22 @@ onUnmounted(() => {
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
 .filters-bar {
-  display: flex; flex-wrap: wrap; gap: 8px;
+  display: flex; flex-direction: column; gap: 10px;
   margin-bottom: 20px;
   padding: 14px;
   background: var(--bg-card);
   border: 1px solid var(--border-primary);
   border-radius: 14px;
   backdrop-filter: blur(var(--blur-amount));
+}
+
+.filter-group {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+
+.filter-label {
+  font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4);
+  min-width: 40px;
 }
 
 .filter-chip {
@@ -424,17 +461,39 @@ onUnmounted(() => {
 @media (hover: hover) { .order-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); } }
 
 .order-card-header {
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex; justify-content: space-between; align-items: flex-start;
 }
 
-.order-id {
-  font-size: 18px; font-weight: 800; color: white;
+.order-card-title {
+  display: flex; align-items: baseline; gap: 8px;
 }
 
-.order-badge {
+.order-customer-name {
+  font-size: 16px; font-weight: 800; color: white;
+}
+
+.order-id-small {
+  font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.25);
+}
+
+.order-header-right {
+  display: flex; align-items: center; gap: 6px;
+}
+
+.order-type-badge {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 4px 10px; border-radius: 8px;
-  font-size: 12px; font-weight: 600;
+  font-size: 11px; font-weight: 600;
+}
+
+.type-in {
+  background: rgba(96,165,250,0.15); color: #60a5fa;
+  border: 1px solid rgba(96,165,250,0.3);
+}
+
+.type-out {
+  background: rgba(251,191,36,0.15); color: #fbbf24;
+  border: 1px solid rgba(251,191,36,0.3);
 }
 
 .order-card-meta {
@@ -449,21 +508,47 @@ onUnmounted(() => {
 .meta-item i { color: var(--accent); font-size: 11px; }
 
 .order-card-items {
-  display: flex; flex-direction: column; gap: 4px;
+  display: flex; flex-direction: column; gap: 0;
   padding: 10px 0;
   border-top: 1px solid rgba(255,255,255,0.04);
   border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
+.items-header {
+  display: flex; align-items: center; gap: 6px;
+  color: rgba(255,255,255,0.3); font-size: 11px; font-weight: 600;
+  padding: 0 4px 8px;
+}
+.items-header i { color: var(--accent); font-size: 10px; }
+
 .order-card-item {
   display: flex; justify-content: space-between; align-items: center;
-  color: rgba(255,255,255,0.6);
-  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+@media (hover: hover) { .order-card-item:hover { background: rgba(255,255,255,0.03); } }
+
+.item-info {
+  display: flex; align-items: center; gap: 8px;
+}
+
+.item-icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: rgba(198,156,109,0.1);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent); font-size: 12px;
+}
+
+.item-name {
+  color: rgba(255,255,255,0.8); font-size: 13px; font-weight: 500;
 }
 
 .item-qty {
-  color: rgba(255,255,255,0.3);
-  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  font-weight: 700; font-size: 13px;
+  background: rgba(255,255,255,0.05);
+  padding: 2px 8px; border-radius: 6px;
 }
 
 .order-card-notes {
@@ -485,31 +570,21 @@ onUnmounted(() => {
   font-size: 15px; font-weight: 800; color: #fbbf24;
 }
 
-.order-actions {
-  display: flex; gap: 6px;
+.order-status-actions {
+  display: flex; gap: 6px; flex-wrap: wrap;
 }
 
-.action-btn {
+.status-action-btn {
   display: flex; align-items: center; gap: 5px;
-  padding: 8px 14px; border-radius: 10px;
-  font-size: 13px; font-weight: 600;
-  cursor: pointer; transition: all 0.2s; border: none;
-}
-@media (hover: hover) { .action-btn:hover { transform: translateY(-1px); } }
-
-.action-ready {
-  background: rgba(52,211,153,0.15); color: #34d399;
-  border: 1px solid rgba(52,211,153,0.3);
-}
-.action-deliver {
-  background: rgba(96,165,250,0.15); color: #60a5fa;
-  border: 1px solid rgba(96,165,250,0.3);
-}
-.action-skip {
-  background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.4);
+  padding: 7px 12px; border-radius: 8px;
+  font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
   border: 1px solid rgba(255,255,255,0.08);
-  padding: 8px 10px;
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.4);
 }
+@media (hover: hover) { .status-action-btn:hover { background: rgba(255,255,255,0.08); color: white; transform: translateY(-1px); } }
+.status-action-btn:active { transform: scale(0.97); }
 
 .toast {
   position: fixed; bottom: 24px; left: 24px; z-index: 9999;

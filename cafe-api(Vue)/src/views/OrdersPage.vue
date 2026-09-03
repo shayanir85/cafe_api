@@ -1,5 +1,5 @@
 <script setup>
-// ============ صفحه مدیریت سفارشات ============
+// ============ صفحه تاریخچه سفارشات ============
 // بررسی دسترسی ادمین، بارگذاری سفارشات، فیلتر/جستجو/مرتب‌سازی، تغییر وضعیت
 
 import { ref, computed, onMounted, onUnmounted } from 'vue'
@@ -178,7 +178,7 @@ onUnmounted(() => {
         <div class="flex items-center gap-3">
           <h1 class="header-title">
             <i class="fa-solid fa-receipt header-icon"></i>
-            <span>مدیریت سفارشات</span>
+            <span>تاریخچه سفارشات</span>
           </h1>
         </div>
         <div class="flex items-center gap-2 flex-wrap">

@@ -130,17 +130,17 @@ onMounted(async () => {
       <div class="items-section">
         <h3><i class="fas fa-list-ul"></i> اقلام سفارش</h3>
         <div class="order-items">
-          <div v-for="item in order.orderItems" :key="item.id" class="order-item">
+          <div v-for="item in order.order_items" :key="item.id" class="order-item">
             <div class="item-img">
               <img
-                v-if="item.menuItem?.image_url"
-                :src="item.menuItem.image_url"
-                :alt="item.menuItem?.name"
+                v-if="item.menu_item?.image_url"
+                :src="item.menu_item.image_url"
+                :alt="item.menu_item?.name"
                 @error="(e) => (e.target.style.display = 'none')" />
               <i v-else class="fas fa-mug-hot"></i>
             </div>
             <div class="item-info">
-              <div class="item-name">{{ item.menuItem?.name || 'آیتم حذف شده' }}</div>
+              <div class="item-name">{{ item.menu_item?.name || 'آیتم حذف شده' }}</div>
               <div class="item-meta">
                 {{ item.quantity }} × {{ formatPrice(item.unit_price) }} تومان
               </div>

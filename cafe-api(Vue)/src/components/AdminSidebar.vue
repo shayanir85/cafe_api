@@ -215,7 +215,7 @@ onUnmounted(() => {
             </router-link>
             <router-link to="/orders" class="sidebar-link">
               <i class="fa-solid fa-receipt sidebar-link-icon"></i>
-              <span>مدیریت سفارشات</span>
+              <span>تاریخچه سفارشات</span>
             </router-link>
             <router-link v-if="isStaff" to="/orders-management" class="sidebar-link">
               <i class="fa-solid fa-bell-concierge sidebar-link-icon"></i>

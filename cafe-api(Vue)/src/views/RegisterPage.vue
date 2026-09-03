@@ -107,9 +107,15 @@ function handleOtpInput(index, event) {
 }
 
 function handleOtpKeydown(index, event) {
-  if (event.key === 'Backspace' && !otpDigits.value[index] && index > 0) {
-    const prev = event.target.parentElement.children[index - 1]
-    if (prev) prev.focus()
+  if (event.key === 'Backspace') {
+    if (otpDigits.value[index]) {
+      otpDigits.value[index] = ''
+    } else if (index > 0) {
+      otpDigits.value[index - 1] = ''
+      const prev = event.target.parentElement.children[index - 1]
+      if (prev) prev.focus()
+    }
+    event.preventDefault()
   }
 }
 
@@ -713,6 +719,7 @@ onMounted(() => {
   display: flex;
   gap: 8px;
   justify-content: center;
+  direction: ltr;
 }
 
 .otp-input {
@@ -728,6 +735,8 @@ onMounted(() => {
   outline: none;
   transition: all 0.3s;
   caret-color: #f59e0b;
+  direction: ltr;
+  font-variant-numeric: tabular-nums;
 }
 
 .otp-input:focus {
