@@ -20,6 +20,7 @@ class Order extends Model
         'total_amount',
         'notes',
         'is_out',
+        'is_cash',
         'address'
     ];
 
@@ -27,7 +28,8 @@ class Order extends Model
     
     protected $casts = [
         'total_amount' => 'decimal:2',
-        'is_out'=> 'boolean'
+        'is_out'=> 'boolean',
+        'is_cash'=> 'boolean'
     ];
 
     protected static function booted()
