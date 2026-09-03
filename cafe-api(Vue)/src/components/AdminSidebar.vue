@@ -173,6 +173,9 @@ onUnmounted(() => {
           <button class="rail-icon" @click="router.push('/orders-management')" aria-label="پنل سفارشات">
             <i class="fa-solid fa-bell-concierge"></i>
           </button>
+          <button class="rail-icon" @click="router.push('/orders')" aria-label="تاریخچه سفارشات">
+            <i class="fa-solid fa-receipt"></i>
+          </button>
         </div>
 
         <div class="flex-1"></div>

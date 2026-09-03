@@ -23,7 +23,7 @@ class OrderService
         if (!empty($filters['date'])) {
             $gregorianDate = Verta::parse($filters['date'])->toCarbon();
             $query->whereDate('created_at', $gregorianDate);
-        } else {
+        } elseif (empty($filters['all_dates'])) {
             $query->whereBetween('created_at', [
                 Carbon::today(),
                 Carbon::tomorrow()
