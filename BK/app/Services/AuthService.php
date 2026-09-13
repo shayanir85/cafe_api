@@ -33,8 +33,11 @@ class AuthService
             return [
                 'message' => 'successfully logged in',
                 'token' => $token,
+                'id' => $user->id,
                 'name' => $user->name,
+                'phone_number' => $user->phone_number,
                 'roles' => $user->getRoleNames(),
+                'permissions' => $user->getAllPermissions()->pluck('name')->values()->toArray(),
             ];
         }
 

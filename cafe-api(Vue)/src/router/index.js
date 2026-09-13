@@ -50,6 +50,12 @@ const routes = [
     meta: { requiresAuth: true, requiresSuperAdmin: true },
   },
   {
+    path: '/permissions',
+    name: 'permissions',
+    component: () => import('@/views/PermissionsPage.vue'),
+    meta: { requiresAuth: true, requiresSuperAdmin: true },
+  },
+  {
     path: '/checkout',
     name: 'checkout',
     component: () => import('@/views/CheckoutPage.vue'),

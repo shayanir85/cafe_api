@@ -22,6 +22,12 @@ export const useAuthStore = defineStore('auth', () => {
   const isSuperAdmin = computed(() => user.value?.role === 'super_admin')
   const isStaff = computed(() => ['super_admin', 'admin', 'chef', 'waiter'].includes(user.value?.role))
 
+  const permissions = computed(() => user.value?.permissions || [])
+
+  function hasPermission(perm) {
+    return permissions.value.includes(perm)
+  }
+
   const isCustomerLoggedIn = computed(() => !!customerToken.value)
   const customerName = computed(() => customerUser.value?.name || 'کاربر')
 
@@ -34,6 +40,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     const roles = data.roles || []
     const role = data.role || roles[0] || 'user'
+    const perms = data.permissions || []
 
     user.value = {
       id: data.id || null,
@@ -41,6 +48,7 @@ export const useAuthStore = defineStore('auth', () => {
       email: data.email || null,
       role,
       phone_number: data.phone_number || null,
+      permissions: perms,
     }
     sessionStorage.setItem('user', JSON.stringify(user.value))
     return true
@@ -130,5 +138,11 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { user, token, isLoggedIn, isAdmin, isSuperAdmin, isStaff, customerToken, customerUser, isCustomerLoggedIn, customerName, login, otpLogin, registerByOtp, logout, customerLogout, fetchUser, clearAuth, saveAuth, saveCustomerAuth }
+  return {
+    user, token, isLoggedIn, isAdmin, isSuperAdmin, isStaff,
+    permissions, hasPermission,
+    customerToken, customerUser, isCustomerLoggedIn, customerName,
+    login, otpLogin, registerByOtp, logout, customerLogout,
+    fetchUser, clearAuth, saveAuth, saveCustomerAuth,
+  }
 })

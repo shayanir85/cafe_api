@@ -3,6 +3,9 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getUsers, updateUser, deleteUser, createUser } from '@/services/users'
+import { useRolesStore } from '@/stores/roles'
+
+const rolesStore = useRolesStore()
 import AdminSidebar from '@/components/AdminSidebar.vue'
 
 const router = useRouter()
@@ -44,7 +47,7 @@ const addEmail = ref('')
 const addPhone = ref('')
 const addPassword = ref('')
 const addPasswordConfirm = ref('')
-const addError = ref('')
+const addRole = ref('admin')
 const addSaving = ref(false)
 
 // Delete confirm
@@ -259,7 +262,7 @@ function openAddModal() {
   addPhone.value = ''
   addPassword.value = ''
   addPasswordConfirm.value = ''
-  addError.value = ''
+  addRole.value = 'admin'
   addModalOpen.value = true
 }
 
@@ -275,27 +278,36 @@ async function saveAdd() {
   const confirm = addPasswordConfirm.value
 
   if (!name || !email || !password) {
-    addError.value = 'نام، ایمیل و رمز عبور الزامی هستند'
+    showToast('نام، ایمیل و رمز عبور الزامی هستند', 'error')
     return
   }
   if (password !== confirm) {
-    addError.value = 'رمز عبور و تأیید آن یکسان نیستند'
+    showToast('رمز عبور و تأیید آن یکسان نیستند', 'error')
     return
   }
   if (password.length < 8) {
-    addError.value = 'رمز عبور باید حداقل ۸ کاراکتر باشد'
+    showToast('رمز عبور باید حداقل ۸ کاراکتر باشد', 'error')
     return
   }
 
   addSaving.value = true
   try {
-    await createUser({ name, email, phone_number: phone, password, password_confirmation: confirm, role: 'admin' })
+    await createUser({ name, email, phone_number: phone, password, password_confirmation: confirm, role: addRole.value })
     await loadUsers()
     closeAddModal()
     showToast('ادمین با موفقیت ایجاد شد')
   } catch (err) {
-    const msg = err.response?.data?.message || err.message || 'خطا در ایجاد ادمین'
-    addError.value = msg
+    let msg = 'خطا در ایجاد ادمین'
+    const data = err.response?.data
+    if (data?.message && typeof data.message === 'string') {
+      msg = data.message
+    } else if (data?.errors) {
+      const errs = data.errors
+      const firstKey = Object.keys(errs)[0]
+      if (firstKey && Array.isArray(errs[firstKey])) {
+        msg = errs[firstKey][0]
+      }
+    }
     showToast(msg, 'error')
   } finally {
     addSaving.value = false
@@ -346,6 +358,7 @@ function handleKeydown(e) {
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
   loadUsers()
+  rolesStore.load()
   window.scrollTo({ top: 0, behavior: 'instant' })
 })
 
@@ -418,9 +431,7 @@ watch([roleFilter, loginFilter], () => {
           </div>
           <select class="filter-input min-w-[150px]" v-model="roleFilter">
             <option value="">همه نقش‌ها</option>
-            <option value="super_admin">سوپر ادمین</option>
-            <option value="admin">ادمین</option>
-            <option value="user">کاربر</option>
+            <option v-for="r in rolesStore.roles" :key="r.name" :value="r.name">{{ roleLabel(r.name).text }}</option>
           </select>
           <select class="filter-input min-w-[160px]" v-model="loginFilter">
             <option value="">فیلتر آخرین ورود</option>
@@ -698,9 +709,7 @@ watch([roleFilter, loginFilter], () => {
             <div class="mb-6">
               <label class="modal-label block mb-1">نقش کاربر</label>
               <select class="modal-input" v-model="editRole">
-                <option value="user">کاربر عادی</option>
-                <option value="admin">ادمین</option>
-                <option value="super_admin">سوپر ادمین</option>
+                <option v-for="r in rolesStore.roles" :key="r.name" :value="r.name">{{ roleLabel(r.name).text }}</option>
               </select>
             </div>
 
@@ -757,7 +766,7 @@ watch([roleFilter, loginFilter], () => {
             </div>
             <div class="mb-4">
               <label class="modal-label block mb-1">شماره تلفن</label>
-              <input type="text" placeholder="شماره تلفن را وارد کنید" class="modal-input" v-model="addPhone" />
+              <input maxlength="11" type="text" placeholder="شماره تلفن را وارد کنید" class="modal-input" v-model="addPhone" />
             </div>
             <div class="mb-4">
               <label class="modal-label block mb-1">رمز عبور <span class="text-red-400">*</span></label>
@@ -767,12 +776,11 @@ watch([roleFilter, loginFilter], () => {
               <label class="modal-label block mb-1">تأیید رمز عبور <span class="text-red-400">*</span></label>
               <input type="password" placeholder="رمز عبور را مجدداً وارد کنید" class="modal-input" v-model="addPasswordConfirm" required />
             </div>
-
-            <div v-if="addError" class="bg-red-500/20 border border-red-500/30 text-red-300 rounded-xl px-4 py-3 text-sm mb-4 flex items-center gap-2">
-              <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>{{ addError }}</span>
+            <div class="mb-4">
+              <label class="modal-label block mb-1">نقش <span class="text-red-400">*</span></label>
+              <select class="modal-input" v-model="addRole">
+                <option v-for="r in rolesStore.roles" :key="r.name" :value="r.name">{{ roleLabel(r.name).text }}</option>
+              </select>
             </div>
 
             <div class="modal-actions">

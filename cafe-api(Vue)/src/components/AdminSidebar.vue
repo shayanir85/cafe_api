@@ -164,6 +164,9 @@ onUnmounted(() => {
           <button class="rail-icon" @click="router.push('/admins')" aria-label="مدیریت ادمین ها">
             <i class="fa-solid fa-users-gear"></i>
           </button>
+          <button v-if="auth.isSuperAdmin" class="rail-icon" @click="router.push('/permissions')" aria-label="مدیریت دسترسی‌ها">
+            <i class="fa-solid fa-shield-halved"></i>
+          </button>
           <button class="rail-icon" @click="router.push('/menu-management')" aria-label="مدیریت منو">
             <i class="fa-solid fa-utensils"></i>
           </button>
@@ -231,6 +234,10 @@ onUnmounted(() => {
             <router-link to="/admins" class="sidebar-link">
               <i class="fa-solid fa-users-gear sidebar-link-icon"></i>
               <span>مدیریت ادمین ها</span>
+            </router-link>
+            <router-link v-if="auth.isSuperAdmin" to="/permissions" class="sidebar-link">
+              <i class="fa-solid fa-shield-halved sidebar-link-icon"></i>
+              <span>مدیریت دسترسی‌ها</span>
             </router-link>
             <router-link to="/menu-management" class="sidebar-link">
               <i class="fa-solid fa-utensils sidebar-link-icon"></i>

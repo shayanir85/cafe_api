@@ -478,6 +478,9 @@ onUnmounted(() => {
             <i class="fa-solid fa-plus"></i>
             <span class="btn-text">آیتم جدید</span>
           </router-link>
+          <button class="btn btn-primary" @click="openManageCategories()" style="text-decoration: none;">
+            <i class="fa-solid fa-folder-tree"></i> مدیریت دسته‌بندی
+          </button>
         </div>
       </div>
     </header>
@@ -495,9 +498,6 @@ onUnmounted(() => {
           {{ tab.name }} <span class="count-badge">{{ tab.count }}</span>
         </button>
       </div>
-      <button class="btn btn-outline" @click="openManageCategories()" style="padding: 6px 14px; font-size: 12px;">
-        <i class="fa-solid fa-folder-gear"></i> مدیریت دسته‌بندی
-      </button>
     </div>
 
     <!-- ============ نوار ابزار ============ -->
@@ -686,7 +686,7 @@ onUnmounted(() => {
       <div class="modal-dialog" style="max-width: 600px;">
         <div class="modal-header">
           <h3 class="modal-title">
-            <i class="fa-solid fa-folder-gear"></i> مدیریت دسته‌بندی‌ها
+            <i class="fa-solid fa-folder-tree"></i> مدیریت دسته‌بندی‌ها
           </h3>
           <button class="modal-close" @click="closeManageCategories()">
             <i class="fa-solid fa-xmark"></i>

@@ -28,8 +28,19 @@ class AuthController extends Controller
 
     public function TokenCheck(Request $request)
     {
+        $user = $request->user();
+        $user->load('roles');
+        $permissions = $user->getAllPermissions()->pluck('name')->values()->toArray();
+
         return response()->json([
-            'user' => $request->user()
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'phone_number' => $user->phone_number,
+                'role' => $user->getRoleNames()->first() ?? 'user',
+                'roles' => $user->getRoleNames(),
+                'permissions' => $permissions,
+            ]
         ]);
     }
 
@@ -105,6 +116,9 @@ class AuthController extends Controller
 
         if (isset($result['token'])) {
             session()->forget('verified_phone');
+
+            $role = $request->input('role', 'user');
+            $result['user']->assignRole($role);
         }
 
         return response()->json($result, $result ? 201 : 400);
@@ -240,6 +254,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         $roles = $user->getRoleNames();
+        $permissions = $user->getAllPermissions()->pluck('name')->values()->toArray();
 
         return response()->json([
             'success' => true,
@@ -249,6 +264,7 @@ class AuthController extends Controller
             'phone_number' => $user->phone_number,
             'roles' => $roles,
             'role' => $roles->first() ?? 'user',
+            'permissions' => $permissions,
         ], 200);
     }
 
