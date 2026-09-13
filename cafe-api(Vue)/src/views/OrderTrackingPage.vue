@@ -26,7 +26,8 @@ function formatPrice(price) {
 
 function formatDate(date) {
   if (!date) return '—'
-  return new Date(date).toLocaleDateString('fa-IR', { hour: '2-digit', minute: '2-digit' })
+  const parts = date.split(' ')
+  return parts[0] || date
 }
 
 async function loadOrder() {
@@ -73,7 +74,7 @@ onMounted(async () => {
           <i class="fas fa-receipt"></i>
           سفارش شماره #{{ order.id }}
         </h1>
-        <span class="order-date">{{ formatDate(order.created_at) }}</span>
+        <span class="order-date">{{ formatDate(order.jalali_created_at) }}</span>
       </div>
 
       <!-- Status Tracker -->

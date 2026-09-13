@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { getCafeStatus, toggleCafeStatus } from '@/services/cafe'
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false }
@@ -35,6 +36,28 @@ const user = computed(() => auth.user)
 const userInitials = computed(() => (user.value?.name || user.value?.email || '?').slice(0, 2).toUpperCase())
 const roleText = computed(() => user.value?.role === 'super_admin' ? 'سوپر ادمین' : user.value?.role === 'admin' ? 'ادمین' : user.value?.role === 'chef' ? 'آشپز' : user.value?.role === 'waiter' ? 'گارسون' : 'کاربر')
 const isStaff = computed(() => ['super_admin', 'admin', 'chef', 'waiter'].includes(user.value?.role))
+
+// ============ Cafe Toggle ============
+const cafeIsClosed = ref(false)
+const cafeToggling = ref(false)
+
+async function loadCafeStatus() {
+  if (!auth.isSuperAdmin) return
+  try {
+    const data = await getCafeStatus()
+    cafeIsClosed.value = data.is_closed ?? false
+  } catch { /* ignore */ }
+}
+
+async function handleToggleCafe() {
+  if (cafeToggling.value) return
+  cafeToggling.value = true
+  try {
+    const data = await toggleCafeStatus()
+    cafeIsClosed.value = data.is_closed ?? !cafeIsClosed.value
+  } catch { /* ignore */ }
+  cafeToggling.value = false
+}
 
 // ============ Settings Modal ============
 const showSettingsModal = ref(false)
@@ -129,6 +152,7 @@ onMounted(() => {
   if (savedAccent !== 'gold') setAccentColor(savedAccent)
   if (sidebarCompact.value) document.documentElement.classList.add('sidebar-compact')
   document.addEventListener('keydown', handleKeydown)
+  loadCafeStatus()
 })
 
 onUnmounted(() => {
@@ -186,6 +210,16 @@ onUnmounted(() => {
         <div class="rail-divider"></div>
 
         <div class="rail-bottom">
+          <button
+            v-if="auth.isSuperAdmin"
+            class="rail-icon rail-icon-cafe"
+            :class="{ 'cafe-closed': cafeIsClosed }"
+            @click="handleToggleCafe"
+            :disabled="cafeToggling"
+            :aria-label="cafeIsClosed ? 'باز کردن کافه' : 'بستن کافه'">
+            <i class="fa-solid" :class="cafeIsClosed ? 'fa-lock' : 'fa-lock-open'"></i>
+          </button>
+
           <button class="rail-icon rail-icon-logout" @click="handleLogout" aria-label="خروج از حساب کاربری">
             <i class="fa-solid fa-right-from-bracket"></i>
           </button>
@@ -259,6 +293,15 @@ onUnmounted(() => {
         </nav>
 
         <div class="sidebar-footer">
+          <button
+            v-if="auth.isSuperAdmin"
+            class="sidebar-cafe-toggle"
+            :class="{ 'is-closed': cafeIsClosed }"
+            @click="handleToggleCafe"
+            :disabled="cafeToggling">
+            <i class="fa-solid" :class="cafeIsClosed ? 'fa-lock' : 'fa-lock-open'"></i>
+            <span>{{ cafeToggling ? 'در حال تغییر...' : (cafeIsClosed ? 'کافه بسته است — لمس برای باز کردن' : 'کافه باز است — لمس برای بستن') }}</span>
+          </button>
           <button
             class="sidebar-logout-btn"
             @click="handleLogout">
@@ -510,6 +553,24 @@ onUnmounted(() => {
   color: #6B7280;
 }
 
+.rail-icon-cafe {
+  color: #34d399;
+}
+.rail-icon-cafe.cafe-closed {
+  color: #EF4444;
+}
+
+@media (hover: hover) {
+  .rail-icon-cafe:hover {
+    background: rgba(52, 211, 153, 0.12);
+    color: #34d399;
+  }
+  .rail-icon-cafe.cafe-closed:hover {
+    background: rgba(239, 68, 68, 0.12);
+    color: #EF4444;
+  }
+}
+
 @media (hover: hover) {
   .rail-icon-logout:hover {
     background: rgba(239, 68, 68, 0.12);
@@ -744,6 +805,44 @@ onUnmounted(() => {
   padding: 12px 16px 16px;
   border-top: 1px solid #2A2A2A;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-cafe-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.06);
+  border: 1px solid rgba(52, 211, 153, 0.15);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar-cafe-toggle.is-closed {
+  color: #EF4444;
+  background: rgba(239, 68, 68, 0.06);
+  border-color: rgba(239, 68, 68, 0.15);
+}
+
+@media (hover: hover) {
+  .sidebar-cafe-toggle:hover {
+    background: rgba(52, 211, 153, 0.12);
+    border-color: rgba(52, 211, 153, 0.25);
+    transform: translateY(-1px);
+  }
+  .sidebar-cafe-toggle.is-closed:hover {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.25);
+  }
 }
 
 .sidebar-logout-btn {

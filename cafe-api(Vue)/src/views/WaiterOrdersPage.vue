@@ -57,7 +57,8 @@ function formatPrice(price) {
 
 function formatTime(date) {
   if (!date) return '—'
-  return new Date(date).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })
+  const parts = date.split(' ')
+  return parts[1] || date
 }
 
 async function loadOrders() {
@@ -246,7 +247,7 @@ onUnmounted(() => {
               <i class="fa-solid fa-chair"></i> میز {{ order.table_number }}
             </span>
             <span class="meta-item">
-              <i class="fa-solid fa-clock"></i> {{ formatTime(order.created_at) }}
+              <i class="fa-solid fa-clock"></i> {{ formatTime(order.jalali_created_at) }}
             </span>
           </div>
 

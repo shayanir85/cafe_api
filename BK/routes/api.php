@@ -52,6 +52,8 @@ Route::prefix('v1')->group(function () {
             ->only(['destroy']);
 
         Route::middleware(['auth:sanctum', 'permission:toggle-cafe'])
+            ->get('cafe/status', [CafeController::class, 'status']);
+        Route::middleware(['auth:sanctum', 'permission:toggle-cafe'])
             ->post('cafe/toggle', [CafeController::class, 'toggleStatus']);
 
         Route::prefix('admin')->middleware('auth:sanctum')->group(function () {

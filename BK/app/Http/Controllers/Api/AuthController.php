@@ -166,13 +166,10 @@ class AuthController extends Controller
         $request->validate([
             'phone_number' => 'required|string|regex:/^[0-9]{10,11}$/',
         ]);
-        // Option 1: Use AuthService which has SMS injected
-        $result = $this->smsService->send_Code($request->phone_number);
-        
-        // Option 2: Use SMS service directly (if you need to bypass AuthService)
-        // $result = $this->smsService->sendCode($request->phone_number);
-        
-        return response()->json($result, $result ? 200 : 400);
+
+        $result = $this->smsService->send_code($request->phone_number);
+
+        return response()->json($result, $result['success'] ?? false ? 200 : 400);
     }
 
     /**
@@ -217,8 +214,8 @@ class AuthController extends Controller
             'phone_number' => 'required|string|regex:/^[0-9]{10,11}$/'
         ]);
         $result = $this->smsService->resendOTP($request->phone_number);
-        
-        return response()->json($result, $result ? 200 : 400);
+
+        return response()->json($result, $result['success'] ?? false ? 200 : 400);
     }
 
     /**

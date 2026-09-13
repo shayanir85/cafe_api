@@ -30,11 +30,21 @@ class SMS
                 'success' => true,
                 'message' => 'Verification code sent successfully',
             ];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            \Log::error('SMS send failed', [
+                'phone' => $phoneNumber,
+                'otp' => $otp,
+                'error' => $e->getMessage(),
+            ]);
+
+            if (config('app.debug')) {
+                \Log::info("OTP for {$phoneNumber}: {$otp}");
+            }
+
             return [
                 'success' => false,
                 'message' => 'Failed to send verification code',
-                'error' => config('app.debug') ? $e->getMessage() : null
+                'error' => config('app.debug') ? $e->getMessage() : null,
             ];
         }
     }

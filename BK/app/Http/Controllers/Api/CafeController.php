@@ -8,6 +8,18 @@ use Illuminate\Support\Facades\Cache;
 
 class CafeController
 {
+    public function status()
+    {
+        $cafeStat = IsClosed::first();
+        if (!$cafeStat) {
+            $cafeStat = IsClosed::create(['is_closed' => false]);
+        }
+
+        return response()->json([
+            'is_closed' => $cafeStat->is_closed,
+        ]);
+    }
+
     public function toggleStatus(){
         $cafeStat = IsClosed::first();
         if (!$cafeStat) {
@@ -19,8 +31,9 @@ class CafeController
 
         Cache::forget('cafe:is_closed');
 
-        $message = $cafeStat->is_closed ? 'cafe is closed' : 'cafe is open';
-
-        return response()->json(['message' => $message]);
+        return response()->json([
+            'is_closed' => $cafeStat->is_closed,
+            'message' => $cafeStat->is_closed ? 'کافه بسته شد' : 'کافه باز شد',
+        ]);
     }
 }

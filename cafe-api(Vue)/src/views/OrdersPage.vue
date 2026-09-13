@@ -73,10 +73,16 @@ const filteredOrders = computed(() => {
   }
 
   if (dateFrom.value) {
-    result = result.filter(o => o.created_at && o.created_at.slice(0, 10) >= dateFrom.value)
+    result = result.filter(o => {
+      const jDate = (o.jalali_created_at || '').slice(0, 10)
+      return jDate && jDate >= dateFrom.value
+    })
   }
   if (dateTo.value) {
-    result = result.filter(o => o.created_at && o.created_at.slice(0, 10) <= dateTo.value)
+    result = result.filter(o => {
+      const jDate = (o.jalali_created_at || '').slice(0, 10)
+      return jDate && jDate <= dateTo.value
+    })
   }
 
   result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -113,12 +119,14 @@ function formatPrice(p) {
 
 function formatTime(d) {
   if (!d) return '—'
-  return new Date(d).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })
+  const parts = d.split(' ')
+  return parts[1] || d
 }
 
 function formatDate(d) {
   if (!d) return '—'
-  return new Date(d).toLocaleDateString('fa-IR', { year: 'numeric', month: '2-digit', day: '2-digit' })
+  const parts = d.split(' ')
+  return parts[0] || d
 }
 
 onMounted(loadOrders)
@@ -187,8 +195,8 @@ onMounted(loadOrders)
               <option value="in">حضوری</option>
               <option value="out">بیرون‌بر</option>
             </select>
-            <input type="date" class="filter-input" v-model="dateFrom" placeholder="از تاریخ">
-            <input type="date" class="filter-input" v-model="dateTo" placeholder="تا تاریخ">
+            <input type="text" class="filter-input" v-model="dateFrom" placeholder="از تاریخ (۱۴۰۴/۰۶/۰۱)">
+            <input type="text" class="filter-input" v-model="dateTo" placeholder="تا تاریخ (۱۴۰۴/۰۶/۳۱)">
             <button class="btn btn-secondary btn-sm" @click="resetFilters">
               <i class="fa-solid fa-rotate-right"></i> بازنشانی
             </button>
@@ -246,8 +254,8 @@ onMounted(loadOrders)
 
               <div class="log-meta">
                 <span v-if="order.table_number"><i class="fa-solid fa-chair"></i> میز {{ order.table_number }}</span>
-                <span><i class="fa-solid fa-clock"></i> {{ formatTime(order.created_at) }}</span>
-                <span><i class="fa-solid fa-calendar"></i> {{ formatDate(order.created_at) }}</span>
+                <span><i class="fa-solid fa-clock"></i> {{ formatTime(order.jalali_created_at) }}</span>
+                <span><i class="fa-solid fa-calendar"></i> {{ formatDate(order.jalali_created_at) }}</span>
               </div>
             </div>
 
